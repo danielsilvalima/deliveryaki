@@ -20,5 +20,4 @@ class ProdutoRepository
     return $this->model->select('descricao')->where('empresa_id', '=', $empresa_id)->where('status', '=', 'A')->get();
 	}
 
-
 }

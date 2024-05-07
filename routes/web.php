@@ -16,6 +16,7 @@ use App\Http\Controllers\pages\MiscUnderMaintenance;
 use App\Http\Controllers\authentications\LoginBasic;
 use App\Http\Controllers\authentications\RegisterBasic;
 use App\Http\Controllers\authentications\ForgotPasswordBasic;
+use App\Http\Controllers\Cardapio\CardapioController;
 use App\Http\Controllers\cards\CardBasic;
 use App\Http\Controllers\Categoria\CategoriaController;
 use App\Http\Controllers\Cliente\ClienteController;
@@ -57,6 +58,7 @@ use App\Models\Produto;
 Route::get('/', [LoginBasic::class, 'index'])->name('auth-login-basic');
 Route::get('/login', [LoginBasic::class, 'index'])->name('auth-login-basic');
 
+Route::get('/api/cardapio/{id}', [CardapioController::class, 'get'])->name('cardapio.get');
 Route::get('/api/pedido/{id}', [PedidoController::class, 'get'])->name('pedido.get');
 
 Route::middleware('auth:sanctum')->group(function () {

@@ -49,7 +49,9 @@ class ProdutoController extends Controller
 
     public function edit(Request $request, string $id, Produto $produto)
     {
-        if (!$produto = $produto->find($id)) {
+        //if (!$produto = $produto->find($id)) {
+        if(!$produto = Produto::where('id', '=', $id)->where('empresa_id', '=', Auth::user()->empresa_id)->first())
+        {
             return back();
         }
 
@@ -62,11 +64,16 @@ class ProdutoController extends Controller
 
     public function show(Produto $produto, string|int $id)
     {
-        if (!$produto = $produto->where('id', $id)->where('empresa_id', Auth::user()->empresa_id)->first()) {
+        if (!$produto = Produto::select('produtos.*', 'categorias.descricao as categorias')->where('produtos.id', $id)->where('produtos.empresa_id', Auth::user()->empresa_id)
+        ->join('categorias', 'produtos.categoria_id', '=', 'categorias.id')->first()) {
             return back();
         }
 
-        return view('content.produto.show', compact(('produto')))->with(['email' => Auth::user()->email]);
+        $categorias = $this->categoriaRepository->findAllActiveByEmpresaID(Auth::user()->empresa_id);
+        return view('content.produto.show')->with([
+          'email' => Auth::user()->email,
+          'categorias' => $categorias,
+          'produto' => $produto]);
     }
 
     public function modal(string $id, Produto $produto)

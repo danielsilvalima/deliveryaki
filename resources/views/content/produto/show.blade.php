@@ -23,37 +23,17 @@
 
         <div class="form-floating form-floating-outline mb-4">
           <select class="form-select" id="categoria_id" name="categoria_id" aria-label="CATEGORIA" required>
-            <option selected value="">SELECIONAR</option>
+            <option  value="">SELECIONAR</option>
             @foreach($categorias as $categoria)
-            <option value="{{ $categoria->id }}" >{{ $categoria->descricao }}</option>
+              @if ($categoria->id == $produto->categoria_id)
+              <option selected value="{{ $categoria->id }}" >{{ $categoria->descricao }}</option>
+              @else
+              <option value="{{ $categoria->id }}" >{{ $categoria->descricao }}</option>
+              @endif
             @endforeach
             <label for="categoria_id">CATEGORIA</label>
           </select>
         </div>
-
-        <!--<div class="input-group input-group-merge mb-4">
-          <span id="basic-icon-default-fullname2" class="input-group-text"><i class="mdi mdi-account-outline"></i></span>
-          <input type="text" class="form-control" id="razao_social" name="razao_social" placeholder="RAZÃO SOCIAL" required aria-label="RAZÃO SOCIAL" aria-describedby="basic-icon-default-fullname2" />
-        </div>
-
-        <div class="input-group input-group-merge mb-4">
-          <span id="basic-icon-default-phone2" class="input-group-text"><i class="mdi mdi-phone"></i></span>
-          <input type="text" id="telefone" name="telefone" class="form-control phone-mask" placeholder="TELEFONE" aria-label="TELEFONE" aria-describedby="basic-icon-default-phone2" />
-        </div>
-
-        <div class="input-group input-group-merge mb-4">
-          <span id="basic-icon-default-phone2" class="input-group-text"><i class="mdi mdi-whatsapp"></i></span>
-          <input type="text" id="celular" name="celular" class="form-control phone-mask" placeholder="WHATSAPP" required aria-label="WHATSAPP" aria-describedby="basic-icon-default-phone2" />
-        </div>
-
-        <div class="mb-4">
-          <div class="input-group input-group-merge">
-            <span class="input-group-text"><i class="mdi mdi-email-outline"></i></span>
-            <input type="text" id="email" name="email" class="form-control" placeholder="E-MAIL" aria-label="E-MAIL" aria-describedby="basic-icon-default-email2" />
-            <span id="email" class="input-group-text">exemplo@exemplo.com</span>
-          </div>
-          <!--<div class="form-text"> Você pode usar letras, números e pontos </div>-->
-        <!--</div>-->
 
         <div class="form-floating form-floating-outline mb-4">
           <select class="form-select" id="status" name="status" aria-label="STATUS" required>
