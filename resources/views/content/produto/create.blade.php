@@ -15,9 +15,13 @@
         @csrf()
 
         <div class="input-group input-group-merge mb-4">
-          <span id="basic-icon-default-company2" class="input-group-text"><i class="mdi mdi-office-building-outline"></i></span>
-          <input type="text" id="descricao" name="descricao" class="form-control" placeholder="Descrição" aria-label="Descrição" required aria-describedby="basic-icon-default-company2"
-          onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
+          <span id="basic-icon-default-company2" class="input-group-text"></span>
+          <input type="text" id="descricao" name="descricao" class="form-control" placeholder="DESCRIÇÃO" aria-label="DESCRIÇÃO" required aria-describedby="basic-icon-default-company2" onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
+        </div>
+
+        <div class="input-group input-group-merge mb-4">
+          <span id="basic-icon-default-company2" class="input-group-text"></span>
+          <input type="number" min="0" max="100" step="any" id="vlr_unitario" name="vlr_unitario" class="form-control" placeholder="VALOR UNITÁRIO" aria-label="VALOR UNITÁRIO" required aria-describedby="basic-icon-default-company2"  />
         </div>
 
 
@@ -25,7 +29,7 @@
           <select class="form-select" id="categoria_id" name="categoria_id" aria-label="CATEGORIA" required>
             <option selected value="">SELECIONAR</option>
             @foreach($categorias as $categoria)
-            <option value="{{ $categoria->id }}" >{{ $categoria->descricao }}</option>
+            <option value="{{ $categoria->id }}">{{ $categoria->descricao }}</option>
             @endforeach
             <label for="categoria_id">CATEGORIA</label>
           </select>

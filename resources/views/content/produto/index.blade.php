@@ -16,6 +16,7 @@
         <tr>
           <th>DESCRIÇÃO</th>
           <th>CATEGORIA</th>
+          <th>VALOR</th>
           <th>STATUS</th>
           <th>AÇÕES</th>
         </tr>
@@ -26,6 +27,7 @@
         <tr>
           <td>{{ $produto->produto }}</td>
           <td>{{ $produto->categoria }}</td>
+          <td>{{ $produto->vlr_unitario }}</td>
           <td><span class="badge rounded-pill bg-label-primary me-1">{{ $produto->status == "D" ? "DESATIVADO" : ($produto->status == "A" ? "ATIVADO": "")}}</span></td>
           <td>
             <div class="dropdown">

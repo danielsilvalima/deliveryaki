@@ -15,21 +15,25 @@
         @csrf()
         @method('PUT')
         <div class="input-group input-group-merge mb-4">
-          <span id="basic-icon-default-company2" class="input-group-text"><i class="mdi mdi-office-building-outline"></i></span>
-          <input type="text" id="descricao" name="descricao" value="{{ $produto->descricao }}" class="form-control" placeholder="Descrição" aria-label="Descrição" required aria-describedby="basic-icon-default-company2"
+          <span id="basic-icon-default-company2" class="input-group-text"></span>
+          <input type="text" id="descricao" name="descricao" value="{{ $produto->descricao }}" class="form-control" placeholder="DESCRIÇÃO" aria-label="DESCRIÇÃO" required aria-describedby="basic-icon-default-company2"
           onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
         </div>
 
+        <div class="input-group input-group-merge mb-4">
+          <span id="basic-icon-default-company2" class="input-group-text"></span>
+          <input type="number" min="0" max="100" step="any" id="vlr_unitario" name="vlr_unitario" value="{{ $produto->vlr_unitario }}" class="form-control" placeholder="VALOR UNITÁRIO" aria-label="VALOR UNITÁRIO" required aria-describedby="basic-icon-default-company2" />
+        </div>
 
         <div class="form-floating form-floating-outline mb-4">
           <select class="form-select" id="categoria_id" name="categoria_id" aria-label="CATEGORIA" required>
-            <option  value="">SELECIONAR</option>
+            <option value="">SELECIONAR</option>
             @foreach($categorias as $categoria)
-              @if ($categoria->id == $produto->categoria_id)
-              <option selected value="{{ $categoria->id }}" >{{ $categoria->descricao }}</option>
-              @else
-              <option value="{{ $categoria->id }}" >{{ $categoria->descricao }}</option>
-              @endif
+            @if ($categoria->id == $produto->categoria_id)
+            <option selected value="{{ $categoria->id }}">{{ $categoria->descricao }}</option>
+            @else
+            <option value="{{ $categoria->id }}">{{ $categoria->descricao }}</option>
+            @endif
             @endforeach
             <label for="categoria_id">CATEGORIA</label>
           </select>

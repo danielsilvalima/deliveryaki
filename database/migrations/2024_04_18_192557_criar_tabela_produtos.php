@@ -15,6 +15,7 @@ return new class extends Migration
       $table->id('id');
       $table->uuid('uuid');
       $table->string('descricao');
+      $table->decimal('vlr_unitario', total: 6, places: 2);
       $table->enum('status', ['A', 'D']);
       $table
         ->timestamp('created_at')
