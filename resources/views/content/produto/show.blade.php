@@ -22,7 +22,7 @@
 
         <div class="input-group input-group-merge mb-4">
           <span id="basic-icon-default-company2" class="input-group-text"></span>
-          <input type="number" min="0" max="100" step="any" id="vlr_unitario" name="vlr_unitario" value="{{ $produto->vlr_unitario }}" class="form-control" placeholder="VALOR UNITÁRIO" aria-label="VALOR UNITÁRIO" required aria-describedby="basic-icon-default-company2" />
+          <input type="number" min="0" max="1000" step="any" id="vlr_unitario" name="vlr_unitario" value="{{ $produto->vlr_unitario }}" class="form-control" placeholder="VALOR UNITÁRIO" aria-label="VALOR UNITÁRIO" required aria-describedby="basic-icon-default-company2" />
         </div>
 
         <div class="form-floating form-floating-outline mb-4">

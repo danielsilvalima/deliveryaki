@@ -60,6 +60,9 @@ Route::get('/login', [LoginBasic::class, 'index'])->name('auth-login-basic');
 
 
 Route::get('/api/pedido/{id}', [PedidoController::class, 'get'])->name('pedido.get');
+Route::post('/api/pedido/{id}', [PedidoController::class, 'post'])->name('pedido.post');
+
+//Route::get('/api/pedido', [PedidoController::class, 'post'])->name('pedido.post');
 
 Route::middleware('auth:sanctum')->group(function () {
   Route::get('/home', [Analytics::class, 'index'])->name('dashboard-analytics');

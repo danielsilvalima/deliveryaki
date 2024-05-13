@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Pedido;
 
 use App\Http\Controllers\Controller;
+use App\Models\Empresa;
+use App\Models\User;
 use App\Repositories\Cardapio\CardapioRepository;
 use App\Repositories\Pedido\PedidoRepository;
 use App\Repositories\Empresa\EmpresaRepository;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class PedidoController extends Controller
 {
@@ -59,6 +62,95 @@ class PedidoController extends Controller
         $this->options
       );
     }
+  }
+
+  public function post(Request $request, string $id)
+  {
+    if(!$empresa = Empresa::where('uuid', $id)->first()){
+      return response()->json([
+        'message' => 'Empresa não encontrada'
+      ], 403);
+    }
+
+    if(!$user = User::where('empresa_id', $empresa->id)->first()){
+      return response()->json([
+        'message' => 'Empresa não encontrada'
+      ], 403);
+    }
+
+    return response()->json(
+
+      //'data' => $produto
+      [$request->only('data','body', 'params')],
+      Response::HTTP_OK,
+      $this->header,
+      $this->options
+    );
+    //return $user->only('email', 'password');
+
+    //return $request->params;
+    /*return response()->json(
+
+      //'data' => $produto
+      ["teste"],
+      Response::HTTP_OK,
+      $this->header,
+      $this->options
+    );*/
+
+    /*if ($empresa = $this->empresaRepository->findByUUID($id)) {
+      $cardapio = $this->cardapioRepository->findAllActiveByEmpresaID($empresa->id);
+      //dd($cardapio);
+      $cardapio = $this->groupByCategory($cardapio);
+      //return $produto;
+
+      return response()->json(
+
+        //'data' => $produto
+        [$cardapio],
+        Response::HTTP_OK,
+        $this->header,
+        $this->options
+      );
+    } else {
+      return response()->json(
+        [
+          'message' => 'Empresa não encontrada.'
+        ],
+        Response::HTTP_NOT_FOUND,
+        $this->header,
+        $this->options
+      );
+    }*/
+  }
+
+  public function teste(Request $request)
+  {
+    if (Auth::attempt($request->only('email', 'password'))) {
+      return response()->json([
+       'message' => 'Credenciais corretas'
+      ], 200);
+    }else{
+      return response()->json([
+        'message' => 'Credenciais invalidas'
+       ], 403);
+    }
+
+    /*if(!$empresa = Empresa::where('uuid', $request['id'])->first()){
+      return response()->json([
+        'message' => 'Empresa não encontrada'
+      ], 401);
+    }
+
+    if(!$user = User::where('empresa_id', $empresa->id)->first()){
+      return response()->json([
+        'message' => 'Empresa não encontrada 2'
+      ], 401);
+    }*/
+
+    //return $user->only('email', 'password');
+
+
   }
 
   private function groupByCategory($data)
