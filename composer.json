@@ -30,9 +30,7 @@
       "App\\": "app/",
       "Database\\Factories\\": "database/factories/",
       "Database\\Seeders\\": "database/seeders/",
-      "classmap": [
-        "app/Repositories"
-      ]
+      "Http\\Repositories\\": "Http/repositories/"
     }
   },
   "autoload-dev": {
