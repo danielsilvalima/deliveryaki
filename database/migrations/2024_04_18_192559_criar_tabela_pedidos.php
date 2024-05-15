@@ -16,6 +16,7 @@ return new class extends Migration
       $table->uuid('uuid');
       $table->enum('status', ['A', 'C', 'P', 'E']);
       $table->enum('tipo_pagamento', ['CR', 'DE', 'PI', 'DI']);
+      $table->enum('tipo_entrega', ['E', 'R']);
       $table->decimal('vlr_taxa', total: 6, places: 2);
       $table->decimal('vlr_total', total: 6, places: 2);
       $table
@@ -28,6 +29,10 @@ return new class extends Migration
         ->nullable();
       $table
         ->timestamp('delivered_at')
+        ->useCurrent()
+        ->nullable();
+      $table
+        ->timestamp('deliver_at')
         ->useCurrent()
         ->nullable();
       $table->integer('empresa_id')->unsigned();

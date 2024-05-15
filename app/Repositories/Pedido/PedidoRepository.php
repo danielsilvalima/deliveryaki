@@ -25,23 +25,18 @@ class PedidoRepository
     return $this->model->where('id', '=', $id)->where('empresa_id', '=', Auth::user()->empresa_id)->get();
   }
 
-  public function store(Request $request)
-  {
-    $data = $request->only(
-      'nome_completo',
-      'cep',
-      'logradouro',
-      'numero',
-      'complemento',
-      'bairro',
-      'cidade',
-      'celular',
-      'status'
-    );
-    $data['empresa_id'] = Auth::user()->empresa_id;
-
-    return $this->model->create($data);
-  }
+  public function create(Pedido $model){
+    return Pedido::create([
+      "status" => $model["status"],
+      "tipo_pagamento" => $model["tipo_pagamento"],
+      "tipo_entrega" => $model["tipo_entrega"],
+      "vlr_taxa" => $model["vlr_taxa"],
+      "vlr_total" => $model["vlr_total"],
+      "deliver_at" => $model["deliver_at"],
+      "empresa_id" => $model["empresa_id"],
+      "cliente_id" => $model["cliente_id"],
+  ])->id;
+}
 
   public function update(Request $request, string $id)
   {

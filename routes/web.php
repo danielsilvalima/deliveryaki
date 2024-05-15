@@ -61,6 +61,7 @@ Route::get('/login', [LoginBasic::class, 'index'])->name('auth-login-basic');
 
 Route::get('/api/pedido/{id}', [PedidoController::class, 'get'])->name('pedido.get');
 Route::post('/api/pedido/{id}', [PedidoController::class, 'post'])->name('pedido.post');
+Route::post('/api/cliente/{id}', [ClienteController::class, 'get'])->name('cliente.get');
 
 //Route::get('/api/pedido', [PedidoController::class, 'post'])->name('pedido.post');
 
@@ -107,8 +108,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
   //Pedido
-
-
+  Route::get('/pedido', [PedidoController::class, 'index'])->name('pedido.index');
+  Route::get('/pedido/{id}', [PedidoController::class, 'show'])->name('pedido.show');
+  Route::delete('/pedido/{id}', [PedidoController::class, 'delete'])->name('pedido.delete');
 
 
   /*Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

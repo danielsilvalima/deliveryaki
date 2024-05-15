@@ -10,7 +10,7 @@ class Pedido extends Model
 {
   use HasFactory;
 
-  protected $fillable = ['id', 'uuid', 'tipo_pagamento', 'vlr_taxa', 'vlr_total', 'delivered_at', 'cliente_id', 'empresa_id'];
+  protected $fillable = ['id', 'uuid', 'tipo_pagamento', 'tipo_entrega', 'vlr_taxa', 'vlr_total', 'delivered_at', 'deliver_at', 'cliente_id', 'empresa_id', 'status'];
 
   public static function booted()
   {
