@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Cliente;
 use App\Models\Empresa;
 use App\Models\Pedido;
+use App\Models\PedidoItem;
 use App\Models\User;
 use App\Repositories\Cardapio\CardapioRepository;
 use App\Repositories\Cliente\ClienteRepository;
 use App\Repositories\Pedido\PedidoRepository;
 use App\Repositories\Empresa\EmpresaRepository;
+use App\Repositories\PedidoItem\PedidoItemRepository;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +23,7 @@ class PedidoController extends Controller
 
   private EmpresaRepository $empresaRepository;
   private PedidoRepository $pedidoRepository;
+  private PedidoItemRepository $pedidoItemRepository;
   private CardapioRepository $cardapioRepository;
   private ClienteRepository $clienteRepository;
   private $header = array(
@@ -33,20 +36,29 @@ class PedidoController extends Controller
   public function __construct(
     EmpresaRepository $empresaRepository,
     PedidoRepository $pedidoRepository,
+    PedidoItemRepository $pedidoItemRepository,
     CardapioRepository $cardapioRepository,
     ClienteRepository $clienteRepository,
   ) {
     $this->empresaRepository = $empresaRepository;
     $this->pedidoRepository = $pedidoRepository;
+    $this->pedidoItemRepository = $pedidoItemRepository;
     $this->cardapioRepository = $cardapioRepository;
     $this->clienteRepository = $clienteRepository;
   }
 
   public function index(Pedido $pedido)
   {
-    $pedidos = Pedido::select('pedidos.*', 'clientes.nome_completo as nome_completo')->where('pedidos.empresa_id', Auth::user()->empresa_id)
+    $pedidos = Pedido::select('pedidos.*', 'clientes.nome_completo', 'clientes.logradouro', 'clientes.numero', 'clientes.bairro')->where('pedidos.empresa_id', Auth::user()->empresa_id)
     ->join('clientes', 'pedidos.cliente_id', '=', 'clientes.id')->get();
 
+
+    foreach ($pedidos as $pedido) {
+      $itens = $this->pedidoItemRepository->findByIDPedido($pedido->id);
+
+      // Adiciona os itens ao pedido
+      $pedido->itens = $itens;
+    }
     return view('content.pedido.index', [
       'pedidos' => $pedidos,
       'email' => Auth::user()->email
@@ -97,68 +109,112 @@ class PedidoController extends Controller
 
   public function post(Request $request, string $id)
   {
-    if(!$empresa = Empresa::where('uuid', $id)->first()){
-      return response()->json([
-        'message' => 'Empresa não encontrada'
-      ], 403);
-    }
+    //try{
+      if(!$empresa = Empresa::where('uuid', $id)->first()){
+        return response()->json([
+          'message' => 'Empresa não encontrada'
+        ], Response::HTTP_NOT_FOUND,
+        $this->header,
+        $this->options);
+      }
 
-    DB::beginTransaction();
-    if(!$cliente = Cliente::where('celular', $request->cliente['celular'])->first()){
-      $cliente = new Cliente([
-        "nome_completo" => $request->cliente["nome_completo"],
-        "celular" => $request->cliente["celular"],
+      //CADASTRA O CLIENTE SE NECESSARIO
+      DB::beginTransaction();
+
+      if(!$cliente = Cliente::where('celular', $request->cliente['celular'])->first()){
+        $cliente = $this->getObjCliente($request->cliente);
+        $cliente->empresa_id = $empresa->id;
+        if(!$cliente->id = $this->clienteRepository->create($cliente)){
+          DB::rollBack();
+          return response()->json([
+            'message' => 'NÃO FOI POSSÍVEL GRAVAR O PEDIDO'
+          ], Response::HTTP_INTERNAL_SERVER_ERROR,
+          $this->header,
+          $this->options);
+        }
+      }else{
+        $cliente = $this->getObjCliente($request->cliente);
+        if(!$cliente = $this->clienteRepository->update($cliente)){
+          DB::rollBack();
+          return response()->json([
+            'message' => 'NÃO FOI POSSÍVEL ATUALIZAR O CLIENTE'
+          ], Response::HTTP_INTERNAL_SERVER_ERROR,
+          $this->header,
+          $this->options);
+        }
+      }
+
+      //GERA O PEDIDO
+      /*$pedido = new Pedido([
         "status" => "A",
-        "logradouro" => $request->cliente["logradouro"],
-        "numero" => $request->cliente["numero"],
-        "bairro" => $request->cliente["bairro"],
-        "complemento" => $request->cliente["complemento"],
-        "numero" => $request->cliente["numero"],
-        "cidade" => $request->cliente["cidade"],
-        "cep" => $request->cliente["cep"],
+        "tipo_pagamento" => strtoupper($request->entrega["tipo_pagamento"]),
+        "tipo_entrega" => strtoupper($request->entrega["tipo_entrega"]),
+        "vlr_taxa" => $request->entrega["valor_taxa"],
+        "vlr_total" => $request->entrega["valor_total"],
+        "deliver_at" => $request->entrega["horario_entrega"],
         "empresa_id" => $empresa->id,
-      ]);
-      if(!$cliente->id = $this->clienteRepository->create($cliente)){
+        "cliente_id" => $cliente->id,
+      ]);*/
+      $pedido = $this->getObjPedido($request->entrega);
+      $pedido->empresa_id = $empresa->id;
+      $pedido->cliente_id = $cliente->id;
+      if(!$pedido->id = $this->pedidoRepository->create($pedido)){
         DB::rollBack();
         return response()->json([
           'message' => 'NÃO FOI POSSÍVEL GRAVAR O PEDIDO'
-        ], Response::HTTP_NOT_FOUND);
+        ], Response::HTTP_INTERNAL_SERVER_ERROR,
+        $this->header,
+        $this->options);
       }
-    }
 
-    //GERAR O PEDIDO
-    $pedido = new Pedido([
-      "status" => "A",
-      "tipo_pagamento" => "CR",
-      "tipo_entrega" => ($request->entrega["tipo_entrega"] == "retira" ? "R": ($request->entrega["tipo_entrega"] == "entrega" ? "E": "null")),
-      //"vlr_taxa" => $request->entrega["valor_taxa"],
-      //"vlr_total" => $request->entrega["valor_total"],
-      "vlr_taxa" => 0,
-      "vlr_total" => 0,
-      "deliver_at" => $request->entrega["horario_entrega"],
-      "empresa_id" => $empresa->id,
-      "cliente_id" => $cliente->id,
-    ]);
-    if(!$pedido->id = $this->pedidoRepository->create($pedido)){
-      DB::rollBack();
-      return response()->json([
-        'message' => 'NÃO FOI POSSÍVEL GRAVAR O PEDIDO'
-      ], Response::HTTP_NOT_FOUND);
-    }
+      //GERA OS ITENS DO PEDIDO
+      foreach ($request->pedido as $item) {
+        /*$valorUnitario = str_replace(',', '.', $item['valor']);
+        /*$pedido_item = new PedidoItem([
+          "produto_id" => intval($item["id"]),
+          "qtd" => $item["qtd"],
+          "vlr_unitario" => floatval($valorUnitario),
+          "vlr_total" => $item["qtd"] * $valorUnitario,
+          "pedido_id" => $pedido->id,
+          "empresa_id" => $empresa->id,
+          "cliente_id" => $cliente->id,
+        ]);*/
+        $pedido_item = $this->getObjPedidoItens($item);
+        $pedido_item->pedido_id = $pedido->id;
+        $pedido_item->empresa_id = $empresa->id;
+        $pedido_item->cliente_id = $cliente->id;
 
-    DB::commit();
+        if(!$pedido_item->id = $this->pedidoItemRepository->create($pedido_item)){
+          DB::rollBack();
+          return response()->json([
+            'message' => 'NÃO FOI POSSÍVEL GRAVAR O PEDIDO'
+          ], Response::HTTP_INTERNAL_SERVER_ERROR,
+          $this->header,
+          $this->options);
+        }
+      }
 
-    return response()->json(
 
-      //'data' => $produto
-      ['sucesso' => 'PEDIDO GERADO COM SUCESSO',
+      DB::commit();
 
-      //['sucesso' => $pedido,
-      ],
-      Response::HTTP_OK,
-      $this->header,
-      $this->options
-    );
+      return response()->json(
+
+        //'data' => $produto
+        ['sucesso' => 'PEDIDO GERADO COM SUCESSO',
+
+        //['sucesso' => $pedido,
+        ],
+        Response::HTTP_OK,
+        $this->header,
+        $this->options
+      );
+    /*} catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'message' => 'ERRO AO GRAVAR O PEDIDO',
+            'error' => $e->getMessage()
+        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }*/
   }
 
   private function groupByCategory($data)
@@ -181,7 +237,7 @@ class PedidoController extends Controller
 
         // Adiciona o item à categoria correspondente
         $groupedData[$category][] = [
-          'id' => $product['uuid'],
+          'id' => $product['id'],
           'descricao' => $product['descricao'],
           'valor' => isset($product['vlr_unitario']) ? number_format($product['vlr_unitario'], 2, ',', '.') : null,
           //'subtitulo' => isset($product['subtitulo']) ? $product['subtitulo'] : null
@@ -204,27 +260,38 @@ class PedidoController extends Controller
     return $jsonOutput;
   }
 
-  /*post
-  return response()->json(
-    [
-        'data' => $this->orderRepository->createOrder($orderDetails)
-    ],
-    Response::HTTP_CREATED
-);
+  private function getObjCliente($objCliente){
+    return new Cliente([
+        "nome_completo" => strtoupper($objCliente["nome_completo"]),
+        "celular" => $objCliente["celular"],
+        "status" => "A",
+        "logradouro" => strtoupper($objCliente["logradouro"]),
+        "numero" => strtoupper($objCliente["numero"]),
+        "bairro" => strtoupper($objCliente["bairro"]),
+        "complemento" => strtoupper($objCliente["complemento"]),
+        "numero" => strtoupper($objCliente["numero"]),
+        "cidade" => strtoupper($objCliente["cidade"]),
+        "cep" => strtoupper($objCliente["cep"]),
+      ]);
+  }
 
-return response()->json(
-  [
-      'message' => 'Pedido excluído com sucesso!'
-  ],
-  Response::HTTP_OK
-);
+  private function getObjPedido($objPedido){
+    return new Pedido([
+      "status" => "A",
+      "tipo_pagamento" => strtoupper($objPedido["tipo_pagamento"]),
+      "tipo_entrega" => strtoupper($objPedido["tipo_entrega"]),
+      "vlr_taxa" => $objPedido["valor_taxa"],
+      "vlr_total" => $objPedido["valor_total"],
+      "deliver_at" => $objPedido["horario_entrega"],
+    ]);
+  }
 
-if (!$order) {
-  return response()->json(
-      [
-          'message' => 'Pedido não encontrado.'
-      ],
-      Response::HTTP_NOT_FOUND
-  );
-}*/
+  private function getObjPedidoItens($objPedidoItens){
+    return new PedidoItem([
+      "produto_id" => intval($objPedidoItens["id"]),
+      "qtd" => $objPedidoItens["qtd"],
+      "vlr_unitario" => floatval($objPedidoItens["valor"]),
+      "vlr_total" => floatval($objPedidoItens["valor"]),
+    ]);
+  }
 }

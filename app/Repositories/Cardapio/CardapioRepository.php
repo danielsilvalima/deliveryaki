@@ -17,7 +17,7 @@ class CardapioRepository
 
 	public function findAllActiveByEmpresaID($empresa_id)
 	{
-		return $this->model->select('produtos.uuid', 'produtos.descricao', 'produtos.vlr_unitario', 'categorias.descricao as categorias')->where('produtos.empresa_id', $empresa_id)
+		return $this->model->select('produtos.id as id', 'produtos.descricao', 'produtos.vlr_unitario', 'categorias.descricao as categorias')->where('produtos.empresa_id', $empresa_id)
 			->join('categorias', 'produtos.categoria_id', '=', 'categorias.id')->get();
 	}
 }

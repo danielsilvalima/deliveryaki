@@ -65,14 +65,19 @@ class ClienteRepository
     ])->id;
   }
 
-  /*public function update(Request $request, string $id)
+  public function update(Cliente $cliente)
   {
-    if (!$pedido = new Pedido($this->model->where('empresa_id', '=', Auth::user()->empresa_id)->get())) {
-      return null;
-    }
+    /*$cli = $this->model->where('celular', '=', $cliente->celular)->first();
+      //return $cliente;
+      return $cli->update($cliente->only([
+      'nome_completo', 'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'celular', 'status'
+      ]));*/
+      $cli = Cliente::where('celular', '=', $cliente->celular)->first();
 
-    return $pedido->update($request->only([
-      'tipo_pagamento', 'vlr_taxa', 'vlr_total', 'delivered_at'
-    ]));
-  }*/
+      $cli->update($cliente->only([
+        'nome_completo', 'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'celular', 'status'
+      ]));
+
+      return $cli;
+  }
 }

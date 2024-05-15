@@ -76,28 +76,4 @@ class CardapioController extends Controller
     //return $groupedData;
     return $jsonOutput;
   }
-
-  /*post
-  return response()->json(
-    [
-        'data' => $this->orderRepository->createOrder($orderDetails)
-    ],
-    Response::HTTP_CREATED
-);
-
-return response()->json(
-  [
-      'message' => 'Pedido excluído com sucesso!'
-  ],
-  Response::HTTP_OK
-);
-
-if (!$order) {
-  return response()->json(
-      [
-          'message' => 'Pedido não encontrado.'
-      ],
-      Response::HTTP_NOT_FOUND
-  );
-}*/
 }

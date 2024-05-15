@@ -5,6 +5,9 @@
 @section('content')
 
 
+
+
+<script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
 <div class="card">
 
   <h5 class="card-header">PEDIDOS</h5>
@@ -12,12 +15,13 @@
     <table class="table">
       <thead class="table-dark">
         <tr>
-          <th style="width: 30%;">CLIENTE</th>
+          <th style="width: 10%;">DETALHES</th>
+          <th style="width: 20%;">CLIENTE</th>
+          <th style="width: 50%;">ENDEREÇO</th>
           <th style="width: 5%;">VLR TAXA</th>
           <th style="width: 5%;">VLR TOTAL</th>
           <th style="width: 10%;">TIPO ENTREGA</th>
           <th style="width: 10%;">STATUS</th>
-          <th style="width: 5%;">HORÁRIO ENTREGA</th>
           <th style="width: 10%;">AÇÕES</th>
         </tr>
       </thead>
@@ -25,14 +29,20 @@
 
         @foreach($pedidos as $pedido)
         <tr>
+          <td>
+            <button type="button" class="btn btn-link p-0" onclick="toggleDetails({{ $pedido->id }})">
+              <i class="mdi mdi-eye-outline"></i> Detalhes
+            </button>
+          </td>
           <td>{{ $pedido->nome_completo }}</td>
+          <td>{{ $pedido->logradouro }}, {{ $pedido->numero }} - {{ $pedido->bairro }}
+          </td>
           <td>{{ $pedido->vlr_taxa }}</td>
           <td>{{ $pedido->vlr_total }}</td>
           <td>{!! $pedido->tipo_entrega == "E"
           ? '<span class="badge rounded-pill bg-label-warning me-1">ENTREGA</span>'
           : ($pedido->tipo_entrega == "R" ? '<span class="badge rounded-pill bg-label-danger me-1">RETIRA</span>' : '') !!}</td>
           <td><span class="badge rounded-pill bg-label-primary me-1">{{ $pedido->status == "D" ? "DESATIVADO" : ($pedido->status == "A" ? "ATIVADO": "")}}</span></td>
-          <td>{{ $pedido->horario_entrega }}</td>
           <td>
             <div class="dropdown">
               <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></button>
@@ -44,8 +54,30 @@
             </div>
           </td>
         </tr>
+        <tr id="details-{{ $pedido->id }}" style="display: none;">
+          <td colspan="7">
+              <div class="details-content">
+                  <!-- Coloque aqui os detalhes do pedido -->
+                  <p><strong>Detalhes:</strong> </p>
+                  <ul>
+                      @foreach($pedido->itens as $item)
+                          <li>QUANTIDADE X {{ $item->qtd }} / {{ $item->descricao }} / VLR. UNITÁRIO {{ $item->vlr_unitario }} = {{ $item->vlr_total }}</li>
+                      @endforeach
+                  </ul>
+              </div>
+          </td>
+        </tr>
         @endforeach
-
+        <script>
+          function toggleDetails(id) {
+              var row = document.getElementById('details-' + id);
+              if (row.style.display === 'none') {
+                  row.style.display = 'table-row';
+              } else {
+                  row.style.display = 'none';
+              }
+          }
+      </script>
       </tbody>
     </table>
   </div>
