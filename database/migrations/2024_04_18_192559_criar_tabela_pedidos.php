@@ -35,9 +35,9 @@ return new class extends Migration
         ->timestamp('deliver_at')
         ->useCurrent()
         ->nullable();
-      $table->integer('empresa_id')->unsigned();
+      $table->unsignedBigInteger('empresa_id');
       $table->foreign('empresa_id')->references('id')->on('empresas');
-      $table->integer('cliente_id')->unsigned();
+      $table->unsignedBigInteger('cliente_id');
       $table->foreign('cliente_id')->references('id')->on('clientes');
     });
   }

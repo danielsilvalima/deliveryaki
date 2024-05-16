@@ -22,8 +22,14 @@ return new class extends Migration {
         ->timestamp('updated_at')
         ->useCurrent()
         ->nullable();
-      $table->integer('empresa_id')->unsigned();
+      //$table->integer('empresa_id')->unsigned();
+      $table->unsignedBigInteger('empresa_id');
       $table->foreign('empresa_id')->references('id')->on('empresas');
+      //$table->unsignedBigInteger('empresa_id'); // Alterado
+
+      /*Schema::table('categorias', function (Blueprint $table) {
+        $table->foreign('empresa_id')->references('id')->on('empresas');*/
+    //});
     });
   }
 

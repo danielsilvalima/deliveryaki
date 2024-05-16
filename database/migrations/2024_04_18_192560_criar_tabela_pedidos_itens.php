@@ -25,13 +25,13 @@ return new class extends Migration
         ->timestamp('updated_at')
         ->useCurrent()
         ->nullable();
-      $table->integer('pedido_id')->unsigned();
+      $table->unsignedBigInteger('pedido_id');
       $table->foreign('pedido_id')->references('id')->on('pedidos');
-      $table->integer('produto_id')->unsigned();
+      $table->unsignedBigInteger('produto_id');
       $table->foreign('produto_id')->references('id')->on('produtos');
-      $table->integer('empresa_id')->unsigned();
+      $table->unsignedBigInteger('empresa_id');
       $table->foreign('empresa_id')->references('id')->on('empresas');
-      $table->integer('cliente_id')->unsigned();
+      $table->unsignedBigInteger('cliente_id');
       $table->foreign('cliente_id')->references('id')->on('clientes');
     });
   }

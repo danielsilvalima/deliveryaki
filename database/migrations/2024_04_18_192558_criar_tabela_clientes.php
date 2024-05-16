@@ -23,7 +23,7 @@ return new class extends Migration
       $table->string('cidade')->nullable();
       $table->string('celular')->nullable();
       $table->enum('status', ['A', 'D']);
-      $table->integer('empresa_id')->unsigned();
+      $table->unsignedBigInteger('empresa_id');
       $table->foreign('empresa_id')->references('id')->on('empresas');
       $table
         ->timestamp('created_at')
