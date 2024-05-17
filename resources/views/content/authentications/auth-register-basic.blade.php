@@ -1,6 +1,6 @@
 @extends('layouts/blankLayout')
 
-@section('title', 'Register Basic - Pages')
+@section('title', 'Registro')
 
 @section('page-style')
 <!-- Page -->
@@ -69,24 +69,15 @@
               </div>
             </div>
 
-            <div class="mb-3">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="terms-conditions" name="terms">
-                <label class="form-check-label" for="terms-conditions">
-                  I agree to
-                  <a href="javascript:void(0);">privacy policy & terms</a>
-                </label>
-              </div>
-            </div>
             <button class="btn btn-primary d-grid w-100">
-              Sign up
+              Inscrever-se
             </button>
           </form>
 
           <p class="text-center">
-            <span>Already have an account?</span>
+            <span>Já tem uma conta?</span>
             <a href="{{url('auth/login-basic')}}">
-              <span>Sign in instead</span>
+              <span>Em vez disso, faça login</span>
             </a>
           </p>
         </div>

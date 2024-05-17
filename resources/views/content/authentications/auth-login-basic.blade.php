@@ -56,12 +56,7 @@
               </div>
             </div>
             <div class="mb-3 d-flex justify-content-between">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="remember-me">
-                <label class="form-check-label" for="remember-me">
-                  Lembre de mim
-                </label>
-              </div>
+
               <a href="{{url('auth/forgot-password-basic')}}" class="float-end mb-1">
                 <span>Esqueceu sua senha?</span>
               </a>
