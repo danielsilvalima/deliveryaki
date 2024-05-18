@@ -15,17 +15,17 @@
         @csrf()
         @method('PUT')
         <div class="input-group input-group-merge mb-4">
-          <span id="basic-icon-default-company2" class="input-group-text"><i class="mdi mdi-office-building-outline"></i></span>
+          <span id="basic-icon-default-company2" class="input-group-text"></i></span>
           <input type="text" id="cnpj" name="cnpj" disabled value="{{ $empresa->cnpj }}" class="form-control" placeholder="CNPJ" aria-label="CNPJ" required aria-describedby="basic-icon-default-company2" />
         </div>
 
         <div class="input-group input-group-merge mb-4">
-          <span id="basic-icon-default-fullname2" class="input-group-text"><i class="mdi mdi-account-outline"></i></span>
+          <span id="basic-icon-default-fullname2" class="input-group-text"></span>
           <input type="text" class="form-control" value="{{ $empresa->razao_social }}" id="razao_social" name="razao_social" placeholder="RAZÃO SOCIAL" required aria-label="RAZÃO SOCIAL" aria-describedby="basic-icon-default-fullname2" />
         </div>
 
         <div class="input-group input-group-merge mb-4">
-          <span id="basic-icon-default-phone2" class="input-group-text"><i class="mdi mdi-phone"></i></span>
+          <span id="basic-icon-default-phone2" class="input-group-text"></span>
           <input type="text" id="telefone" name="telefone" value="{{ $empresa->telefone }}" class="form-control phone-mask" placeholder="TELEFONE" aria-label="TELEFONE" aria-describedby="basic-icon-default-phone2" />
         </div>
 
@@ -44,7 +44,7 @@
         <!--</div>-->
 
         <div class="form-floating form-floating-outline mb-4">
-          <select class="form-select" id="status" name="status" aria-label="STATUS" required>
+          <select class="form-select" id="status" disabled name="status" aria-label="STATUS" required>
             <option value="A" {{ $empresa->status == "A" ? "selected" : '' }}">ATIVADO</option>
             <option value="D" {{ $empresa->status == "D" ? "selected" : '' }}>DESATIVADO</option>
             <label for="status">STATUS</label>

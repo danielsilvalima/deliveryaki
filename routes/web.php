@@ -48,8 +48,9 @@ use App\Http\Controllers\form_elements\InputGroups;
 use App\Http\Controllers\form_layouts\VerticalForm;
 use App\Http\Controllers\form_layouts\HorizontalForm;
 use App\Http\Controllers\Pedido\PedidoController;
-use App\Http\Controllers\produto\ProdutoController;
+use App\Http\Controllers\Produto\ProdutoController;
 use App\Http\Controllers\tables\Basic as TablesBasic;
+use App\Http\Controllers\Usuario\UsuarioController;
 use App\Models\Empresa;
 use App\Models\Produto;
 
@@ -113,17 +114,8 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::delete('/pedido/{id}', [PedidoController::class, 'delete'])->name('pedido.delete');
 
 
-  /*Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-  Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-  Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-  //Task
-  Route::get('/task', [TaskController::class, 'index'])->name('task.index');
-  Route::get('/task/create', [TaskController::class, 'create'])->name('task.create');
-  Route::post('/task', [TaskController::class, 'store'])->name('task.store');
-  Route::get('/task/{id}', [TaskController::class, 'show'])->name('task.show');
-  Route::put('/task/{id}', [TaskController::class, 'edit'])->name('task.edit');
-  Route::delete('/task/{id}', [TaskController::class, 'delete'])->name('task.delete');*/
+ //Usuário
+ Route::get('/usuario/{id}', [UsuarioController::class, 'show'])->name('usuario.show');
 });
 
 
