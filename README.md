@@ -9,6 +9,7 @@ npm install
 ### Carrega o servidor
 
 ```
+npm run dev
 php artisan serve
 ```
 
