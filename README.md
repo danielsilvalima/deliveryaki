@@ -6,10 +6,10 @@
 npm install
 ```
 
-### Compila e carrega
+### Carrega o servidor
 
 ```
-npm run serve
+php artisan serve
 ```
 
 ### Cadastro e Login
