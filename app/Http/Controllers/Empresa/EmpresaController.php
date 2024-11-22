@@ -6,12 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Empresa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Helpers\HashGenerator;
 
 class EmpresaController extends Controller
 {
   public function index(Empresa $empresa)
   {
-    $empresas = Empresa::find(Auth::user()->empresa_id)->get();
+    $empresas = Empresa::select('*')->where('id', Auth::user()->empresa_id)->get();
     return view('content.empresa.index', [
       'empresas' => $empresas,
       'email' => Auth::user()->email
@@ -25,7 +26,12 @@ class EmpresaController extends Controller
 
   public function store(Request $request, Empresa $empresa)
   {
-    $data = $request->all();
+    $data = $request->post();
+
+    do {
+      $data['hash'] = HashGenerator::generateUniqueHash8Caracter();
+    } while ($empresa->where('hash', $data['hash'])->exists());
+
     $empresa->create($data);
 
     return redirect()->route('empresa.index');
@@ -46,7 +52,6 @@ class EmpresaController extends Controller
 
   public function show(Empresa $empresa, string|int $id)
   {
-    //if(!$empresa = Empresa::find($id)){->where('id', Auth::user()->empresa_id)
     if (!$empresa = $empresa->where('id', $id)->where('id', Auth::user()->empresa_id)->first()) {
       return back();
     }

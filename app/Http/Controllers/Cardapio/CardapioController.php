@@ -30,15 +30,15 @@ class CardapioController extends Controller
   public function get(Request $request, string $id)
   {
 
-    if ($empresa = $this->empresaRepository->findByUUID($id)) {
-      $produto = $this->cardapioRepository->findAllActiveByEmpresaID($empresa->id);
+    if ($empresa = $this->empresaRepository->findByHash($id)) {
+      $cardapio = $this->cardapioRepository->findAllActiveByEmpresaID($empresa->id);
 
-      $produto = $this->groupByCategory($produto);
-      //return $produto;
+      $cardapio = $this->groupByCategory($cardapio);
+
       return response()->json(
 
         //'data' => $produto
-        $produto,
+        [$cardapio],
         Response::HTTP_OK,
         $this->header,
         $this->options
@@ -60,20 +60,42 @@ class CardapioController extends Controller
     $groupedData = [];
 
     foreach ($data as $product) {
-      $category = $product['categorias'];
+      $categories = $product['categorias'];
 
-      if (!isset($groupedData[$category])) {
-        $groupedData[$category] = [];
+      // Verifica se $categories é uma string, e se for, converte para um array associativo com uma única entrada
+      if (!is_array($categories)) {
+        //$categories = ['default' => $categories];
+        $categories = [$categories => $categories];
       }
 
-      $groupedData[$category][] = [
-        'descricao' => $product['descricao']
+      foreach ($categories as $category => $items) {
+        if (!isset($groupedData[$category])) {
+          $groupedData[$category] = [];
+        }
+
+        // Adiciona o item à categoria correspondente
+        $groupedData[$category][] = [
+          'id' => $product['id'],
+          'descricao' => $product['descricao'],
+          'valor' => isset($product['vlr_unitario']) ? number_format($product['vlr_unitario'], 2, ',', '.') : null,
+          //'subtitulo' => isset($product['subtitulo']) ? $product['subtitulo'] : null
+        ];
+      }
+    }
+
+    // Constrói a estrutura final do JSON
+    $jsonOutput = [
+      "categorias" => []
+    ];
+
+    foreach ($groupedData as $category => $items) {
+      $jsonOutput["categorias"][] = [
+        "nome" => $category,
+        "itens" => $items
       ];
     }
 
-    $jsonOutput["categorias"][] = $groupedData;
-
-    //return $groupedData;
     return $jsonOutput;
   }
+
 }

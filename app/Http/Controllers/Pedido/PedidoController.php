@@ -82,14 +82,12 @@ class PedidoController extends Controller
   public function get(Request $request, string $id)
   {
 
-    if ($empresa = $this->empresaRepository->findByUUID($id)) {
+    if ($empresa = $this->empresaRepository->findByHash($id)) {
       $cardapio = $this->cardapioRepository->findAllActiveByEmpresaID($empresa->id);
 
       $cardapio = $this->groupByCategory($cardapio);
 
       return response()->json(
-
-        //'data' => $produto
         [$cardapio],
         Response::HTTP_OK,
         $this->header,

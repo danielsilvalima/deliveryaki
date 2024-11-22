@@ -30,5 +30,10 @@ class EmpresaRepository
     return $this->model->where('uuid', '=', $id)->first();
 	}
 
+  public function findByHash(string $hash)
+	{
+    return $this->model->where('hash', '=', $hash)->first();
+	}
+
 
 }

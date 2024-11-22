@@ -60,7 +60,7 @@ Route::get('/', [LoginBasic::class, 'index'])->name('auth-login-basic');
 Route::get('/login', [LoginBasic::class, 'index'])->name('auth-login-basic');
 
 
-Route::get('/api/pedido/{id}', [PedidoController::class, 'get'])->name('pedido.get');
+Route::get('/api/cardapio/{id}', [CardapioController::class, 'get'])->name('cardapio.get');
 Route::post('/api/pedido/{id}', [PedidoController::class, 'post'])->name('pedido.post');
 Route::post('/api/cliente/{id}', [ClienteController::class, 'get'])->name('cliente.get');
 

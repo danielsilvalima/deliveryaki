@@ -40,7 +40,7 @@
           <form id="formAuthentication" class="mb-3" action="{{ route('auth-register-store') }}" method="POST">
             @csrf
             <div class="form-floating form-floating-outline mb-3">
-              <input type="text" class="form-control" id="cnpj" name="cnpj" placeholder="CNPJ"
+              <input type="text" class="form-control" id="cnpj" name="cnpj" placeholder="CNPJ" maxlength="14"
               onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
               <label for="cnpj">CNPJ</label>
             </div>
@@ -50,7 +50,7 @@
               <label for="razao_social">Razão Social</label>
             </div>
             <div class="form-floating form-floating-outline mb-3">
-              <input type="text" class="form-control" id="celular" name="celular" placeholder="WhatsApp"
+              <input type="text" class="form-control" id="celular" name="celular" placeholder="WhatsApp" maxlength="15"
               onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
               <label for="celular">WhatsApp</label>
             </div>

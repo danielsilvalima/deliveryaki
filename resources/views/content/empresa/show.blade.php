@@ -34,6 +34,11 @@
           <input type="text" id="celular" name="celular" value="{{ $empresa->celular }}" class="form-control phone-mask" placeholder="WHATSAPP" required aria-label="WHATSAPP" aria-describedby="basic-icon-default-phone2" />
         </div>
 
+        <div class="input-group input-group-merge mb-4">
+          <span id="basic-icon-default-phone2" class="input-group-text"></span>
+          <input type="text" disabled id="hash" name="hash" value="{{ env('APP_URL_PEDIDO') }}{{ $empresa->hash }}" class="form-control phone-mask" placeholder="LINK" required aria-label="LINK" aria-describedby="basic-icon-default-phone2" />
+        </div>
+
         <!--<div class="mb-4">
             <div class="input-group input-group-merge">
               <span class="input-group-text"><i class="mdi mdi-email-outline"></i></span>

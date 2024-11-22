@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\Helpers\HashGenerator;
 
 class RegisterBasic extends Controller
 {
@@ -22,15 +23,18 @@ class RegisterBasic extends Controller
   {
     $validator = Validator::make($request->all(), [
       'email' => 'required|email|unique:users',
-      'cnpj' => 'required|string|unique:empresas',
+      'cnpj' => 'required|string|min:11|max:14|unique:empresas',
       'razao_social' => 'required|string|unique:empresas',
       'password' => 'required|min:3|max:50',
     ], [
       'email.required' => __('E-mail é obrigatório'),
       'cnpj.unique' => __('CNPJ já está cadastrado'),
       'cnpj.required' => __('CNPJ é obrigatório'),
+      'cnpj.max' => __('CNPJ inválido'),
+      'cnpj.min' => __('CNPJ inválido'),
       'razao_social.unique' => __('Razão Social já está cadastrado'),
       'razao_social.required' => __('Razão Social é obrigatório'),
+      'celular.required' => __('Celular é obrigatório'),
       'email.unique' => __('E-mail já está cadastrado'),
       'password.required' => __('Senha é obrigatório'),
     ]);
@@ -45,6 +49,11 @@ class RegisterBasic extends Controller
 
     $empresa = $request->only('razao_social', 'cnpj', 'celular');
     $empresa['status'] = 'A';
+
+    do {
+      $empresa['hash'] = HashGenerator::generateUniqueHash8Caracter();
+    } while (Empresa::where('hash', $empresa['hash'])->exists());
+
     if ($empresa_id = Empresa::create($empresa)->id) {
 
       $usuario = $request->only('email', 'password');
