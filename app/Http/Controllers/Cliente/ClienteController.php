@@ -80,7 +80,7 @@ class ClienteController extends Controller
 
   public function get(Request $request, string $id)
   {
-    if ($empresa = $this->empresaRepository->findByUUID($id)) {
+    if ($empresa = $this->empresaRepository->findByHash($id)) {
       $cliente = $this->clienteRepository->findByCel($request->celular);
 
       return response()->json(
