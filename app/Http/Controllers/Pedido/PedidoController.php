@@ -108,7 +108,7 @@ class PedidoController extends Controller
   public function post(Request $request, string $id)
   {
     //try{
-      if(!$empresa = Empresa::where('uuid', $id)->first()){
+      if(!$empresa = Empresa::where('hash', $id)->first()){
         return response()->json([
           'message' => 'Empresa não encontrada'
         ], Response::HTTP_NOT_FOUND,
@@ -192,15 +192,11 @@ class PedidoController extends Controller
         }
       }
 
-
       DB::commit();
 
       return response()->json(
-
-        //'data' => $produto
-        ['sucesso' => 'PEDIDO GERADO COM SUCESSO',
-
-        //['sucesso' => $pedido,
+        [
+          'sucesso' => 'PEDIDO GERADO COM SUCESSO',
         ],
         Response::HTTP_OK,
         $this->header,
