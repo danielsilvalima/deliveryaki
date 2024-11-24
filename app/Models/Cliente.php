@@ -18,4 +18,19 @@ class Cliente extends Model
       $model->uuid = Str::uuid();
     });
   }
+
+  public function empresa()
+    {
+        return $this->belongsTo(Empresa::class);
+    }
+
+    public function pedidos()
+    {
+        return $this->hasMany(Pedido::class);
+    }
+
+    public function pedidoItens()
+    {
+        return $this->hasMany(PedidoItem::class);
+    }
 }

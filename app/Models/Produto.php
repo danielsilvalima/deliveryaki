@@ -18,4 +18,19 @@ class Produto extends Model
       $model->uuid = Str::uuid();
     });
   }
+
+  public function categoria()
+  {
+      return $this->belongsTo(Categoria::class);
+  }
+
+  public function empresa()
+  {
+      return $this->belongsTo(Empresa::class);
+  }
+
+  public function pedidos()
+  {
+      return $this->belongsToMany(Pedido::class, 'pedido_items');
+  }
 }

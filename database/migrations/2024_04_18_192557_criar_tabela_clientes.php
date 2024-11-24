@@ -12,7 +12,7 @@ return new class extends Migration
   public function up(): void
   {
     Schema::create('clientes', function (Blueprint $table) {
-      $table->id('id');
+      $table->id();
       $table->uuid('uuid');
       $table->string('nome_completo');
       $table->string('cep')->nullable();
@@ -21,18 +21,11 @@ return new class extends Migration
       $table->string('complemento')->nullable();
       $table->string('bairro')->nullable();
       $table->string('cidade')->nullable();
-      $table->string('celular')->nullable();
-      $table->enum('status', ['A', 'D']);
+      $table->string('celular', 15)->nullable();  // Ajuste no tamanho do campo
+      $table->enum('status', ['A', 'D'])->default('A');
+      $table->timestamps();
       $table->unsignedBigInteger('empresa_id');
       $table->foreign('empresa_id')->references('id')->on('empresas');
-      $table
-        ->timestamp('created_at')
-        ->useCurrent()
-        ->nullable();
-      $table
-        ->timestamp('updated_at')
-        ->useCurrent()
-        ->nullable();
     });
   }
 

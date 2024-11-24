@@ -18,4 +18,24 @@ class PedidoItem extends Model
       $model->uuid = Str::uuid();
     });
   }
+
+  public function pedido()
+  {
+      return $this->belongsTo(Pedido::class);
+  }
+
+  public function produto()
+  {
+      return $this->belongsTo(Produto::class);
+  }
+
+  public function empresa()
+  {
+      return $this->belongsTo(Empresa::class);
+  }
+
+  public function cliente()
+  {
+      return $this->belongsTo(Cliente::class);
+  }
 }

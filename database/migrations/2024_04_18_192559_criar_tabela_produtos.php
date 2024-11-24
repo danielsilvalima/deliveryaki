@@ -15,16 +15,9 @@ return new class extends Migration
       $table->id('id');
       $table->uuid('uuid');
       $table->string('descricao');
-      $table->decimal('vlr_unitario', total: 6, places: 2);
+      $table->decimal('vlr_unitario', 10, 2);
       $table->enum('status', ['A', 'D']);
-      $table
-        ->timestamp('created_at')
-        ->useCurrent()
-        ->nullable();
-      $table
-        ->timestamp('updated_at')
-        ->useCurrent()
-        ->nullable();
+      $table->timestamps();
       $table->unsignedBigInteger('empresa_id');
       $table->foreign('empresa_id')->references('id')->on('empresas');
       $table->unsignedBigInteger('categoria_id');

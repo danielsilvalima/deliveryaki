@@ -17,15 +17,9 @@ return new class extends Migration {
       $table->string('cnpj');
       $table->string('telefone')->nullable();
       $table->string('celular');
-      $table->enum('status', ['A', 'D']);
-      $table
-        ->timestamp('created_at')
-        ->useCurrent()
-        ->nullable();
-      $table
-        ->timestamp('updated_at')
-        ->useCurrent()
-        ->nullable();
+      $table->enum('status', ['A', 'D'])->default('A');
+      $table->string('hash', 8)->unique;
+      $table->timestamps();
     });
   }
 

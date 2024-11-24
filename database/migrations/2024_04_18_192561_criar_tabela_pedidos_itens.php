@@ -12,19 +12,12 @@ return new class extends Migration
   public function up(): void
   {
     Schema::create('pedido_items', function (Blueprint $table) {
-      $table->id('id');
+      $table->id();
       $table->uuid('uuid');
       $table->integer('qtd');
-      $table->decimal('vlr_unitario', total: 6, places: 2);
-      $table->decimal('vlr_total', total: 6, places: 2);
-      $table
-        ->timestamp('created_at')
-        ->useCurrent()
-        ->nullable();
-      $table
-        ->timestamp('updated_at')
-        ->useCurrent()
-        ->nullable();
+      $table->decimal('vlr_unitario', 10, 2);
+      $table->decimal('vlr_total', 10, 2);
+      $table->timestamps();
       $table->unsignedBigInteger('pedido_id');
       $table->foreign('pedido_id')->references('id')->on('pedidos');
       $table->unsignedBigInteger('produto_id');
@@ -33,7 +26,7 @@ return new class extends Migration
       $table->foreign('empresa_id')->references('id')->on('empresas');
       $table->unsignedBigInteger('cliente_id');
       $table->foreign('cliente_id')->references('id')->on('clientes');
-    });
+  });
   }
 
   /**

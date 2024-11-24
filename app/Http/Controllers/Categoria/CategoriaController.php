@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Categoria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Helpers\ResponseHelper;
 
 class CategoriaController extends Controller
 {
@@ -25,6 +26,7 @@ class CategoriaController extends Controller
 
   public function store(Request $request, Categoria $categoria)
   {
+    try{
       $data = $request->only('descricao', 'status');
       $data['empresa_id'] = Auth::user()->empresa_id;
 
@@ -32,27 +34,38 @@ class CategoriaController extends Controller
           return back();
       }
       return redirect()->route('categoria.index');
+    } catch (\Exception $e) {
+      return ResponseHelper::error($e->getMessage());
+    }
   }
 
   public function edit(Request $request, string $id, Categoria $categoria)
-    {
-        if (!$categoria = $categoria->find($id)) {
-            return back();
-        }
+  {
+    try{
+      if (!$categoria = $categoria->find($id)) {
+          return back();
+      }
 
-        $categoria->update($request->only([
-            'descricao', 'status'
-        ]));
+      $categoria->update($request->only([
+          'descricao', 'status'
+      ]));
 
-        return redirect()->route('categoria.index');
+      return redirect()->route('categoria.index');
+    } catch (\Exception $e) {
+      return ResponseHelper::error($e->getMessage());
     }
+  }
 
-    public function show(Categoria $categoria, string|int $id)
-    {
-        if (!$categoria = $categoria->where('id', $id)->where('empresa_id', Auth::user()->empresa_id)->first()) {
-            return back();
-        }
+  public function show(Categoria $categoria, string|int $id)
+  {
+    try{
+      if (!$categoria = $categoria->where('id', $id)->where('empresa_id', Auth::user()->empresa_id)->first()) {
+          return back();
+      }
 
-        return view('content.categoria.show', compact(('categoria')))->with(['email' => Auth::user()->email]);
+      return view('content.categoria.show', compact(('categoria')))->with(['email' => Auth::user()->email]);
+    } catch (\Exception $e) {
+      return ResponseHelper::error($e->getMessage());
     }
+  }
 }

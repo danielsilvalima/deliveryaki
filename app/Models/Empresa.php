@@ -18,4 +18,24 @@ class Empresa extends Model
       $model->uuid = Str::uuid();
     });
   }
+
+  public function produtos()
+    {
+        return $this->hasMany(Produto::class);
+    }
+
+    public function categorias()
+    {
+        return $this->hasMany(Categoria::class);
+    }
+
+    public function pedidos()
+    {
+        return $this->hasMany(Pedido::class);
+    }
+
+    public function clientes()
+    {
+        return $this->hasMany(Cliente::class);
+    }
 }

@@ -30,7 +30,10 @@
       "App\\": "app/",
       "Database\\Factories\\": "database/factories/",
       "Database\\Seeders\\": "database/seeders/",
-      "Http\\Repositories\\": "Http/repositories/"
+      "Http\\Repositories\\": "Http/repositories/",
+      "files": [
+        "app/Helpers/ResponseHelper.php"
+      ]
     }
   },
   "autoload-dev": {

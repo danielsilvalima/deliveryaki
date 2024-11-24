@@ -1,36 +1,29 @@
 <?php
 
-namespace App\Repositories\Cliente;
+namespace App\Services\Cliente;
 
 use App\Models\Cliente;
-use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
-class ClienteRepository
+class ClienteService
 {
-  private $model;
-
-  public function __construct(Cliente $model)
-  {
-    $this->model = $model;
-  }
-
   public function findAll()
   {
-    return $this->model->where('empresa_id', '=', Auth::user()->empresa_id)->get();
+    return Cliente::where('empresa_id', '=', Auth::user()->empresa_id)->get();
   }
 
   public function findByID(string $id)
   {
-    return $this->model->where('id', '=', $id)->where('empresa_id', '=', Auth::user()->empresa_id)->get();
+    return Cliente::where('id', '=', $id)->where('empresa_id', '=', Auth::user()->empresa_id)->get();
   }
 
-  public function findByCel(string $celular)
+  public function findByCelByEmpresaID(string $celular, string $empresa_id)
   {
-    return $this->model->where('celular', '=', $celular)->first();
+    return Cliente::where('celular', '=', $celular)->where('empresa_id', '=', $empresa_id)->first();
   }
 
-  public function store(Request $request)
+  /*public function store(Request $request)
   {
     $data = $request->only(
       'nome_completo',
@@ -46,11 +39,14 @@ class ClienteRepository
     //$data['empresa_id'] = Auth::user()->empresa_id;
     $data['empresa_id'] = 1;
 
-    return $this->model->create($data);
-  }
+    return Cliente::create($data);
+  }*/
 
-  public function create(Cliente $model){
-      return Cliente::create([
+  public function create(Cliente $model)
+  {
+    DB::beginTransaction();
+    try{
+      $cliente = Cliente::create([
         "nome_completo" => $model["nome_completo"],
         "celular" => $model["celular"],
         "status" => $model["status"],
@@ -62,11 +58,21 @@ class ClienteRepository
         "cidade" => $model["cidade"],
         "cep" => $model["cep"],
         "empresa_id" => $model["empresa_id"],
-    ])->id;
+      ])->id;
+
+      DB::commit();
+
+      return $cliente;
+    } catch (\Exception $e) {
+      DB::rollBack();
+      throw new \Exception('Erro ao criar o pedido: ' . $e->getMessage());
+    }
   }
 
   public function update(Cliente $cliente)
   {
+    DB::beginTransaction();
+    try{
     /*$cli = $this->model->where('celular', '=', $cliente->celular)->first();
       //return $cliente;
       return $cli->update($cliente->only([
@@ -78,6 +84,12 @@ class ClienteRepository
         'nome_completo', 'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'celular', 'status'
       ]));
 
+      DB::commit();
+
       return $cli;
+    } catch (\Exception $e) {
+      DB::rollBack();
+      throw new \Exception('Erro ao criar o pedido: ' . $e->getMessage());
+    }
   }
 }
