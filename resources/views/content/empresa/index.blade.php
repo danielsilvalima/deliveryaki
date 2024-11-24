@@ -27,7 +27,7 @@
           <td>{{ $empresa->razao_social }}</td>
           <td>{{ $empresa->telefone }}</td>
           <td>{{ $empresa->celular }}</td>
-          <td>{{ env('APP_URL_PEDIDO') }}{{ $empresa->hash }}</td>
+          <td>{{ config('app.url_pedido') }}{{ $empresa->hash }}</td>
           <td><span class="badge rounded-pill bg-label-primary me-1">{{ $empresa->status == "D" ? "DESATIVADO" : ($empresa->status == "A" ? "ATIVADO": "")}}</span></td>
           <!--<td>{{ $empresa->created_at }}</td>-->
           <td>

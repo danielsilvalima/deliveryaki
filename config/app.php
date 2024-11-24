@@ -18,6 +18,8 @@ return [
   'charset' => 'UTF-8',
   'name' => env('APP_NAME', 'Laravel'),
 
+  'url_pedido' => env('APP_URL_PEDIDO'),
+
   /*
     |--------------------------------------------------------------------------
     | Application Environment
