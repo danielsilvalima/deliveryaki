@@ -67,9 +67,9 @@
           </form>
 
           <p class="text-center">
-            <!--<span>Novo em nossa plataforma?</span>
+            <span>Novo em nossa plataforma?</span>
             <a href="{{url('auth/register-basic')}}">
-              <span>Crie sua conta</span>-->
+              <span>Crie sua conta</span>
             </a>
           </p>
         </div>
