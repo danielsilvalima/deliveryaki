@@ -13,7 +13,8 @@ class ProdutoController extends Controller
 {
     public function index(Produto $produto)
     {
-        $produtos = Produto::select('produtos.id', 'produtos.descricao as produto', 'categorias.descricao as categoria', 'produtos.status', 'produtos.vlr_unitario')
+        $produtos = Produto::select('produtos.id', 'produtos.descricao as produto', 'categorias.descricao as categoria', 'produtos.status',
+        'produtos.vlr_unitario', 'produtos.apresentacao')
             ->where('produtos.empresa_id', '=', Auth::user()->empresa_id)->join('categorias', 'produtos.categoria_id', '=', 'categorias.id')->get();
 
         return view('content.produto.index', [
@@ -38,7 +39,7 @@ class ProdutoController extends Controller
     public function store(Request $request, Produto $produto)
     {
       try{
-        $data = $request->only('descricao', 'status', 'vlr_unitario', 'categoria_id');
+        $data = $request->only('descricao', 'status', 'vlr_unitario', 'categoria_id', 'apresentacao');
         $data['empresa_id'] = Auth::user()->empresa_id;
 
         if (!$produto->create($data)) {
@@ -58,7 +59,7 @@ class ProdutoController extends Controller
         }
 
         $produto->update($request->only([
-            'descricao', 'status', 'vlr_unitario', 'categoria_id'
+            'descricao', 'status', 'vlr_unitario', 'categoria_id', 'apresentacao'
         ]));
 
         return redirect()->route('produto.index');

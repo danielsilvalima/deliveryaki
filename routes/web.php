@@ -16,7 +16,6 @@ use App\Http\Controllers\pages\MiscUnderMaintenance;
 use App\Http\Controllers\authentications\LoginBasic;
 use App\Http\Controllers\authentications\RegisterBasic;
 use App\Http\Controllers\authentications\ForgotPasswordBasic;
-use App\Http\Controllers\Cardapio\CardapioController;
 use App\Http\Controllers\cards\CardBasic;
 use App\Http\Controllers\Categoria\CategoriaController;
 use App\Http\Controllers\Cliente\ClienteController;
@@ -51,18 +50,20 @@ use App\Http\Controllers\Pedido\PedidoController;
 use App\Http\Controllers\Produto\ProdutoController;
 use App\Http\Controllers\tables\Basic as TablesBasic;
 use App\Http\Controllers\Usuario\UsuarioController;
-use App\Models\Empresa;
-use App\Models\Produto;
+use App\Http\Controllers\Cardapio\CardapioController;
 
 // Main Page Route
 
 Route::get('/', [LoginBasic::class, 'index'])->name('auth-login-basic');
 Route::get('/login', [LoginBasic::class, 'index'])->name('auth-login-basic');
 
+//API FRONT
+Route::middleware('api.key')->group(function () {
+  Route::get('/api/cardapio/{id}', [CardapioController::class, 'get'])->name('cardapio.get');
+  Route::post('/api/pedido/{id}', [PedidoController::class, 'post'])->name('pedido.post');
+  Route::post('/api/cliente/{id}', [ClienteController::class, 'get'])->name('cliente.get');
+});
 
-Route::get('/api/cardapio/{id}', [CardapioController::class, 'get'])->name('cardapio.get');
-Route::post('/api/pedido/{id}', [PedidoController::class, 'post'])->name('pedido.post');
-Route::post('/api/cliente/{id}', [ClienteController::class, 'get'])->name('cliente.get');
 
 //Route::get('/api/pedido', [PedidoController::class, 'post'])->name('pedido.post');
 

@@ -31,8 +31,8 @@ class CardapioService
         $groupedData[$category][] = [
           'id' => $product['id'],
           'descricao' => $product['descricao'],
+          'apresentacao' => $product['apresentacao'],
           'valor' => isset($product['vlr_unitario']) ? number_format($product['vlr_unitario'], 2, ',', '.') : null,
-          //'subtitulo' => isset($product['subtitulo']) ? $product['subtitulo'] : null
         ];
       }
     }
