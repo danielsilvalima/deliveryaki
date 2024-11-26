@@ -1,0 +1,89 @@
+<?php
+
+namespace App\Services\Home;
+
+use App\Models\Produto;
+use Illuminate\Support\Facades\DB;
+
+class HomeService
+{
+  public function getIndicadores($empresaId)
+    {
+        $dataInicio = now()->startOfMonth()->toDateString();
+        $dataFim = now()->endOfDay()->toDateString();
+
+        // Total de vendas no mês atual
+        $valorTotalVendas = DB::table('pedidos')
+            ->where('empresa_id', $empresaId)
+            ->whereBetween('created_at', [$dataInicio, $dataFim])
+            ->sum('vlr_total');
+
+        // Produto mais vendido em valor
+        $produtoMaisVendido = DB::table('pedido_items')
+            ->join('produtos', 'pedido_items.produto_id', '=', 'produtos.id')
+            ->where('pedido_items.empresa_id', $empresaId)
+            ->whereBetween('pedido_items.created_at', [$dataInicio, $dataFim])
+            ->select('produtos.descricao as produto', DB::raw('SUM(pedido_items.vlr_total) as total_vendido'))
+            ->groupBy('produtos.id', 'produtos.descricao')
+            ->orderByDesc('total_vendido')
+            ->first();
+
+        // Grupo (categoria) mais vendido em valor
+        $grupoMaisVendido = DB::table('pedido_items')
+            ->join('produtos', 'pedido_items.produto_id', '=', 'produtos.id')
+            ->join('categorias', 'produtos.categoria_id', '=', 'categorias.id')
+            ->where('pedido_items.empresa_id', $empresaId)
+            ->whereBetween('pedido_items.created_at', [$dataInicio, $dataFim])
+            ->select('categorias.descricao as categoria', DB::raw('SUM(pedido_items.vlr_total) as total_vendido'))
+            ->groupBy('categorias.id', 'categorias.descricao')
+            ->orderByDesc('total_vendido')
+            ->first();
+
+        // Tipo de entrega mais utilizado
+        $tipoEntregaMaisUtilizado = DB::table('pedidos')
+          ->where('empresa_id', $empresaId)
+          ->whereBetween('created_at', [$dataInicio, $dataFim])
+          ->select('tipo_entrega', DB::raw('COUNT(*) as quantidade'))
+          ->groupBy('tipo_entrega')
+          ->orderByDesc('quantidade')
+          ->get()
+          ->map(function ($item) {
+              $item->tipo_entrega = $item->tipo_entrega === 'E' ? 'ENTREGA' : 'RETIRA';
+              return $item;
+          });
+
+        // Tipo de pagamento mais utilizado
+        $tipoPagamentoMaisUtilizado = DB::table('pedidos')
+          ->where('empresa_id', $empresaId)
+          ->whereBetween('created_at', [$dataInicio, $dataFim])
+          ->select('tipo_pagamento', DB::raw('COUNT(*) as quantidade'))
+          ->groupBy('tipo_pagamento')
+          ->orderByDesc('quantidade')
+          ->get()
+          ->map(function ($item) {
+              switch ($item->tipo_pagamento) {
+                  case 'CR':
+                      $item->tipo_pagamento = 'CRÉDITO';
+                      break;
+                  case 'DE':
+                      $item->tipo_pagamento = 'DÉBITO';
+                      break;
+                  case 'PI':
+                      $item->tipo_pagamento = 'PIX';
+                      break;
+                  case 'DI':
+                      $item->tipo_pagamento = 'DINHEIRO';
+                      break;
+              }
+              return $item;
+          });
+
+        return [
+            'total_vendas' => $valorTotalVendas,
+            'produto_mais_vendido' => $produtoMaisVendido,
+            'grupo_mais_vendido' => $grupoMaisVendido,
+            'tipo_entrega_mais_utilizado' => $tipoEntregaMaisUtilizado,
+            'tipo_pagamento_mais_utilizado' => $tipoPagamentoMaisUtilizado,
+        ];
+    }
+}

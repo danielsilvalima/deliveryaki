@@ -51,11 +51,12 @@ use App\Http\Controllers\Produto\ProdutoController;
 use App\Http\Controllers\tables\Basic as TablesBasic;
 use App\Http\Controllers\Usuario\UsuarioController;
 use App\Http\Controllers\Cardapio\CardapioController;
+use App\Http\Controllers\Home\HomeController;
 
 // Main Page Route
 
 Route::get('/', [LoginBasic::class, 'index'])->name('auth-login-basic');
-Route::get('/login', [LoginBasic::class, 'index'])->name('auth-login-basic');
+//Route::get('/login', [LoginBasic::class, 'index'])->name('auth-login-basic');
 
 //API FRONT
 Route::middleware('api.key')->group(function () {
@@ -68,7 +69,8 @@ Route::middleware('api.key')->group(function () {
 //Route::get('/api/pedido', [PedidoController::class, 'post'])->name('pedido.post');
 
 Route::middleware('auth:sanctum')->group(function () {
-  Route::get('/home', [Analytics::class, 'index'])->name('dashboard-analytics');
+  //Route::get('/home', [Analytics::class, 'index'])->name('dashboard-analytics');
+  Route::get('/home', [HomeController::class, 'index'])->name('dashboard-analytics');
 
   Route::get('/auth/login-basic/login', [LoginBasic::class, 'logout'])->name('auth-login-basic-logout');
 
@@ -145,7 +147,7 @@ Route::get('/pages/misc-under-maintenance', [MiscUnderMaintenance::class, 'index
 );
 
 // authentication
-Route::get('/auth/login-basic', [LoginBasic::class, 'index'])->name('auth-login-basic');
+//Route::get('/auth/login-basic', [LoginBasic::class, 'index'])->name('auth-login-basic');
 Route::post('/auth/login-basic/login', [LoginBasic::class, 'login'])->name('auth-login-basic-login');
 Route::get('/auth/register-basic', [RegisterBasic::class, 'index'])->name('auth-register-basic');
 Route::post('/auth/register-basic/create', [RegisterBasic::class, 'store'])->name('auth-register-store');

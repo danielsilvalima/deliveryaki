@@ -20,11 +20,11 @@
   <div class="col-md-12 col-lg-4">
     <div class="card">
       <div class="card-body">
-        <h4 class="card-title mb-1">Congratulations John! 🎉</h4>
-        <p class="pb-0">Best seller of the month</p>
-        <h4 class="text-primary mb-1">$42.8k</h4>
-        <p class="mb-2 pb-1">78% of target 🚀</p>
-        <a href="javascript:;" class="btn btn-sm btn-primary">View Sales</a>
+        <h4 class="card-title mb-1">Parabéns {{$email}} 🎉</h4>
+        <p class="pb-0">Mais vendido do mês</p>
+        <h4 class="text-primary mb-1 ">{{ $indicadores['produto_mais_vendido']->produto }} (R$ {{ number_format($indicadores['produto_mais_vendido']->total_vendido, 2, ',', '.') }})</h4>
+        <p class="mb-2 pb-1">78% da meta 🚀</p>
+        <!--<a href="javascript:;" class="btn btn-sm btn-primary">View Sales</a>-->
       </div>
       <img src="{{asset('assets/img/icons/misc/triangle-light.png')}}" class="scaleX-n1-rtl position-absolute bottom-0 end-0" width="166" alt="triangle background">
       <img src="{{asset('assets/img/illustrations/trophy.png')}}" class="scaleX-n1-rtl position-absolute bottom-0 end-0 me-4 mb-4 pb-2" width="83" alt="view sales">
@@ -37,7 +37,7 @@
     <div class="card">
       <div class="card-header">
         <div class="d-flex align-items-center justify-content-between">
-          <h5 class="card-title m-0 me-2">Transactions</h5>
+          <h5 class="card-title m-0 me-2">Transações</h5>
           <div class="dropdown">
             <button class="btn p-0" type="button" id="transactionID" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i class="mdi mdi-dots-vertical mdi-24px"></i>
@@ -49,7 +49,7 @@
             </div>
           </div>
         </div>
-        <p class="mt-3"><span class="fw-medium">Total 48.5% growth</span> 😎 this month</p>
+        <p class="mt-3"><span class="fw-medium">Crescimento total de 48.5%</span> 😎 este mês</p>
       </div>
       <div class="card-body">
         <div class="row g-3">
@@ -61,8 +61,8 @@
                 </div>
               </div>
               <div class="ms-3">
-                <div class="small mb-1">Sales</div>
-                <h5 class="mb-0">245k</h5>
+                <div class="small mb-1">Vendas</div>
+                <h5 class="mb-0">R$ {{ number_format($indicadores['total_vendas'], 2, ',', '.') }}</h5>
               </div>
             </div>
           </div>
@@ -74,8 +74,8 @@
                 </div>
               </div>
               <div class="ms-3">
-                <div class="small mb-1">Customers</div>
-                <h5 class="mb-0">12.5k</h5>
+                <div class="small mb-1">Grupo vendido <strong>{{ $indicadores['grupo_mais_vendido']->categoria }}</strong></div>
+                <h5 class="mb-0">(R$ {{ number_format($indicadores['grupo_mais_vendido']->total_vendido, 2, ',', '.') }})</h5>
               </div>
             </div>
           </div>
@@ -87,8 +87,11 @@
                 </div>
               </div>
               <div class="ms-3">
-                <div class="small mb-1">Product</div>
-                <h5 class="mb-0">1.54k</h5>
+                <div class="small mb-1">Tipo Entrega</div>
+                @foreach ($indicadores['tipo_entrega_mais_utilizado'] as $entrega)
+                    <h5 class="mb-0">{{ $entrega->tipo_entrega }}: {{ $entrega->quantidade }}</h5>
+                @endforeach
+
               </div>
             </div>
           </div>
@@ -100,8 +103,10 @@
                 </div>
               </div>
               <div class="ms-3">
-                <div class="small mb-1">Revenue</div>
-                <h5 class="mb-0">$88k</h5>
+                <div class="small mb-1">Tipo Pagamento</div>
+                @foreach ($indicadores['tipo_pagamento_mais_utilizado'] as $pagamento)
+                    <h5 class="mb-0">{{ $pagamento->tipo_pagamento }}: {{ $pagamento->quantidade }}</h5>
+                @endforeach
               </div>
             </div>
           </div>
@@ -112,7 +117,7 @@
   <!--/ Transactions -->
 
   <!-- Weekly Overview Chart -->
-  <div class="col-xl-4 col-md-6">
+  <!--<div class="col-xl-4 col-md-6">
     <div class="card">
       <div class="card-header">
         <div class="d-flex justify-content-between">
@@ -146,7 +151,7 @@
   <!--/ Weekly Overview Chart -->
 
   <!-- Total Earnings -->
-  <div class="col-xl-4 col-md-6">
+  <!--<div class="col-xl-4 col-md-6">
     <div class="card">
       <div class="card-header d-flex align-items-center justify-content-between">
         <h5 class="card-title m-0 me-2">Total Earning</h5>
@@ -231,10 +236,10 @@
   <!--/ Total Earnings -->
 
   <!-- Four Cards -->
-  <div class="col-xl-4 col-md-6">
+  <!--<div class="col-xl-4 col-md-6">
     <div class="row gy-4">
       <!-- Total Profit line chart -->
-      <div class="col-sm-6">
+  <!--    <div class="col-sm-6">
         <div class="card h-100">
           <div class="card-header pb-0">
             <h4 class="mb-0">$86.4k</h4>
@@ -247,7 +252,7 @@
       </div>
       <!--/ Total Profit line chart -->
       <!-- Total Profit Weekly Project -->
-      <div class="col-sm-6">
+    <!--  <div class="col-sm-6">
         <div class="card h-100">
           <div class="card-header d-flex align-items-center justify-content-between">
             <div class="avatar">
@@ -278,7 +283,7 @@
       </div>
       <!--/ Total Profit Weekly Project -->
       <!-- New Yearly Project -->
-      <div class="col-sm-6">
+ <!--     <div class="col-sm-6">
         <div class="card h-100">
           <div class="card-header d-flex align-items-center justify-content-between">
             <div class="avatar">
@@ -309,7 +314,7 @@
       </div>
       <!--/ New Yearly Project -->
       <!-- Sessions chart -->
-      <div class="col-sm-6">
+ <!--     <div class="col-sm-6">
         <div class="card h-100">
           <div class="card-header pb-0">
             <h4 class="mb-0">2,856</h4>
@@ -321,12 +326,12 @@
         </div>
       </div>
       <!--/ Sessions chart -->
-    </div>
+ <!--   </div>
   </div>
   <!--/ Total Earning -->
 
   <!-- Sales by Countries -->
-  <div class="col-xl-4 col-md-6">
+ <!-- <div class="col-xl-4 col-md-6">
     <div class="card">
       <div class="card-header d-flex align-items-center justify-content-between">
         <h5 class="card-title m-0 me-2">Sales by Countries</h5>
@@ -443,7 +448,7 @@
   <!--/ Sales by Countries -->
 
   <!-- Deposit / Withdraw -->
-  <div class="col-xl-8">
+ <!-- <div class="col-xl-8">
     <div class="card h-100">
       <div class="card-body row g-2">
         <div class="col-12 col-md-6 card-separator pe-0 pe-md-3">
@@ -592,7 +597,7 @@
   <!-- Deposit / Withdraw -->
 
   <!-- Data Tables -->
-  <div class="col-12">
+<!--  <div class="col-12">
     <div class="card">
       <div class="table-responsive">
         <table class="table">

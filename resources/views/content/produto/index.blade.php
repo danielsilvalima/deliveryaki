@@ -15,6 +15,7 @@
       <thead class="table-dark">
         <tr>
           <th>DESCRIÇÃO</th>
+          <th>APRESENTAÇÃO</th>
           <th>CATEGORIA</th>
           <th>VALOR</th>
           <th>STATUS</th>
@@ -26,6 +27,7 @@
         @foreach($produtos as $produto)
         <tr>
           <td>{{ $produto->produto }}</td>
+          <td>{{ $produto->apresentacao }}</td>
           <td>{{ $produto->categoria }}</td>
           <td>{{ $produto->vlr_unitario }}</td>
           <td><span class="badge rounded-pill bg-label-primary me-1">{{ $produto->status == "D" ? "DESATIVADO" : ($produto->status == "A" ? "ATIVADO": "")}}</span></td>
