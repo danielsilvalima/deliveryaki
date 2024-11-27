@@ -63,7 +63,7 @@
                   <p><strong>Detalhes:</strong> </p>
                   <ul>
                       @foreach($pedido->itens as $item)
-                          <li>QUANTIDADE X {{ $item->qtd }} / {{ $item->descricao }} / VLR. UNITÁRIO {{ $item->vlr_unitario }} = {{ $item->vlr_total }}</li>
+                          <li>{{ $item->descricao }} / VLR. UNITÁRIO R$ {{ number_format($item->vlr_unitario, 2, ',', '.') }} X {{ $item->qtd }} QTD = R$ {{ number_format($item->vlr_total, 2, ',', '.') }}</li>
                       @endforeach
                   </ul>
               </div>

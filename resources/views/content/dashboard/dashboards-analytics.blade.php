@@ -20,7 +20,8 @@
   <div class="col-md-12 col-lg-4">
     <div class="card">
       <div class="card-body">
-        <h4 class="card-title mb-1">Parabéns {{$email}} 🎉</h4>
+        <h4 class="card-title mb-1">Parabéns</h4>
+        <h6 class="card-title mb-1">{{$email}} 🎉</h6>
         <p class="pb-0">Mais vendido do mês</p>
         <h4 class="text-primary mb-1 ">{{ $indicadores['produto_mais_vendido']->produto }} (R$ {{ number_format($indicadores['produto_mais_vendido']->total_vendido, 2, ',', '.') }})</h4>
         <p class="mb-2 pb-1">78% da meta 🚀</p>
