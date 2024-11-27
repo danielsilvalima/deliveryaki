@@ -57,10 +57,6 @@ class PedidoController extends Controller
       $entrega = $request->entrega;
       $entrega['empresa_id'] = $empresa->id;
 
-      // Validação e criação do pedido
-      $pedidoService->validateCliente($cliente);
-      $pedidoService->validatePedido($entrega, $request->pedido);
-
       $pedido = $pedidoService->createPedido(
         $cliente,
         $entrega,

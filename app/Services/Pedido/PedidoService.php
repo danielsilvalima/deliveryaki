@@ -76,8 +76,8 @@ class PedidoService
             return [
                 'produto_id' => $itemData['id'],
                 'qtd' => intval($itemData['qtd']),
-                'vlr_unitario' => floatval($itemData['valor']),
-                'vlr_total' => floatval($itemData['qtd']) * floatval($itemData['valor']),
+                'vlr_unitario' => floatval($itemData['valor_unitario']),
+                'vlr_total' => floatval($itemData['valor']),
                 'pedido_id' => $pedido->id,
                 'cliente_id' => $cliente->id,
                 'empresa_id' => $entregaData['empresa_id']
