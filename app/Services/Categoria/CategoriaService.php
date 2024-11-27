@@ -10,6 +10,6 @@ class CategoriaService
 {
   public function findAllActiveByEmpresaID($empresa_id)
 	{
-    return Categoria::where('empresa_id', '=', $empresa_id)->where('status', '=', 'A')->get();
+    return Categoria::where('empresa_id', '=', $empresa_id)->where('status', '=', 'A')->orderBy('descricao', 'ASC')->get();
 	}
 }

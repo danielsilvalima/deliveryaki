@@ -29,7 +29,7 @@
           <td>{{ $produto->produto }}</td>
           <td>{{ $produto->apresentacao }}</td>
           <td>{{ $produto->categoria }}</td>
-          <td>{{ $produto->vlr_unitario }}</td>
+          <td>{{ number_format($produto->vlr_unitario, 2, ',', '.') }}</td>
           <td><span class="badge rounded-pill bg-label-primary me-1">{{ $produto->status == "D" ? "DESATIVADO" : ($produto->status == "A" ? "ATIVADO": "")}}</span></td>
           <td>
             <div class="dropdown">

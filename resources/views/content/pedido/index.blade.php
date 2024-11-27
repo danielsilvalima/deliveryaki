@@ -18,6 +18,7 @@
           <th style="width: 10%;">DETALHES</th>
           <th style="width: 20%;">CLIENTE</th>
           <th style="width: 50%;">ENDEREÇO</th>
+          <th style="width: 5%;">DATA</th>
           <th style="width: 5%;">VLR TAXA</th>
           <th style="width: 5%;">VLR TOTAL</th>
           <th style="width: 10%;">TIPO ENTREGA</th>
@@ -37,8 +38,9 @@
           <td>{{ $pedido->nome_completo }}</td>
           <td>{{ $pedido->logradouro }}, {{ $pedido->numero }} - {{ $pedido->bairro }}
           </td>
-          <td>{{ $pedido->vlr_taxa }}</td>
-          <td>{{ $pedido->vlr_total }}</td>
+          <td>{{ $pedido->created_at->format('d/m/Y H:i') }}</td>
+          <td>{{ number_format($pedido->vlr_taxa , 2, ',', '.')}}</td>
+          <td>{{ number_format($pedido->vlr_total, 2, ',', '.') }}</td>
           <td>{!! $pedido->tipo_entrega == "E"
           ? '<span class="badge rounded-pill bg-label-warning me-1">ENTREGA</span>'
           : ($pedido->tipo_entrega == "R" ? '<span class="badge rounded-pill bg-label-danger me-1">RETIRA</span>' : '') !!}</td>
