@@ -8,8 +8,7 @@ class VerifyApiKey
     public function handle($request, Closure $next)
     {
         $apiKey = $request->header('X-PEDIDO');
-        //$validApiKey = env('API_KEY', '');
-        $validApiKey = env('X_PEDIDO', '');
+        $validApiKey = config('app.pedido_key');
 
         if ($apiKey !== $validApiKey) {
             return response()->json(['error' => 'Unauthorized'], 401);
