@@ -25,11 +25,13 @@ class LoginBasic extends Controller
       'email.required' => __('E-mail é obrigatório'),
       'password.required' => __('Senha é obrigatório'),
     ]);*/
+
     $validator = Validator::make($request->all(), [
       'email' => 'required',
       'password' => 'required|min:3|max:50',
     ], [
       'email.required' => __('E-mail é obrigatório'),
+      'email.email' => __('E-mail inválido'),
       'password.required' => __('Senha é obrigatório'),
     ]);
 
@@ -40,7 +42,8 @@ class LoginBasic extends Controller
     }
 
     if (!Auth::attempt($request->only('email', 'password'))) {
-      return redirect()->back();
+      //return redirect()->back();
+      return redirect()->back()->withErrors(['login' => __('Credenciais inválidas')]);
     }
     return redirect()->route('dashboard-analytics');
   }
