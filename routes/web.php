@@ -52,6 +52,7 @@ use App\Http\Controllers\tables\Basic as TablesBasic;
 use App\Http\Controllers\Usuario\UsuarioController;
 use App\Http\Controllers\Cardapio\CardapioController;
 use App\Http\Controllers\Home\HomeController;
+use App\Http\Controllers\Cep\CepController;
 
 // Main Page Route
 
@@ -63,6 +64,8 @@ Route::middleware('api.key')->group(function () {
   Route::get('/api/cardapio/{id}', [CardapioController::class, 'get'])->name('cardapio.get');
   Route::post('/api/pedido/{id}', [PedidoController::class, 'post'])->name('pedido.post');
   Route::post('/api/cliente/{id}', [ClienteController::class, 'get'])->name('cliente.get');
+
+  Route::get('/api/cep', [CepController::class, 'get'])->name('cep.get');
 });
 
 

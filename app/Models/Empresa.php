@@ -10,7 +10,8 @@ class Empresa extends Model
 {
   use HasFactory;
 
-  protected $fillable = ['id', 'uuid', 'cnpj', 'razao_social', 'telefone', 'celular', 'status', 'hash'];
+  //protected $fillable = ['id', 'uuid', 'cnpj', 'razao_social', 'telefone', 'celular', 'status', 'hash', 'logradouro', 'complemento', 'bairro', 'numero', 'cidade', 'uf'];
+  protected $guarded = [];
 
   public static function booted()
   {

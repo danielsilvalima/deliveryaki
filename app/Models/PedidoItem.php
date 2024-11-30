@@ -10,7 +10,8 @@ class PedidoItem extends Model
 {
   use HasFactory;
 
-  protected $fillable = ['id', 'uuid', 'qtd', 'vlr_unitario', 'vlr_total', 'pedido_id', 'produto_id', 'cliente_id', 'empresa_id'];
+  //protected $fillable = ['id', 'uuid', 'qtd', 'vlr_unitario', 'vlr_total', 'pedido_id', 'produto_id', 'cliente_id', 'empresa_id'];
+  protected $guarded = [];
 
   public static function booted()
   {

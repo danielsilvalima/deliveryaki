@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cliente;
 
 use App\Http\Controllers\Controller;
 use App\Models\Cliente;
+use App\Models\Cep;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -22,7 +23,10 @@ class ClienteController extends Controller
 
   public function index(Cliente $cliente)
   {
-    $clientes = Cliente::where('empresa_id', '=', Auth::user()->empresa_id)->get();
+    $clientes = Cliente::select('clientes.id as id', 'clientes.nome_completo as nome_completo', 'clientes.status as status')
+    ->where('empresa_id', '=', Auth::user()->empresa_id)
+    ->join('ceps', 'clientes.cep_id', '=', 'ceps.id')->get();
+
     return view('content.cliente.index', [
       'clientes' => $clientes,
       'email' => Auth::user()->email
@@ -37,9 +41,21 @@ class ClienteController extends Controller
   public function store(Request $request, Cliente $cliente)
   {
     try{
-      $data = $request->only('nome_completo', 'cep', 'logradouro', 'numero', 'complemento', 'bairro',
-      'cidade', 'celular', 'status');
+      $dataCep = $request->only('cep', 'logradouro', 'complemento', 'bairro', 'cidade', 'uf');
+      $data = $request->only('nome_completo', 'cep', 'numero', 'celular', 'status');
       $data['empresa_id'] = Auth::user()->empresa_id;
+
+      $cep = Cep::firstOrCreate(
+        ['cep' => $dataCep['cep']],
+        [
+          'logradouro' => $dataCep['logradouro'],
+          'bairro' => $dataCep['bairro'],
+          'complemento' => $dataCep['complemento'],
+          'cidade' => $dataCep['cidade'],
+          'uf' => $dataCep['uf'],
+        ]
+      );
+      $data['cep_id'] = $cep->id;
 
       if (!$cliente->create($data)) {
           return back();
@@ -52,13 +68,33 @@ class ClienteController extends Controller
 
   public function edit(Request $request, string $id, Cliente $cliente)
   {
-    try{
+    try{dd($id);
+      // Verificar se o cliente existe
       if (!$cliente = $cliente->find($id)) {
-          return back();
+        return back();
+      }
+
+      // Extrair dados do CEP
+      $dataCep = $request->only('cep', 'logradouro', 'complemento', 'bairro', 'cidade', 'uf');
+
+      if (!empty($dataCep['cep'])) {
+          $cep = Cep::firstOrCreate(
+              ['cep' => $dataCep['cep']],
+              [
+                  'logradouro' => $dataCep['logradouro'],
+                  'bairro' => $dataCep['bairro'],
+                  'complemento' => $dataCep['complemento'],
+                  'cidade' => $dataCep['cidade'],
+                  'uf' => $dataCep['uf'],
+              ]
+          );
+
+          // Associar o 'cep_id' ao cliente
+          $request->merge(['cep_id' => $cep->id]);
       }
 
       $cliente->update($request->only([
-          'nome_completo', 'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'celular', 'status'
+          'nome_completo', 'cep', 'numero', 'celular', 'status', 'cep_id'
       ]));
 
       return redirect()->route('cliente.index');
@@ -69,8 +105,14 @@ class ClienteController extends Controller
 
   public function show(Cliente $cliente, string|int $id)
   {
-      if (!$cliente = $cliente->where('id', $id)->where('empresa_id', Auth::user()->empresa_id)->first()) {
-          return back();
+      $cliente = $cliente
+      ->join('ceps', 'clientes.cep_id', '=', 'ceps.id')
+      ->where('clientes.id', $id)
+      ->where('clientes.empresa_id', Auth::user()->empresa_id)
+      ->first();
+
+      if (!$cliente){
+        return back();
       }
 
       return view('content.cliente.show', compact(('cliente')))->with(['email' => Auth::user()->email]);

@@ -4,6 +4,7 @@ namespace App\Services\Pedido;
 
 use App\Models\Cliente;
 use App\Models\Pedido;
+use App\Models\Cep;
 use Illuminate\Support\Facades\DB;
 
 class PedidoService
@@ -49,25 +50,38 @@ class PedidoService
           $this->validateCliente($clienteData);
           $this->validatePedido($entregaData, $itensData);
 
+          // Consulta ou criação do CEP
+          $cep = Cep::firstOrCreate(
+            ['cep' => $clienteData['cep']],
+            [
+              'logradouro' => $clienteData['logradouro'],
+              'bairro' => $clienteData['bairro'],
+              'complemento' => $clienteData['complemento'],
+              'cidade' => $clienteData['cidade'],
+              'uf' => $clienteData['uf'],
+            ]
+          );
+
           // Criação ou atualização do cliente
           $cliente = Cliente::where('celular', $clienteData['celular'])->where('empresa_id', $clienteData['empresa_id'])->first();
-          if (!$cliente) {
-              $cliente = new Cliente($clienteData);
-              $cliente->save();
+          if ($cliente) {
+            $clienteData['cep_id'] = $cep->id;
+            $cliente->update($clienteData);
           } else {
-              $cliente->update($clienteData);
+              $clienteData['cep_id'] = $cep->id;
+              $cliente = Cliente::create($clienteData);
           }
 
           // Criação do pedido
           $pedido = new Pedido([
-              'status' => 'A',
-              'tipo_pagamento' => strtoupper($entregaData['tipo_pagamento']),
-              'tipo_entrega' => strtoupper($entregaData['tipo_entrega']),
-              'vlr_taxa' => floatval($entregaData['valor_taxa']),
-              'vlr_total' => floatval($entregaData['valor_total']),
-              //'deliver_at' => $entregaData['horario_entrega'],
-              'cliente_id' => $cliente->id,
-              'empresa_id' => $entregaData['empresa_id']
+            'status' => 'A',
+            'tipo_pagamento' => strtoupper($entregaData['tipo_pagamento']),
+            'tipo_entrega' => strtoupper($entregaData['tipo_entrega']),
+            'vlr_taxa' => floatval($entregaData['valor_taxa']),
+            'vlr_total' => floatval($entregaData['valor_total']),
+            //'deliver_at' => $entregaData['horario_entrega'],
+            'cliente_id' => $cliente->id,
+            'empresa_id' => $entregaData['empresa_id']
           ]);
           $pedido->save();
 

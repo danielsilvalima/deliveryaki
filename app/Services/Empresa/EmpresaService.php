@@ -26,9 +26,9 @@ class EmpresaService
   public function findByHash(string $hash)
 	{
     try{
-      return Empresa::where('hash', '=', $hash)->first();
+      return Empresa::where('hash', '=', $hash)->where('status', 'A')->first();
     } catch (\Exception $e) {
-      throw new \Exception('Hash inválido');
+      throw new \Exception('HASH INVÁLIDO');
     }
 	}
 }

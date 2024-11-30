@@ -10,7 +10,8 @@ class Produto extends Model
 {
   use HasFactory;
 
-  protected $fillable = ['id', 'uuid', 'descricao', 'status', 'vlr_unitario', 'empresa_id', 'categoria_id', 'created_at', 'updated_at', 'apresentacao'];
+  //protected $fillable = ['id', 'uuid', 'descricao', 'status', 'vlr_unitario', 'empresa_id', 'categoria_id', 'created_at', 'updated_at', 'apresentacao'];
+  protected $guarded = [];
 
   public static function booted()
   {

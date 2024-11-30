@@ -33,6 +33,10 @@ return [
 
   'env' => env('APP_ENV', 'production'),
   'pedido_key' => env('APP_PEDIDO', ''),
+  'url_via_cep' => env('APP_VIA_CEP', ''),
+  'url_here_geo' => env('APP_HERE_GEO', ''),
+  'url_here_route' => env('APP_HERE_ROUTE', ''),
+  'here_key' => env('APP_HERE_KEY', ''),
 
 
   /*

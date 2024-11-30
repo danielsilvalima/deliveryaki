@@ -61,6 +61,12 @@
         </div>
 
         <div class="input-group input-group-merge mb-4">
+          <span class="input-group-text"></span>
+          <input type="text" id="uf" name="uf" maxlength="2" class="form-control" placeholder="UF" aria-label="UF" aria-describedby="basic-icon-default-email2"
+          onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
+        </div>
+
+        <div class="input-group input-group-merge mb-4">
           <span id="basic-icon-default-phone2" class="input-group-text"><i class="mdi mdi-whatsapp"></i></span>
           <input type="text" id="celular" name="celular" class="form-control phone-mask" placeholder="WHATSAPP" aria-label="WHATSAPP"
           aria-describedby="basic-icon-default-phone2"

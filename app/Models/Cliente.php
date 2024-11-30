@@ -10,7 +10,8 @@ class Cliente extends Model
 {
   use HasFactory;
 
-  protected $fillable = ['id', 'uuid', 'nome_completo', 'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'celular', 'status', 'empresa_id'];
+  //protected $fillable = ['id', 'uuid', 'nome_completo', 'cep', 'numero', 'celular', 'status', 'empresa_id', 'cep_id'];
+  protected $guarded = [];
 
   public static function booted()
   {
