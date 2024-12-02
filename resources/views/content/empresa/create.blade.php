@@ -40,6 +40,12 @@
 
         <div class="input-group input-group-merge mb-4">
           <span id="basic-icon-default-phone2" class="input-group-text"></span>
+          <input type="text" id="cep" name="cep" class="form-control phone-mask" placeholder="CEP"  aria-label="CEP" aria-describedby="basic-icon-default-phone2"
+          onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
+        </div>
+
+        <div class="input-group input-group-merge mb-4">
+          <span id="basic-icon-default-phone2" class="input-group-text"></span>
           <input type="text" id="logradouro" name="logradouro" class="form-control phone-mask" placeholder="LOGRADOURO"  aria-label="LOGRADOURO" aria-describedby="basic-icon-default-phone2"
           onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
         </div>

@@ -36,6 +36,11 @@
 
         <div class="input-group input-group-merge mb-4">
           <span id="basic-icon-default-phone2" class="input-group-text"></span>
+          <input type="text" id="cep" name="cep" value="{{ $empresa->cep }}" class="form-control phone-mask" placeholder="CEP" required aria-label="CEP" aria-describedby="basic-icon-default-phone2" />
+        </div>
+
+        <div class="input-group input-group-merge mb-4">
+          <span id="basic-icon-default-phone2" class="input-group-text"></span>
           <input type="text" id="logradouro" name="logradouro" value="{{ $empresa->logradouro }}" class="form-control phone-mask" placeholder="LOGRADOURO" required aria-label="LOGRADOURO" aria-describedby="basic-icon-default-phone2" />
         </div>
 
@@ -51,7 +56,7 @@
 
         <div class="input-group input-group-merge mb-4">
           <span id="basic-icon-default-phone2" class="input-group-text"></span>
-          <input type="text" id="complemento" name="complemento" value="{{ $empresa->complemento }}" class="form-control phone-mask" placeholder="COMPLEMENTO" required aria-label="COMPLEMENTO" aria-describedby="basic-icon-default-phone2" />
+          <input type="text" id="complemento" name="complemento" value="{{ $empresa->complemento }}" class="form-control phone-mask" placeholder="COMPLEMENTO"  aria-label="COMPLEMENTO" aria-describedby="basic-icon-default-phone2" />
         </div>
 
         <div class="input-group input-group-merge mb-4">
