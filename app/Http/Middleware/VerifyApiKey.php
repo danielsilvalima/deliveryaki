@@ -11,7 +11,7 @@ class VerifyApiKey
         $validApiKey = config('app.pedido_key');
 
         if ($apiKey !== $validApiKey) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Unauthorized' ], 401);
         }
 
         return $next($request);

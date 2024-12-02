@@ -37,7 +37,7 @@ class ViaCepService
         'uf' => $dados['uf'] ?? '',
       ];
     } catch (\Exception $e) {
-        throw new \Exception('ERRO AO CONSULTAR O CEP');
+        throw new \Exception($e);
     }
   }
 }

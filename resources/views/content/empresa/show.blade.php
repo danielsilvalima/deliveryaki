@@ -36,6 +36,36 @@
 
         <div class="input-group input-group-merge mb-4">
           <span id="basic-icon-default-phone2" class="input-group-text"></span>
+          <input type="text" id="logradouro" name="logradouro" value="{{ $empresa->logradouro }}" class="form-control phone-mask" placeholder="LOGRADOURO" required aria-label="LOGRADOURO" aria-describedby="basic-icon-default-phone2" />
+        </div>
+
+        <div class="input-group input-group-merge mb-4">
+          <span id="basic-icon-default-phone2" class="input-group-text"></span>
+          <input type="text" id="numero" name="numero" value="{{ $empresa->numero }}" class="form-control phone-mask" placeholder="NÚMERO" required aria-label="NÚMERO" aria-describedby="basic-icon-default-phone2" />
+        </div>
+
+        <div class="input-group input-group-merge mb-4">
+          <span id="basic-icon-default-phone2" class="input-group-text"></span>
+          <input type="text" id="bairro" name="bairro" value="{{ $empresa->bairro }}" class="form-control phone-mask" placeholder="BAIRRO" required aria-label="BAIRRO" aria-describedby="basic-icon-default-phone2" />
+        </div>
+
+        <div class="input-group input-group-merge mb-4">
+          <span id="basic-icon-default-phone2" class="input-group-text"></span>
+          <input type="text" id="complemento" name="complemento" value="{{ $empresa->complemento }}" class="form-control phone-mask" placeholder="COMPLEMENTO" required aria-label="COMPLEMENTO" aria-describedby="basic-icon-default-phone2" />
+        </div>
+
+        <div class="input-group input-group-merge mb-4">
+          <span id="basic-icon-default-phone2" class="input-group-text"></span>
+          <input type="text" id="cidade" name="cidade" value="{{ $empresa->cidade }}" class="form-control phone-mask" placeholder="CIDADE" required aria-label="CIDADE" aria-describedby="basic-icon-default-phone2" />
+        </div>
+
+        <div class="input-group input-group-merge mb-4">
+          <span id="basic-icon-default-phone2" class="input-group-text"></span>
+          <input type="text" id="uf" name="uf" value="{{ $empresa->uf }}" class="form-control phone-mask" placeholder="UF" required aria-label="UF" aria-describedby="basic-icon-default-phone2" />
+        </div>
+
+        <div class="input-group input-group-merge mb-4">
+          <span id="basic-icon-default-phone2" class="input-group-text"></span>
           <input type="text" disabled id="hash" name="hash" value="{{ config('app.url_pedido') }}{{ $empresa->hash }}" class="form-control phone-mask" placeholder="LINK" required aria-label="LINK" aria-describedby="basic-icon-default-phone2" />
         </div>
 

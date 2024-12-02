@@ -38,6 +38,42 @@
           onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
         </div>
 
+        <div class="input-group input-group-merge mb-4">
+          <span id="basic-icon-default-phone2" class="input-group-text"></span>
+          <input type="text" id="logradouro" name="logradouro" class="form-control phone-mask" placeholder="LOGRADOURO"  aria-label="LOGRADOURO" aria-describedby="basic-icon-default-phone2"
+          onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
+        </div>
+
+        <div class="input-group input-group-merge mb-4">
+          <span id="basic-icon-default-phone2" class="input-group-text"></span>
+          <input type="text" id="numero" name="numero" class="form-control phone-mask" placeholder="NUMERO"  aria-label="NUMERO" aria-describedby="basic-icon-default-phone2"
+          onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
+        </div>
+
+        <div class="input-group input-group-merge mb-4">
+          <span id="basic-icon-default-phone2" class="input-group-text"></span>
+          <input type="text" id="bairro" name="bairro" class="form-control phone-mask" placeholder="BAIRRO"  aria-label="BAIRRO" aria-describedby="basic-icon-default-phone2"
+          onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
+        </div>
+
+        <div class="input-group input-group-merge mb-4">
+          <span id="basic-icon-default-phone2" class="input-group-text"></span>
+          <input type="text" id="complemento" name="complemento" class="form-control phone-mask" placeholder="COMPLEMENTO"  aria-label="COMPLEMENTO" aria-describedby="basic-icon-default-phone2"
+          onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
+        </div>
+
+        <div class="input-group input-group-merge mb-4">
+          <span id="basic-icon-default-phone2" class="input-group-text"></span>
+          <input type="text" id="cidade" name="cidade" class="form-control phone-mask" placeholder="CIDADE"  aria-label="CIDADE" aria-describedby="basic-icon-default-phone2"
+          onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
+        </div>
+
+        <div class="input-group input-group-merge mb-4">
+          <span id="basic-icon-default-phone2" class="input-group-text"></span>
+          <input type="text" id="uf" name="uf" class="form-control phone-mask" placeholder="UF"  aria-label="UF" aria-describedby="basic-icon-default-phone2"
+          onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
+        </div>
+
         <div class="mb-4">
           <div class="input-group input-group-merge">
             <span class="input-group-text"><i class="mdi mdi-email-outline"></i></span>

@@ -25,9 +25,13 @@ class CepController extends Controller
   {
     try{
       $request->validate([
-        'empresa_id' => 'required|string',
+        'empresa_id' => 'required|int',
         'numero' => 'required|string',
         'cep' => 'required|string',
+      ], [
+        'empresa_id.required' => __('CAMPO empresa_id É OBRIGATÓRIO'),
+        'numero.required' => __('CAMPO numero É OBRIGATÓRIO'),
+        'cep.required' => __('CAMPO cep É OBRIGATÓRIO'),
       ]);
 
       $empresa_hash = $request->empresa_id;
