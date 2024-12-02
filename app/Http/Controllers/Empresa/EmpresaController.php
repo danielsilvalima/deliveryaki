@@ -44,7 +44,7 @@ class EmpresaController extends Controller
     }
 
     $empresa->update($request->only([
-      'cnpj', 'razao_social', 'telefone', 'celular', 'email', 'status'
+      'cnpj', 'razao_social', 'telefone', 'celular', 'email', 'status', 'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf'
     ]));
 
     return redirect()->route('empresa.index');
