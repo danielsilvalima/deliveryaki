@@ -122,7 +122,7 @@
 
           <div class="col-md-2">
             <div class="form-floating form-floating-outline mb-3">
-              <input type="number" id="vlr_km" name="vlr_km" value="{{ $empresa->inicio_distancia }}" class="form-control phone-mask" placeholder="VALOR KM (R$)" required aria-label="VALOR KM (R$)" aria-describedby="basic-icon-default-phone2" />
+              <input type="number" id="vlr_km" name="vlr_km" value="{{ $empresa->vlr_km }}" class="form-control phone-mask" placeholder="VALOR KM (R$)" required aria-label="VALOR KM (R$)" aria-describedby="basic-icon-default-phone2" />
               <label for="vlr_km">VALOR KM (R$)</label>
             </div>
           </div>
