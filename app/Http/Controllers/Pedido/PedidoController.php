@@ -15,10 +15,10 @@ class PedidoController extends Controller
 {
   public function index(Pedido $pedido, PedidoItemService $pedidoItemService)
   {
-    $pedidos = Pedido::select('pedidos.*', 'clientes.nome_completo', 'clientes.logradouro', 'clientes.numero', 'clientes.bairro')->where('pedidos.empresa_id', Auth::user()->empresa_id)
+    $pedidos = Pedido::select('pedidos.*', 'clientes.nome_completo', 'ceps.logradouro', 'clientes.numero', 'ceps.bairro')->where('pedidos.empresa_id', Auth::user()->empresa_id)
     ->join('clientes', 'pedidos.cliente_id', '=', 'clientes.id')
+    ->leftJoin('ceps', 'clientes.cep_id', '=', 'ceps.id')
     ->orderBy('id', 'ASC')->get();
-
 
     foreach ($pedidos as $pedido) {
       $itens = $pedidoItemService->findByIDPedido($pedido->id);

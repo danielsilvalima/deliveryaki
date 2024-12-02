@@ -30,11 +30,11 @@ class ViaCepService
       // Retorna os dados formatados
       return [
         'cep' => Str::replace('-', '', $dados['cep']) ?? $cep,
-        'logradouro' => $dados['logradouro'] ?? '',
-        'complemento' => $dados['complemento'] ?? '',
-        'bairro' => $dados['bairro'] ?? '',
-        'cidade' => $dados['localidade'] ?? '',
-        'uf' => $dados['uf'] ?? '',
+        'logradouro' => strtoupper($dados['logradouro']) ?? '',
+        'complemento' => strtoupper($dados['complemento']) ?? '',
+        'bairro' => strtoupper($dados['bairro']) ?? '',
+        'cidade' => strtoupper($dados['localidade']) ?? '',
+        'uf' => strtoupper($dados['uf']) ?? '',
       ];
     } catch (\Exception $e) {
         throw new \Exception($e);

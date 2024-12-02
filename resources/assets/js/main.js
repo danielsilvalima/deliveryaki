@@ -6,6 +6,43 @@
 
 let menu, animate;
 
+function getCEP() {
+  var cep = document.getElementById('cep').value;
+  cep = cep.replace('-', '');
+  document.getElementById('cep').value = cep;
+
+  if (cep.length === 8) {
+    // Certifique-se de que o CEP tem 8 caracteres
+    fetch('/cep', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      },
+      body: JSON.stringify({ cep: cep })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Atualize os campos com os dados recebidos
+          document.getElementById('logradouro').value = data.logradouro;
+          document.getElementById('complemento').value = data.complemento;
+          document.getElementById('bairro').value = data.bairro;
+          document.getElementById('cidade').value = data.cidade;
+          document.getElementById('uf').value = data.uf;
+          document.getElementById('numero').value = '';
+        } else {
+          alert(data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Erro ao buscar CEP:', error);
+      });
+  } else {
+    alert('Digite um CEP válido.');
+  }
+}
+
 (function () {
   // Button & Pagination Waves effect
   if (typeof Waves !== 'undefined') {

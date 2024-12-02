@@ -39,35 +39,94 @@
 
           <form id="formAuthentication" class="mb-3" action="{{ route('auth-register-store') }}" method="POST">
             @csrf
-            <div class="form-floating form-floating-outline mb-3">
-              <input type="text" class="form-control" id="cnpj" name="cnpj" placeholder="CNPJ" maxlength="14"
-              onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
-              <label for="cnpj">CNPJ</label>
-            </div>
-            <div class="form-floating form-floating-outline mb-3">
-              <input type="text" class="form-control" id="razao_social" name="razao_social" placeholder="Razão Social"
-              onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
-              <label for="razao_social">Razão Social</label>
-            </div>
-            <div class="form-floating form-floating-outline mb-3">
-              <input type="text" class="form-control" id="celular" name="celular" placeholder="WhatsApp" maxlength="15"
-              onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
-              <label for="celular">WhatsApp</label>
-            </div>
-            <div class="form-floating form-floating-outline mb-3">
-              <input type="text" class="form-control" id="email" name="email" placeholder="E-mail"
-              onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
-              <label for="email">E-mail</label>
-            </div>
-            <div class="mb-3 form-password-toggle">
-              <div class="input-group input-group-merge">
-                <div class="form-floating form-floating-outline">
-                  <input type="password" id="password" class="form-control" name="password" placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" aria-describedby="password" />
-                  <label for="password">Password</label>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-floating form-floating-outline mb-3">
+                  <input type="text" class="form-control" id="cnpj" name="cnpj" placeholder="CNPJ" maxlength="14"
+                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                  <label for="cnpj">CNPJ</label>
                 </div>
-                <span class="input-group-text cursor-pointer"><i class="mdi mdi-eye-off-outline"></i></span>
               </div>
-            </div>
+              <div class="col-md-6">
+                <div class="form-floating form-floating-outline mb-3">
+                  <input type="text" class="form-control" id="celular" name="celular" required placeholder="WhatsApp" maxlength="15"
+                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                  <label for="celular">WhatsApp</label>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="form-floating form-floating-outline mb-3">
+                  <input type="text" class="form-control" id="razao_social" name="razao_social" placeholder="Razão Social"
+                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                  <label for="razao_social">Razão Social</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating form-floating-outline mb-3">
+                  <input type="number" class="form-control" id="cep" name="cep" maxlength="9" required placeholder="CEP"
+                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);"
+                  onblur="getCEP()">
+                  <label for="cep">CEP</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating form-floating-outline mb-3">
+                  <input type="text" class="form-control" id="numero" name="numero" required placeholder="Número"
+                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                  <label for="numero">Número</label>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="form-floating form-floating-outline mb-3">
+                  <input type="text" class="form-control" id="logradouro" disabled name="logradouro" placeholder="Logradouro"
+                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                  <label for="logradouro">Logradouro</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating form-floating-outline mb-3">
+                  <input type="text" class="form-control" id="complemento" disabled name="complemento" placeholder="Complemento"
+                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                  <label for="complemento">Complemento</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating form-floating-outline mb-3">
+                  <input type="text" class="form-control" id="bairro" disabled name="bairro" placeholder="Bairro"
+                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                  <label for="bairro">Bairro</label>
+                </div>
+              </div>
+              <div class="col-md-9">
+                <div class="form-floating form-floating-outline mb-3">
+                  <input type="text" class="form-control" id="cidade" disabled name="cidade" placeholder="Cidade"
+                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                  <label for="cidade">Cidade</label>
+                </div>
+              </div><div class="col-md-3">
+                <div class="form-floating form-floating-outline mb-3">
+                  <input type="text" class="form-control" id="uf" disabled name="uf" placeholder="UF"
+                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                  <label for="uf">UF</label>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="form-floating form-floating-outline mb-3">
+                  <input type="text" class="form-control" id="email" name="email" placeholder="E-mail"
+                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                  <label for="email">E-mail</label>
+                </div>
+              </div>
+                <div class="mb-3 form-password-toggle">
+                  <div class="input-group input-group-merge">
+                    <div class="form-floating form-floating-outline">
+                      <input type="password" id="password" class="form-control" name="password" placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" aria-describedby="password" />
+                      <label for="password">Password</label>
+                    </div>
+                    <span class="input-group-text cursor-pointer"><i class="mdi mdi-eye-off-outline"></i></span>
+                  </div>
+                </div>
+              </div>
 
             <button class="btn btn-primary d-grid w-100">
               Inscrever-se
@@ -76,7 +135,7 @@
 
           <p class="text-center">
             <span>Já tem uma conta?</span>
-            <a href="{{url('auth/login-basic')}}">
+            <a href="{{url('/')}}">
               <span>Em vez disso, faça login</span>
             </a>
           </p>
@@ -89,4 +148,7 @@
     </div>
   </div>
 </div>
+@endsection
+@section('scripts')
+<script src="{{ asset('js/cep-handler.js') }}"></script>
 @endsection

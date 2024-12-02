@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\HashGenerator;
+use App\Services\ViaCep\ViaCepService;
 
 class RegisterBasic extends Controller
 {
@@ -47,7 +48,7 @@ class RegisterBasic extends Controller
 
     DB::beginTransaction();
 
-    $empresa = $request->only('razao_social', 'cnpj', 'celular');
+    $empresa = $request->only('razao_social', 'cnpj', 'celular',  'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf');
     $empresa['status'] = 'A';
 
     do {
@@ -73,5 +74,31 @@ class RegisterBasic extends Controller
     }
 
     return back();
+  }
+
+  public function getCEP(Request $request, ViaCepService $viaCepService)
+  {
+    $cep = $request->input('cep');
+
+    // Valide o CEP
+    if (!preg_match('/^[0-9]{8}$/', $cep)) {
+        return response()->json(['success' => false, 'message' => 'CEP inválido.'], 400);
+    }
+
+    try{
+      $dados = $viaCepService->findViaCep($cep);
+
+      // Retorne os dados para o frontend
+      return response()->json([
+          'success' => true,
+          'logradouro' => $dados['logradouro'],
+          'complemento' => $dados['complemento'],
+          'bairro' => $dados['bairro'],
+          'cidade' => $dados['cidade'],
+          'uf' => $dados['uf']
+      ]);
+    }catch (\Exception $e) {
+      return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+    }
   }
 }

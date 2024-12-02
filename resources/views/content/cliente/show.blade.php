@@ -14,68 +14,94 @@
       <form action="{{ route('cliente.edit', $cliente->id) }}" method="POST">
         @csrf()
         @method('PUT')
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-floating form-floating-outline mb-3">
+              <input type="text" id="nome_completo" name="nome_completo" class="form-control" placeholder="NOME COMPLETO" aria-label="NOME COMPLETO"
+                aria-describedby="basic-icon-default-company2" value="{{ $cliente->nome_completo }}"
+                onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
+              <label for="nome_completo">NOME COMPLETO</label>
+            </div>
+          </div>
 
-        <div class="input-group input-group-merge mb-4">
-          <span id="basic-icon-default-company2" class="input-group-text"></span>
-          <input type="text" id="nome_completo" name="nome_completo" class="form-control" placeholder="NOME COMPLETO" aria-label="NOME COMPLETO"
-          aria-describedby="basic-icon-default-company2" value="{{ $cliente->nome_completo }}"
-          onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
+          <div class="col-md-4">
+            <div class="form-floating form-floating-outline mb-3">
+            <input type="text" id="celular" name="celular" value="{{ $cliente->celular }}" class="form-control phone-mask" placeholder="WHATSAPP" aria-label="WHATSAPP"
+            aria-describedby="basic-icon-default-phone2"
+            onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
+            <label for="celular">WHATSAPP</label>
+            </div>
+          </div>
+
+          <div class="col-md-2">
+            <div class="form-floating form-floating-outline mb-3">
+            <input type="text" class="form-control" id="cep" name="cep" placeholder="CEP" aria-label="CEP"
+              aria-describedby="basic-icon-default-fullname2" value="{{ $cliente->cep }}"
+              onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);"
+              onblur="getCEP()" />
+            <label for="cep">CEP</label>
+            </div>
+          </div>
+
+          <div class="col-md-2">
+            <div class="form-floating form-floating-outline mb-3">
+            <input type="text" id="numero" name="numero" value="{{ $cliente->numero }}" class="form-control" placeholder="NÚMERO" aria-label="NÚMERO" aria-describedby="basic-icon-default-email2"
+            onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
+            <label for="numero">NÚMERO</label>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-floating form-floating-outline mb-3">
+            <input type="text" id="logradouro" name="logradouro" class="form-control" placeholder="LOGRADOURO" aria-label="LOGRADOURO"
+            aria-describedby="basic-icon-default-phone2" value="{{ $cliente->logradouro }}" readonly
+            onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
+            <label for="logradouro">LOGRADOURO</label>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-floating form-floating-outline mb-3">
+            <input type="text" id="complemento" name="complemento" value="{{ $cliente->complemento }}" readonly class="form-control" placeholder="COMPLEMENTO" aria-label="COMPLEMENTO" aria-describedby="basic-icon-default-email2"
+            onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
+            <label for="complemento">COMPLEMENTO</label>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-floating form-floating-outline mb-3">
+            <input type="text" id="bairro" name="bairro" value="{{ $cliente->bairro }}" readonly class="form-control" placeholder="BAIRRO" aria-label="BAIRRO" aria-describedby="basic-icon-default-email2"
+            onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
+            <label for="bairro">BAIRRO</label>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-floating form-floating-outline mb-3">
+            <input type="text" id="cidade" name="cidade" value="{{ $cliente->cidade }}" readonly class="form-control" placeholder="CIDADE" aria-label="CIDADE" aria-describedby="basic-icon-default-email2"
+            onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
+            <label for="cidade">CIDADE</label>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-floating form-floating-outline mb-3">
+            <input type="text" id="uf" name="uf" value="{{ $cliente->uf }}" readonly class="form-control" placeholder="UF" aria-label="UF" aria-describedby="basic-icon-default-email2"
+            onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
+            <label for="uf">UF</label>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-floating form-floating-outline mb-3">
+              <select class="form-select" id="status" name="status" aria-label="STATUS" >
+                <option value="A" {{ $cliente->status == "A" ? "selected" : '' }}">ATIVADO</option>
+                <option value="D" {{ $cliente->status == "D" ? "selected" : '' }}>DESATIVADO</option>
+                <label for="status">STATUS</label>
+              </select>
+            </div>
+          </div>
         </div>
-
-        <div class="input-group input-group-merge mb-4">
-          <span id="basic-icon-default-fullname2" class="input-group-text"></i></span>
-          <input type="text" class="form-control" id="cep" name="cep" placeholder="CEP" aria-label="CEP"
-          aria-describedby="basic-icon-default-fullname2" value="{{ $cliente->cep }}"
-          onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
-        </div>
-
-        <div class="input-group input-group-merge mb-4">
-          <span id="basic-icon-default-phone2" class="input-group-text"></i></span>
-          <input type="text" id="logradouro" name="logradouro" class="form-control" placeholder="LOGRADOURO" aria-label="LOGRADOURO"
-          aria-describedby="basic-icon-default-phone2" value="{{ $cliente->logradouro }}"
-          onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
-        </div>
-
-
-        <div class="input-group input-group-merge mb-4">
-          <span class="input-group-text"></span>
-          <input type="text" id="numero" name="numero" value="{{ $cliente->numero }}" class="form-control" placeholder="NUMERO" aria-label="NUMERO" aria-describedby="basic-icon-default-email2"
-          onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
-        </div>
-
-        <div class="input-group input-group-merge mb-4">
-          <span class="input-group-text"></span>
-          <input type="text" id="complemento" name="complemento" value="{{ $cliente->complemento }}" class="form-control" placeholder="COMPLEMENTO" aria-label="COMPLEMENTO" aria-describedby="basic-icon-default-email2"
-          onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
-        </div>
-
-        <div class="input-group input-group-merge mb-4">
-          <span class="input-group-text"></span>
-          <input type="text" id="bairro" name="bairro" value="{{ $cliente->bairro }}" class="form-control" placeholder="BAIRRO" aria-label="BAIRRO" aria-describedby="basic-icon-default-email2"
-          onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
-        </div>
-
-        <div class="input-group input-group-merge mb-4">
-          <span class="input-group-text"></span>
-          <input type="text" id="cidade" name="cidade" value="{{ $cliente->cidade }}" class="form-control" placeholder="CIDADE" aria-label="CIDADE" aria-describedby="basic-icon-default-email2"
-          onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
-        </div>
-
-        <div class="input-group input-group-merge mb-4">
-          <span id="basic-icon-default-phone2" class="input-group-text"><i class="mdi mdi-whatsapp"></i></span>
-          <input type="text" id="celular" name="celular" value="{{ $cliente->celular }}" class="form-control phone-mask" placeholder="WHATSAPP" aria-label="WHATSAPP"
-          aria-describedby="basic-icon-default-phone2"
-          onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);" />
-        </div>
-
-        <div class="form-floating form-floating-outline mb-4">
-          <select class="form-select" id="status" name="status" aria-label="STATUS" >
-            <option value="A" {{ $cliente->status == "A" ? "selected" : '' }}">ATIVADO</option>
-            <option value="D" {{ $cliente->status == "D" ? "selected" : '' }}>DESATIVADO</option>
-            <label for="status">STATUS</label>
-          </select>
-        </div>
-
         <button type="submit" class="btn btn-primary">SALVAR</button>
         <a href="{{ route('cliente.index') }}" class="btn btn-secondary">CANCELAR</a>
       </form>

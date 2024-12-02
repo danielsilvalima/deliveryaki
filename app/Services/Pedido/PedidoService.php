@@ -66,10 +66,23 @@ class PedidoService
           $cliente = Cliente::where('celular', $clienteData['celular'])->where('empresa_id', $clienteData['empresa_id'])->first();
           if ($cliente) {
             $clienteData['cep_id'] = $cep->id;
-            $cliente->update($clienteData);
+            $cliente->update([
+              'nome_completo' => $clienteData['nome_completo'],
+                'cep' => $clienteData['cep'],
+                'numero' => $clienteData['numero'],
+                'celular' => $clienteData['celular'],
+                'empresa_id' => $clienteData['empresa_id'],
+                'cep_id' => $cep->id
+            ]);
           } else {
-              $clienteData['cep_id'] = $cep->id;
-              $cliente = Cliente::create($clienteData);
+              $cliente = Cliente::create([
+                'nome_completo' => $clienteData['nome_completo'],
+                'cep' => $clienteData['cep'],
+                'numero' => $clienteData['numero'],
+                'celular' => $clienteData['celular'],
+                'empresa_id' => $clienteData['empresa_id'],
+                'cep_id' => $cep->id
+              ]);
           }
 
           // Criação do pedido
@@ -106,7 +119,7 @@ class PedidoService
           return $pedido;
       } catch (\Exception $e) {
           DB::rollBack();
-          throw new \Exception('Erro ao criar o pedido: ' . $e->getMessage());
+          throw new \Exception('ERRO AO CRIAR O PEDIDO: ' . $e->getMessage());
       }
   }
 }

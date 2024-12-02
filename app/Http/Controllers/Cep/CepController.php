@@ -25,7 +25,7 @@ class CepController extends Controller
   {
     try{
       $request->validate([
-        'empresa_id' => 'required|int',
+        'empresa_id' => 'required',
         'numero' => 'required|string',
         'cep' => 'required|string',
       ], [

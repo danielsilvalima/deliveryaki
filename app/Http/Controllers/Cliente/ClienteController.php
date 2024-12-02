@@ -25,7 +25,9 @@ class ClienteController extends Controller
   {
     $clientes = Cliente::select('clientes.id as id', 'clientes.nome_completo as nome_completo', 'clientes.status as status')
     ->where('empresa_id', '=', Auth::user()->empresa_id)
-    ->join('ceps', 'clientes.cep_id', '=', 'ceps.id')->get();
+    ->leftJoin('ceps', 'clientes.cep_id', '=', 'ceps.id')
+    ->orderBy('clientes.id', 'ASC')
+    ->get();
 
     return view('content.cliente.index', [
       'clientes' => $clientes,
@@ -68,7 +70,7 @@ class ClienteController extends Controller
 
   public function edit(Request $request, string $id, Cliente $cliente)
   {
-    try{dd($id);
+    try{
       // Verificar se o cliente existe
       if (!$cliente = $cliente->find($id)) {
         return back();
@@ -76,7 +78,6 @@ class ClienteController extends Controller
 
       // Extrair dados do CEP
       $dataCep = $request->only('cep', 'logradouro', 'complemento', 'bairro', 'cidade', 'uf');
-
       if (!empty($dataCep['cep'])) {
           $cep = Cep::firstOrCreate(
               ['cep' => $dataCep['cep']],
@@ -105,8 +106,8 @@ class ClienteController extends Controller
 
   public function show(Cliente $cliente, string|int $id)
   {
-      $cliente = $cliente
-      ->join('ceps', 'clientes.cep_id', '=', 'ceps.id')
+      $cliente = Cliente::select('clientes.*', 'ceps.logradouro', 'ceps.bairro', 'ceps.complemento', 'ceps.cidade', 'ceps.uf')
+      ->leftJoin('ceps', 'clientes.cep_id', '=', 'ceps.id')
       ->where('clientes.id', $id)
       ->where('clientes.empresa_id', Auth::user()->empresa_id)
       ->first();

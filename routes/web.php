@@ -57,6 +57,7 @@ use App\Http\Controllers\Cep\CepController;
 // Main Page Route
 
 Route::get('/', [LoginBasic::class, 'index'])->name('auth-login-basic');
+Route::post('/cep', [RegisterBasic::class, 'getCEP'])->name('auth-register-basic.getCEP');
 //Route::get('/login', [LoginBasic::class, 'index'])->name('auth-login-basic');
 
 //API FRONT
