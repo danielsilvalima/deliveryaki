@@ -53,12 +53,14 @@ use App\Http\Controllers\Usuario\UsuarioController;
 use App\Http\Controllers\Cardapio\CardapioController;
 use App\Http\Controllers\Home\HomeController;
 use App\Http\Controllers\Cep\CepController;
+use App\Http\Controllers\EmpresaExpediente\EmpresaExpedienteController;
 
 // Main Page Route
 
 Route::get('/', [LoginBasic::class, 'index'])->name('auth-login-basic');
 Route::post('/cep', [RegisterBasic::class, 'getCEP'])->name('auth-register-basic.getCEP');
 //Route::get('/login', [LoginBasic::class, 'index'])->name('auth-login-basic');
+
 
 //API FRONT
 Route::middleware('api.key')->group(function () {
@@ -86,6 +88,10 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::put('/empresa/{id}', [EmpresaController::class, 'edit'])->name('empresa.edit');
   Route::delete('/empresa/{id}/delete', [EmpresaController::class, 'modal'])->name('empresa.modal');
   Route::delete('/empresa/{id}', [EmpresaController::class, 'delete'])->name('empresa.delete');
+
+  //EmpresaExpediente
+  Route::delete('/empresa-expediente/{id}', [EmpresaExpedienteController::class, 'destroy'])->name('empresaexpediente.destroy');
+
 
   //Produto
   Route::get('/produto', [ProdutoController::class, 'index'])->name('produto.index');

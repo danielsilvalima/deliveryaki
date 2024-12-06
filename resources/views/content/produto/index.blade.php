@@ -4,6 +4,30 @@
 
 @section('content')
 
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    @if(session('success'))
+        <div class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    {{ session('success') }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="toast align-items-center text-bg-danger border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    {{ session('error') }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    @endif
+</div>
+
 <a type="button" class="btn btn-primary" href="{{ route('produto.create') }}"> Novo cadastro</a>
 <p></p>
 <p></p>
@@ -29,7 +53,7 @@
           <td>{{ $produto->produto }}</td>
           <td>{{ $produto->apresentacao }}</td>
           <td>{{ $produto->categoria }}</td>
-          <td>{{ number_format($produto->vlr_unitario, 2, ',', '.') }}</td>
+          <td style="text-align: right;">{{ number_format($produto->vlr_unitario, 2, ',', '.') }}</td>
           <td><span class="badge rounded-pill bg-label-primary me-1">{{ $produto->status == "D" ? "DESATIVADO" : ($produto->status == "A" ? "ATIVADO": "")}}</span></td>
           <td>
             <div class="dropdown">

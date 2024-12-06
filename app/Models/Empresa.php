@@ -22,21 +22,26 @@ class Empresa extends Model
 
   public function produtos()
     {
-        return $this->hasMany(Produto::class);
+      return $this->hasMany(Produto::class);
     }
 
     public function categorias()
     {
-        return $this->hasMany(Categoria::class);
+      return $this->hasMany(Categoria::class);
     }
 
     public function pedidos()
     {
-        return $this->hasMany(Pedido::class);
+      return $this->hasMany(Pedido::class);
     }
 
     public function clientes()
     {
-        return $this->hasMany(Cliente::class);
+      return $this->hasMany(Cliente::class);
+    }
+
+    public function empresa_expedientes()
+    {
+      return $this->hasMany(EmpresaExpediente::class, 'empresa_id', 'id');
     }
 }

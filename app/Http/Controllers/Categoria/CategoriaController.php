@@ -33,9 +33,9 @@ class CategoriaController extends Controller
       if (!$categoria->create($data)) {
           return back();
       }
-      return redirect()->route('categoria.index');
+      return redirect()->route('categoria.index')->with('success', 'CATEGORIA CADASTRADO COM SUCESSO');
     } catch (\Exception $e) {
-      return ResponseHelper::error($e->getMessage());
+      return back()->with('error', 'NÃO FOI POSSÍVEL CADASTRAR A CATEGORIA. '.$e);
     }
   }
 
@@ -43,16 +43,16 @@ class CategoriaController extends Controller
   {
     try{
       if (!$categoria = $categoria->find($id)) {
-          return back();
+          return back()->with('error', 'CATEGORIA NÃO FOI LOCALIZADA');
       }
 
       $categoria->update($request->only([
           'descricao', 'status'
       ]));
 
-      return redirect()->route('categoria.index');
+      return redirect()->route('categoria.index')->with('success', 'CATEGORIA ATUALIZADO COM SUCESSO');
     } catch (\Exception $e) {
-      return ResponseHelper::error($e->getMessage());
+      return back()->with('error', 'CATEGORIA NÃO FOI ATUALIZADA. '.$e);
     }
   }
 
@@ -60,12 +60,12 @@ class CategoriaController extends Controller
   {
     try{
       if (!$categoria = $categoria->where('id', $id)->where('empresa_id', Auth::user()->empresa_id)->first()) {
-          return back();
+          return back()->with('error', 'CATEGORIA NÃO FOI LOCALIZADA');
       }
 
       return view('content.categoria.show', compact(('categoria')))->with(['email' => Auth::user()->email]);
     } catch (\Exception $e) {
-      return ResponseHelper::error($e->getMessage());
+      return back()->with('error', 'CATEGORIA NÃO FOI LOCALIZADA.'.$e);
     }
   }
 }

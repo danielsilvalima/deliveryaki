@@ -4,7 +4,29 @@
 
 @section('content')
 
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    @if(session('success'))
+        <div class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    {{ session('success') }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    @endif
 
+    @if(session('error'))
+        <div class="toast align-items-center text-bg-danger border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    {{ session('error') }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    @endif
+</div>
 
 
 <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
@@ -39,9 +61,9 @@
           <td>{{ $pedido->logradouro }}, {{ $pedido->numero }} - {{ $pedido->bairro }}
           </td>
           <td>{{ $pedido->created_at->format('d/m/Y H:i') }}</td>
-          <td>{{ number_format($pedido->vlr_taxa , 2, ',', '.')}}</td>
-          <td>{{ number_format($pedido->vlr_total, 2, ',', '.') }}</td>
-          <td>{!! $pedido->tipo_entrega == "E"
+          <td style="text-align: right;">{{ number_format($pedido->vlr_taxa , 2, ',', '.')}}</td>
+          <td style="text-align: right;">{{ number_format($pedido->vlr_total, 2, ',', '.') }}</td>
+          <td style="text-align: center;">{!! $pedido->tipo_entrega == "E"
           ? '<span class="badge rounded-pill bg-label-warning me-1">ENTREGA</span>'
           : ($pedido->tipo_entrega == "R" ? '<span class="badge rounded-pill bg-label-danger me-1">RETIRA</span>' : '') !!}</td>
           <td><span class="badge rounded-pill bg-label-primary me-1">{{ $pedido->status == "D" ? "DESATIVADO" : ($pedido->status == "A" ? "ATIVADO": "")}}</span></td>

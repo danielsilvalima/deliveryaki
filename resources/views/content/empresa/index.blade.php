@@ -4,6 +4,31 @@
 
 @section('content')
 
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    @if(session('success'))
+        <div class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+            <div class="d-flex">
+                <div class="toast-body">
+                    {{ session('success') }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="toast align-items-center text-bg-danger border-0 show" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+            <div class="d-flex">
+                <div class="toast-body">
+                    {{ session('error') }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    @endif
+</div>
+
+
 <div class="card">
 
   <h5 class="card-header">EMPRESAS</h5>
@@ -44,45 +69,6 @@
         @endforeach
       </tbody>
     </table>
-  </div>
-</div>
-
-<!-- Modal -->
-<div class="modal fade" id="basicModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title" id="exampleModalLabel1">EXCLUIR EMPRESA</h4>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form action="{{ route('empresa.delete', $empresa->id) }}" method="POST">
-          @csrf()
-          @method('DELETE')
-          <div class="row">
-            <div class="col mb-4 mt-2">
-              <div class="form-floating form-floating-outline">
-                <input type="text" id="cnpj" value="{{ $empresa->cnpj }}" class="form-control" placeholder="CNPJ">
-                <label for="cnpj">CNPJ</label>
-              </div>
-            </div>
-          </div>
-          <div class="row g-2">
-            <div class="col mb-2">
-              <div class="form-floating form-floating-outline">
-                <input type="text" id="razao_social" value="{{ $empresa->razao_social }}" class="form-control" placeholder="RAZÃO SOCIAL">
-                <label for="razao_social">RAZÃO SOCIAL</label>
-              </div>
-            </div>
-          </div>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-primary">Excluir</button>
-      </div>
-      </form>
-    </div>
   </div>
 </div>
 

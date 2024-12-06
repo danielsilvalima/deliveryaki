@@ -36,7 +36,7 @@ class PedidoController extends Controller
     {
         if (!$pedido = Pedido::select('pedidos.*', 'clientes.nome_completo as nome_completo')->where('produtos.id', $id)->where('produtos.empresa_id', Auth::user()->empresa_id)
             ->join('clientes', 'pedidos.cliente_id', '=', 'clientes.id')->first()) {
-            return back();
+            return back()->with('error', 'NÃO FOI POSSÍVEL LOCALIZAR O PEDIDO');
         }
 
         return view('content.pedido.show')->with([

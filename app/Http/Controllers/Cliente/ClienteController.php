@@ -60,11 +60,11 @@ class ClienteController extends Controller
       $data['cep_id'] = $cep->id;
 
       if (!$cliente->create($data)) {
-          return back();
+          return back()->with('error', 'NÃO FOI POSSÍVEL CADASTRAR O CLIENTE');
       }
-      return redirect()->route('cliente.index');
+      return redirect()->route('cliente.index')->with('success', 'CLIENTE CADASTRADO COM SUCESSO');
     } catch (\Exception $e) {
-      return ResponseHelper::error($e->getMessage());
+      return back()->with('error', 'NÃO FOI POSSÍVEL CADASTRAR O CLIENTE. '.$e);
     }
   }
 
@@ -73,7 +73,7 @@ class ClienteController extends Controller
     try{
       // Verificar se o cliente existe
       if (!$cliente = $cliente->find($id)) {
-        return back();
+        return back()->with('error', 'NÃO FOI POSSÍVEL LOCALIZAR O CLIENTE');
       }
 
       // Extrair dados do CEP
@@ -98,9 +98,9 @@ class ClienteController extends Controller
           'nome_completo', 'cep', 'numero', 'celular', 'status', 'cep_id'
       ]));
 
-      return redirect()->route('cliente.index');
+      return redirect()->route('cliente.index')->with('success', 'CLIENTE ATUALIZADO COM SUCESSO');
     } catch (\Exception $e) {
-      return ResponseHelper::error($e->getMessage());
+      return back()->with('error', 'NÃO FOI POSSÍVEL ATUALIZAR O CLIENTE. '.$e);
     }
   }
 
@@ -113,7 +113,7 @@ class ClienteController extends Controller
       ->first();
 
       if (!$cliente){
-        return back();
+        return back()->with('error', 'NÃO FOI POSSÍVEL LOCALIZAR O CLIENTE');
       }
 
       return view('content.cliente.show', compact(('cliente')))->with(['email' => Auth::user()->email]);

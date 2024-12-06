@@ -32,7 +32,7 @@ class ProdutoController extends Controller
             'categorias' => $categorias
         ]);
       } catch (\Exception $e) {
-        return ResponseHelper::error($e->getMessage());
+        return back()->with('error', 'NÃO FOI POSSÍVEL CADASTRAR O PRODUTO. '.$e);
       }
     }
 
@@ -43,11 +43,11 @@ class ProdutoController extends Controller
         $data['empresa_id'] = Auth::user()->empresa_id;
 
         if (!$produto->create($data)) {
-            return back();
+            return back()->with('error', 'NÃO FOI POSSÍVEL CADASTRAR O PRODUTO');
         }
-        return redirect()->route('produto.index');
+        return redirect()->route('produto.index')->with('success', 'PRODUTO CADASTRADO COM SUCESSO');
       } catch (\Exception $e) {
-        return ResponseHelper::error($e->getMessage());
+        return back()->with('error', 'NÃO FOI POSSÍVEL CADASTRAR O PRODUTO. '.$e);
       }
     }
 
@@ -55,16 +55,16 @@ class ProdutoController extends Controller
     {
       try{
         if (!$produto = Produto::where('id', '=', $id)->where('empresa_id', '=', Auth::user()->empresa_id)->first()) {
-            return back();
+            return back()->with('error', 'NÃO FOI POSSÍVEL LOCALIZAR O PRODUTO');
         }
 
         $produto->update($request->only([
             'descricao', 'status', 'vlr_unitario', 'categoria_id', 'apresentacao'
         ]));
 
-        return redirect()->route('produto.index');
+        return redirect()->route('produto.index')->with('success', 'PRODUTO ATUALIZADO COM SUCESSO');
       } catch (\Exception $e) {
-        return ResponseHelper::error($e->getMessage());
+        return back()->with('error', 'NÃO FOI POSSÍVEL ATUALIZAR O PRODUTO. '.$e);
       }
     }
 
@@ -72,7 +72,7 @@ class ProdutoController extends Controller
     {
         if (!$produto = Produto::select('produtos.*', 'categorias.descricao as categorias')->where('produtos.id', $id)->where('produtos.empresa_id', Auth::user()->empresa_id)
             ->join('categorias', 'produtos.categoria_id', '=', 'categorias.id')->first()) {
-            return back();
+            return back()->with('error', 'NÃO FOI POSSÍVEL LOCALIZAR O PRODUTO');
         }
 
         $categorias = $categoriaService->findAllActiveByEmpresaID(Auth::user()->empresa_id);
@@ -86,7 +86,7 @@ class ProdutoController extends Controller
     public function modal(string $id, Produto $produto)
     {
         if (!$produto = $produto->where('id', $id)->where('empresa_id', Auth::user()->empresa_id)) {
-            return back();
+            return back()->with('error', 'NÃO FOI POSSÍVEL LOCALIZAR O PRODUTO');
         }
 
         return redirect()->route('produto.index')->with(['produto' => $produto]);
@@ -97,14 +97,14 @@ class ProdutoController extends Controller
       try{
         if (!$produto = $produto->where('id', $id)->where('empresa_id', Auth::user()->empresa_id)) {
             $produtos[] = new Produto();
-            return back();
+            return back()->with('error', 'NÃO FOI POSSÍVEL EXCLUIR O PRODUTO');
         }
 
         $produto->delete();
 
-        return redirect()->route('produto.index');
+        return redirect()->route('produto.index')->with('success', 'PRODUTO EXCLUIDO COM SUCESSO');
       } catch (\Exception $e) {
-        return ResponseHelper::error($e->getMessage());
+        return back()->with('error', 'NÃO FOI POSSÍVEL EXCLUIR O PRODUTO. '.$e);
       }
     }
 }
