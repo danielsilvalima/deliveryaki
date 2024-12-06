@@ -43,13 +43,13 @@ class EmpresaService
 
     // Verificar se a empresa foi encontrada
     if (!$empresa || $empresa->empresa_expedientes->isEmpty()) {
-      return response()->json(['status' => 'Fechado']);
+      return ['status' => 'Fechado'];
     }
 
     $expediente = $empresa->empresa_expedientes->firstWhere('horario_expedientes.dia_semana', $diaSemanaAtual);
 
     if (!$expediente) {
-        return response()->json(['status' => 'Fechado']);
+        return ['status' => 'Fechado'];
     }
 
     $aberto = $horaAtual >= $expediente->hora_abertura && $horaAtual <= $expediente->hora_fechamento;
