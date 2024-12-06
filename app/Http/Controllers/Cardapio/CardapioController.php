@@ -30,9 +30,8 @@ class CardapioController extends Controller
       $cardapio = $cardapioService->groupByCategory($cardapio);
 
       $horario_expediente = $empresaService->verificaExpedienteByHash($id);
-      $data = $horario_expediente->getData();
 
-      $cardapio['horario_expediente'] = $data->status;
+      $cardapio['horario_expediente'] = $horario_expediente['status'];
 
       return response()->json(
         [$cardapio],

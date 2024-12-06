@@ -235,9 +235,9 @@
                           <th>ID</th>
                           <th>DESCRIÇÃO</th>
                           <th>ABERTURA</th>
-                          <th>FECHAMENTO</th>
                           <th>INÍCIO INTERVALO</th>
                           <th>TÉRMINO INTERVALO</th>
+                          <th>FECHAMENTO</th>
                           <th>AÇÕES</th>
                         </tr>
                       </thead>
