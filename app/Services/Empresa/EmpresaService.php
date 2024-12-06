@@ -37,11 +37,16 @@ class EmpresaService
     $diaSemanaAtual = Carbon::now()->dayOfWeek; // 0 = domingo, ..., 6 = sábado
     $horaAtual = Carbon::now()->toTimeString();
 
-    $empresa = Empresa::with(['expedientes.horarioExpediente'])
+    $empresa = Empresa::with(['empresa_expedientes.horario_expedientes'])
       ->where('hash', $hash)
       ->first();
 
-    $expediente = $empresa->expedientes->firstWhere('horarioExpediente.dia_semana', $diaSemanaAtual);
+    // Verificar se a empresa foi encontrada
+    if (!$empresa || $empresa->empresa_expedientes->isEmpty()) {
+      return response()->json(['status' => 'Fechado']);
+    }
+
+    $expediente = $empresa->empresa_expedientes->firstWhere('horario_expedientes.dia_semana', $diaSemanaAtual);
 
     if (!$expediente) {
         return response()->json(['status' => 'Fechado']);
