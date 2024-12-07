@@ -31,7 +31,7 @@ class CardapioController extends Controller
 
       $horario_expediente = $empresaService->verificaExpedienteByHash($id);
 
-      $cardapio['horario_expediente'] = $horario_expediente['status'];
+      $cardapio['horario_expediente'] = $horario_expediente;
 
       return response()->json(
         [$cardapio],

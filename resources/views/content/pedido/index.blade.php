@@ -37,7 +37,8 @@
     <table class="table">
       <thead class="table-dark">
         <tr>
-          <th style="width: 10%;">DETALHES</th>
+          <th style="width: 1%;"></th>
+          <th style="width: 5%;">NÚMERO</th>
           <th style="width: 20%;">CLIENTE</th>
           <th style="width: 50%;">ENDEREÇO</th>
           <th style="width: 5%;">DATA</th>
@@ -54,9 +55,10 @@
         <tr>
           <td>
             <button type="button" class="btn btn-link p-0" onclick="toggleDetails({{ $pedido->id }})">
-              <i class="mdi mdi-eye-outline"></i> Detalhes
+              <i class="mdi mdi-eye-outline"></i>
             </button>
           </td>
+          <td>{{ $pedido->id }}</td>
           <td>{{ $pedido->nome_completo }}</td>
           <td>{{ $pedido->logradouro }}, {{ $pedido->numero }} - {{ $pedido->bairro }}
           </td>
@@ -66,14 +68,28 @@
           <td style="text-align: center;">{!! $pedido->tipo_entrega == "E"
           ? '<span class="badge rounded-pill bg-label-warning me-1">ENTREGA</span>'
           : ($pedido->tipo_entrega == "R" ? '<span class="badge rounded-pill bg-label-danger me-1">RETIRA</span>' : '') !!}</td>
-          <td><span class="badge rounded-pill bg-label-primary me-1">{{ $pedido->status == "D" ? "DESATIVADO" : ($pedido->status == "A" ? "ATIVADO": "")}}</span></td>
+          <td>
+            <span class="badge rounded-pill
+              {{ $pedido->status == 'C' ? 'bg-label-danger' :
+                ($pedido->status == 'A' ? 'bg-label-primary' :
+                ($pedido->status == 'P' ? 'bg-label-warning' :
+                ($pedido->status == 'E' ? 'bg-label-success' : ''))) }} me-1">
+              {{ $pedido->status == 'C' ? 'CANCELADO' :
+                ($pedido->status == 'A' ? 'ATIVADO' :
+                ($pedido->status == 'P' ? 'PENDENTE' :
+                ($pedido->status == 'E' ? 'ENTREGUE' : ''))) }}
+            </span>
+          </td>
+
           <td>
             <div class="dropdown">
               <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></button>
               <div class="dropdown-menu">
-                <a class="dropdown-item" href="{{ route('pedido.show', $pedido->id) }}"><i class="mdi mdi-pencil-outline me-1"></i> EDITAR</a>
-                <!--<a class="dropdown-item" href="javascript:void(0);"><i class="mdi mdi-trash-can-outline me-1"></i> Delete</a>-->
-                <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#basicModal" href="javascript:void(0);"><i class="mdi mdi-trash-can-outline me-1"></i> EXCLUIR</a>
+                <a class="dropdown-item" href="javascript:void(0);"
+                  onclick="openEditModal({{ $pedido->id }}, {{ json_encode($pedido->itens) }}, '{{ $pedido->status }}', '{{ $pedido->tipo_entrega }}', '{{ $pedido->tipo_pagamento }}')">
+                  <i class="mdi mdi-pencil-outline me-1"></i> EDITAR
+                </a>
+
               </div>
             </div>
           </td>
@@ -108,44 +124,34 @@
 </div>
 
 <!-- Modal -->
-@if (isset($pedido))
 <div class="modal fade" id="basicModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title" id="exampleModalLabel1">EXCLUIR PEDIDO</h4>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form action="{{ route('pedido.delete', $pedido->id ) }}" method="POST">
-          @csrf()
-          @method('DELETE')
-          <div class="row">
-            <div class="col mb-4 mt-2">
-              <div class="form-floating form-floating-outline">
-                <input type="text" id="descricao" value="{{ $pedido->descricao }} " class=" form-control" placeholder="DESCRIÇÃO">
-                <label for="descricao">DESCRIÇÃO</label>
-              </div>
-            </div>
+    <form id="editPedidoForm" method="POST" action="">
+      @csrf
+      @method('PUT')
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="exampleModalLabel1">EDITAR STATUS DO PEDIDO</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <!--<div class="row g-2">
-            <div class="col mb-2">
-              <div class="form-floating form-floating-outline">
-                <input type="text" id="razao_social" value="" class="form-control" placeholder="Razão Social">
-                <label for="razao_social">Razão Social</label>
-              </div>
-            </div>
-          </div>-->
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-primary">Excluir</button>
-      </div>
-      </form>
-    </div>
+          <div class="modal-body">
+            <p><strong>NÚMERO DO PEDIDO: </strong> <span id="pedido-id"></span></p>
+            <p><strong>ITENS DO PEDIDO: </strong></p>
+            <ul id="pedido-itens"></ul>
+            <p><strong>TIPO DE PAGAMENTO:</strong> <span id="tipo-pagamento"></span></p>
+            <p><strong>TIPO DE ENTREGA:</strong> <span id="tipo-entrega"></span></p>
+            <p><strong>STATUS DO PEDIDO: </strong></p>
+            <div id="status-container"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">CANCELAR</button>
+            <button type="submit" class="btn btn-primary">SALVAR ALTERAÇÕES</button>
+          </div>
+        </div>
+    </form>
   </div>
 </div>
-@endif
+<script src="{{ asset('assets/js/modal-pedido.js') }}"></script>
+
 
 @endsection

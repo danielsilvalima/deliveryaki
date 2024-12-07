@@ -43,19 +43,20 @@ class EmpresaService
 
     // Verificar se a empresa foi encontrada
     if (!$empresa || $empresa->empresa_expedientes->isEmpty()) {
-      return ['status' => 'Fechado'];
+      return ['mensagem' => 'Estamos Fechados', 'status' => 'fechado'];
     }
 
     $expediente = $empresa->empresa_expedientes->firstWhere('horario_expedientes.dia_semana', $diaSemanaAtual);
 
     if (!$expediente) {
-        return ['status' => 'Fechado'];
+        return ['mensagem' => 'Estamos Fechados', 'status' => 'fechado'];
     }
 
     $aberto = $horaAtual >= $expediente->hora_abertura && $horaAtual <= $expediente->hora_fechamento;
     $noIntervalo = $horaAtual >= $expediente->intervalo_inicio && $horaAtual <= $expediente->intervalo_fim;
-    $status = $aberto && !$noIntervalo ? 'Aberto' : 'Fechado';
+    $mensagem = $aberto && !$noIntervalo ? 'Estamos Abertos! Seja Bem-vindo(a)!' : 'Estamos Fechados';
+    $status = $aberto && !$noIntervalo ? 'aberto' : 'fechado';
 
-    return ['status' => $status];
+    return ['status' => $status, 'mensagem' => $mensagem];
   }
 }

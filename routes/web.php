@@ -124,7 +124,7 @@ Route::middleware('auth:sanctum')->group(function () {
   //Pedido
   Route::get('/pedido', [PedidoController::class, 'index'])->name('pedido.index');
   Route::get('/pedido/{id}', [PedidoController::class, 'show'])->name('pedido.show');
-  Route::delete('/pedido/{id}', [PedidoController::class, 'delete'])->name('pedido.delete');
+  Route::put('/pedido/{id}', [PedidoController::class, 'update'])->name('pedido.update');
 
 
  //Usuário

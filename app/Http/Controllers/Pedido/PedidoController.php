@@ -158,4 +158,21 @@ class PedidoController extends Controller
       return ResponseHelper::error($e->getMessage());
     }
   }
+
+  public function update(Request $request, $id)
+    {
+      try{
+        // Encontrar o pedido pelo ID
+        $pedido = Pedido::findOrFail($id);
+
+        // Atualizar o status do pedido
+        $pedido->status = $request->input('status');
+        $pedido->save();
+
+        // Redirecionar com mensagem de sucesso
+        return redirect()->back()->with('success', 'PEDIDO ATUALIZADO COM SUCESSO');
+      } catch (\Exception $e) {
+        return back()->with('error', 'PEDIDO NÃO FOI ATUALIZADO. '.$e);
+      }
+    }
 }
