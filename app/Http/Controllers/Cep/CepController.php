@@ -59,8 +59,8 @@ class CepController extends Controller
           }
 
           $empresa->update([
-            'lat' => Str::replace('-', '', $empresaLatLng['latitude']),
-            'lng' => Str::replace('-', '', $empresaLatLng['longitude']),
+            'lat' => $empresaLatLng['latitude'],
+            'lng' => $empresaLatLng['longitude'],
           ]);
         }else {
           $empresaLatLng = ['latitude' => $empresa->lat, 'longitude' => $empresa->lng];

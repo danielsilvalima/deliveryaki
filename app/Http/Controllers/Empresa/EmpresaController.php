@@ -52,39 +52,39 @@ class EmpresaController extends Controller
   {
     DB::beginTransaction();
     try{
-    if (!$empresa = $empresa->find($id)) {
-      return back()->with('error', 'EMPRESA NÃO FOI ATUALIZADA');
-    }
-
-    $empresa->update($request->only([
-      'cnpj', 'razao_social', 'telefone', 'celular', 'email', 'status', 'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf', 'vlr_km', 'tipo_taxa', 'inicio_distancia'
-    ]));
-
-    $expedientes = json_decode($request->input('expedientes'), true);
-
-    if (!empty($expedientes)) {
-      // Exclui os expedientes antigos da tabela
-      EmpresaExpediente::where('empresa_id', $empresa->id)->delete();
-
-      // Cria os novos expedientes na tabela
-      foreach ($expedientes as $expediente) {
-          EmpresaExpediente::create([
-              'empresa_id' => $empresa->id,
-              'horario_expediente_id' => $expediente['horario_expediente_id'],
-              'hora_abertura' => $expediente['hora_abertura'],
-              'hora_fechamento' => $expediente['hora_fechamento'],
-              'intervalo_inicio' => $expediente['intervalo_inicio'],
-              'intervalo_fim' => $expediente['intervalo_fim'],
-          ]);
+      if (!$empresa = $empresa->find($id)) {
+        return back()->with('error', 'EMPRESA NÃO FOI LOCALIZADA');
       }
-    } else {
-        // Se não houver novos expedientes, exclui os antigos
+
+      $empresa->update($request->only([
+        'cnpj', 'razao_social', 'telefone', 'celular', 'email', 'status', 'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf', 'vlr_km', 'tipo_taxa', 'inicio_distancia'
+      ]));
+
+      $expedientes = json_decode($request->input('expedientes'), true);
+
+      if (!empty($expedientes)) {
+        // Exclui os expedientes antigos da tabela
         EmpresaExpediente::where('empresa_id', $empresa->id)->delete();
-    }
 
-    DB::commit();
+        // Cria os novos expedientes na tabela
+        foreach ($expedientes as $expediente) {
+            EmpresaExpediente::create([
+                'empresa_id' => $empresa->id,
+                'horario_expediente_id' => $expediente['horario_expediente_id'],
+                'hora_abertura' => $expediente['hora_abertura'],
+                'hora_fechamento' => $expediente['hora_fechamento'],
+                'intervalo_inicio' => $expediente['intervalo_inicio'],
+                'intervalo_fim' => $expediente['intervalo_fim'],
+            ]);
+        }
+      } else {
+          // Se não houver novos expedientes, exclui os antigos
+          EmpresaExpediente::where('empresa_id', $empresa->id)->delete();
+      }
 
-    return redirect()->route('empresa.index')->with('success', 'EMPRESA ATUALIZADO COM SUCESSO');
+      DB::commit();
+
+      return redirect()->route('empresa.index')->with('success', 'EMPRESA ATUALIZADO COM SUCESSO');
     } catch (\Exception $e) {
       DB::rollBack();
       //throw new \Exception('ERRO AO EDITAR A EMPRESA ' . $e->getMessage());

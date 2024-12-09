@@ -45,6 +45,7 @@ function openEditModal(pedidoId, itens, status, tipoEntrega, tipoPagamento) {
   // Definir as opções de status
   const statusOptions = [
     { value: 'A', label: 'ATIVADO' },
+    { value: 'S', label: 'SAIU P/ ENTREGA' },
     { value: 'E', label: 'ENTREGUE' },
     { value: 'P', label: 'PENDENTE' },
     { value: 'C', label: 'CANCELADO' }

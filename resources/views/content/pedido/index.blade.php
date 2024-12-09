@@ -73,11 +73,13 @@
               {{ $pedido->status == 'C' ? 'bg-label-danger' :
                 ($pedido->status == 'A' ? 'bg-label-primary' :
                 ($pedido->status == 'P' ? 'bg-label-warning' :
-                ($pedido->status == 'E' ? 'bg-label-success' : ''))) }} me-1">
+                ($pedido->status == 'S' ? 'bg-label-warning' :
+                ($pedido->status == 'E' ? 'bg-label-success' : '')))) }} me-1">
               {{ $pedido->status == 'C' ? 'CANCELADO' :
                 ($pedido->status == 'A' ? 'ATIVADO' :
                 ($pedido->status == 'P' ? 'PENDENTE' :
-                ($pedido->status == 'E' ? 'ENTREGUE' : ''))) }}
+                ($pedido->status == 'S' ? 'SAIU P/ ENTREGA' :
+                ($pedido->status == 'E' ? 'ENTREGUE' : '')))) }}
             </span>
           </td>
 

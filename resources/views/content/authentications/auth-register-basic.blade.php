@@ -78,34 +78,34 @@
               </div>
               <div class="col-md-12">
                 <div class="form-floating form-floating-outline mb-3">
-                  <input type="text" class="form-control" id="logradouro" disabled name="logradouro" placeholder="Logradouro"
+                  <input type="text" class="form-control" id="logradouro" readonly name="logradouro" placeholder="Logradouro"
                   onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
                   <label for="logradouro">Logradouro</label>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-floating form-floating-outline mb-3">
-                  <input type="text" class="form-control" id="complemento" disabled name="complemento" placeholder="Complemento"
+                  <input type="text" class="form-control" id="complemento" readonly name="complemento" placeholder="Complemento"
                   onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
                   <label for="complemento">Complemento</label>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-floating form-floating-outline mb-3">
-                  <input type="text" class="form-control" id="bairro" disabled name="bairro" placeholder="Bairro"
+                  <input type="text" class="form-control" id="bairro" readonly name="bairro" placeholder="Bairro"
                   onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
                   <label for="bairro">Bairro</label>
                 </div>
               </div>
               <div class="col-md-9">
                 <div class="form-floating form-floating-outline mb-3">
-                  <input type="text" class="form-control" id="cidade" disabled name="cidade" placeholder="Cidade"
+                  <input type="text" class="form-control" id="cidade" readonly name="cidade" placeholder="Cidade"
                   onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
                   <label for="cidade">Cidade</label>
                 </div>
               </div><div class="col-md-3">
                 <div class="form-floating form-floating-outline mb-3">
-                  <input type="text" class="form-control" id="uf" disabled name="uf" placeholder="UF"
+                  <input type="text" class="form-control" id="uf" readonly name="uf" placeholder="UF"
                   onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
                   <label for="uf">UF</label>
                 </div>

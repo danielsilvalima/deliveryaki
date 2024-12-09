@@ -57,9 +57,9 @@
             </div>
             <div class="mb-3 d-flex justify-content-between">
 
-              <a href="{{url('auth/forgot-password-basic')}}" class="float-end mb-1">
+              <!--<a href="{{url('auth/forgot-password-basic')}}" class="float-end mb-1">
                 <span>Esqueceu sua senha?</span>
-              </a>
+              </a>-->
             </div>
             <div class="mb-3">
               <button class="btn btn-primary d-grid w-100" type="submit">Entrar</button>

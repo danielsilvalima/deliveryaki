@@ -13,8 +13,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+      if (\App\Models\User::count() === 0) {
         \App\Models\User::factory(30)->create();
-        $this->call(HorarioExpedienteSeeder::class);
+      }
+      $this->call(HorarioExpedienteSeeder::class);
 
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',

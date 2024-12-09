@@ -24,8 +24,8 @@ class HereService
       }
 
       $position = $geocode_response->json('items')[0]['position'];
-      $latitude = $position['lat'];
-      $longitude = $position['lng'];
+      $latitude = Str::replace('-', '', $position['lat']);
+      $longitude = Str::replace('-', '', $position['lng']);
       return [
         'latitude' => $latitude,
         'longitude' => $longitude,
@@ -42,8 +42,8 @@ class HereService
       $route_url = config('app.url_here_route');
       $params = [
         'transportMode' => 'car',
-        'origin' => Str::replace('-', '', $empresaLatLng['longitude'].','.$empresaLatLng['latitude']),
-        'destination' => Str::replace('-', '', $clienteLatLng['longitude'].','.$clienteLatLng['latitude']),
+        'origin' => $empresaLatLng['longitude'].','.$empresaLatLng['latitude'],
+        'destination' => $clienteLatLng['longitude'].','.$clienteLatLng['latitude'],
         'return' => 'summary',
         'apikey' => config('app.here_key'),
       ];

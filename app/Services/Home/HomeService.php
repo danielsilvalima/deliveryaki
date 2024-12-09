@@ -19,18 +19,23 @@ class HomeService
 
       // Produto mais vendido em valor
       $produtoMaisVendido = DB::table('pedido_items')
-          ->join('produtos', 'pedido_items.produto_id', '=', 'produtos.id')
-          ->where('pedido_items.empresa_id', $empresaId)
-          ->whereBetween('pedido_items.created_at', [$dataInicio, $dataFim])
-          ->select('produtos.descricao as produto', DB::raw('SUM(pedido_items.vlr_total) as total_vendido'))
-          ->groupBy('produtos.id', 'produtos.descricao')
-          ->orderByDesc('total_vendido')
-          ->first();
+        ->join('produtos', 'pedido_items.produto_id', '=', 'produtos.id')
+        ->where('pedido_items.empresa_id', $empresaId)
+        ->whereBetween('pedido_items.created_at', [$dataInicio, $dataFim])
+        ->select(
+            'produtos.descricao as produto',
+            'pedido_items.vlr_unitario as vlr_unitario', // Seleciona o valor unitário
+            DB::raw('SUM(pedido_items.vlr_total) as total_vendido')
+        )
+        ->groupBy('produtos.id', 'produtos.descricao', 'pedido_items.vlr_unitario') // Agrupa por valor unitário também
+        ->orderByDesc('total_vendido')
+        ->first();
 
       // Caso a consulta não retorne resultados, defina valores padrão
       $produtoMaisVendido = $produtoMaisVendido ?? (object) [
         'produto' => 'Nenhum',
-        'total_vendido' => 0
+        'total_vendido' => 0,
+        'vlr_unitario' => 0
       ];
 
       // Grupo (categoria) mais vendido em valor
@@ -57,6 +62,7 @@ class HomeService
         ->select('tipo_entrega', DB::raw('COUNT(*) as quantidade'))
         ->groupBy('tipo_entrega')
         ->orderByDesc('quantidade')
+        ->limit(1) // Retorna apenas a primeira linha com a maior quantidade
         ->get()
         ->map(function ($item) {
             $item->tipo_entrega = $item->tipo_entrega === 'E' ? 'ENTREGA' : 'RETIRA';
@@ -80,6 +86,7 @@ class HomeService
         ->select('tipo_pagamento', DB::raw('COUNT(*) as quantidade'))
         ->groupBy('tipo_pagamento')
         ->orderByDesc('quantidade')
+        ->limit(1) // Retorna apenas a primeira linha com a maior quantidade
         ->get()
         ->map(function ($item) {
             switch ($item->tipo_pagamento) {

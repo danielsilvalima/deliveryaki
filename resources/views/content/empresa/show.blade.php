@@ -35,7 +35,7 @@
       <small class="text-muted float-end"></small>
     </div>
     <div class="card-header">
-    <ul class="nav nav-tabs" role="tablist">
+      <ul class="nav nav-tabs" role="tablist">
         <li class="nav-item">
           <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-tab-home" aria-controls="navs-tab-home" aria-selected="true">Home</button>
         </li>
@@ -150,7 +150,8 @@
 
               <div class="col-md-2">
                 <div class="form-floating form-floating-outline mb-3">
-                  <input type="number" id="inicio_distancia" name="inicio_distancia" value="{{ $empresa->inicio_distancia }}" class="form-control phone-mask" placeholder="INÍCIO DISTÂNCIA" required aria-label="INÍCIO DISTÂNCIA" aria-describedby="basic-icon-default-phone2" />
+                  <input type="number" id="inicio_distancia" name="inicio_distancia" value="{{ $empresa->inicio_distancia }}"
+                  class="form-control phone-mask " placeholder="INÍCIO DISTÂNCIA" required aria-label="INÍCIO DISTÂNCIA" aria-describedby="basic-icon-default-phone2" />
                   <label for="inicio_distancia">INÍCIO DISTÂNCIA (KM)</label>
                 </div>
               </div>
@@ -169,6 +170,8 @@
                 </div>
               </div>
             </div>
+            <button type="submit" class="btn btn-primary">SALVAR</button>
+            <a href="{{ route('empresa.index') }}" class="btn btn-secondary">CANCELAR</a>
           </div>
           <div class="tab-pane fade show" id="navs-tab-expediente" role="tabpanel">
             <div class="row">
@@ -242,39 +245,6 @@
                         </tr>
                       </thead>
                       <tbody class="table-border-bottom-0" id="table-body-empresa-expediente">
-                        <!--@foreach($empresaExpedientes as $empresaExpediente)
-                        <tr>
-                          <td>{{ $empresaExpediente->horario_expediente_id }}</td>
-                          <td>{{ $empresaExpediente->descricao }}</td>
-                          <td style="text-align: center;">
-                            {{ $empresaExpediente->hora_abertura ? \Carbon\Carbon::createFromFormat('H:i:s', $empresaExpediente->hora_abertura)->format('H:i') : '-' }}
-                        </td>
-
-                        <td style="text-align: center;">
-                            {{ $empresaExpediente->hora_fechamento ? \Carbon\Carbon::createFromFormat('H:i:s', $empresaExpediente->hora_fechamento)->format('H:i') : '-' }}
-                        </td>
-
-                        <td style="text-align: center;">
-                            {{ $empresaExpediente->intervalo_inicio ? \Carbon\Carbon::createFromFormat('H:i:s', $empresaExpediente->intervalo_inicio)->format('H:i') : '-' }}
-                        </td>
-
-                        <td style="text-align: center;">
-                            {{ $empresaExpediente->intervalo_fim ? \Carbon\Carbon::createFromFormat('H:i:s', $empresaExpediente->intervalo_fim)->format('H:i') : '-' }}
-                        </td>
-
-
-                          <td>
-                            <div class="dropdown">
-                              <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical"></i></button>
-                              <div class="dropdown-menu">
-                              <button type="button" class="btn btn-danger btn-sm remove-expediente">
-                                <i class="mdi mdi-trash-can-outline"></i> Excluir
-                              </button>
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                        @endforeach-->
                       </tbody>
                     </table>
                   </div>
@@ -285,10 +255,7 @@
               </div>
             </div>
           </div>
-          <button type="submit" class="btn btn-primary">SALVAR</button>
-          <a href="{{ route('empresa.index') }}" class="btn btn-secondary">CANCELAR</a>
         </div>
-
       </form>
     </div>
   </div>

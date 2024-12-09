@@ -73,7 +73,6 @@ document.addEventListener('DOMContentLoaded', function () {
       const intervaloInicio = row.querySelector('#intervalo_inicio').innerHTML;
       const intervaloFim = row.querySelector('#intervalo_fim').innerHTML;
 
-      //if (horarioExpedienteId && horaAbertura && horaFechamento) {
       expedientes.push({
         horario_expediente_id: horarioExpedienteId,
         hora_abertura: horaAbertura || null,
@@ -81,7 +80,6 @@ document.addEventListener('DOMContentLoaded', function () {
         intervalo_inicio: intervaloInicio || null,
         intervalo_fim: intervaloFim || null
       });
-      //}
     });
     const expedientesInput = document.createElement('input');
     expedientesInput.type = 'hidden';
