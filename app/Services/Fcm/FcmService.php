@@ -30,8 +30,8 @@ class FcmService
       $message = [
         'token' => $token,
         'notification' => [
-            'title' => 'SEU PEDIDO ESTÁ A CAMINHO!',
-            'body' => "O PEDIDO #{$pedido->id}SAIU PARA ENTREGA",
+            'title' => 'Seu pedido está a caminho!',
+            'body' => "O pedido #{$pedido->id} saiu para entrega",
         ],
         'data' => [
             'pedido_id' => (string)$pedido->id,
