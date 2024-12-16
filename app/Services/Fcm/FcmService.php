@@ -31,17 +31,20 @@ class FcmService
         'token' => $token,
         'notification' => [
             'title' => 'SEU PEDIDO ESTÁ A CAMINHO!',
-            'body' => "O PEDIDO #$pedido->id SAIU PARA ENTREGA",
+            'body' => "O PEDIDO #{$pedido->id}SAIU PARA ENTREGA",
         ],
         'data' => [
-            'pedido_id' => $pedido->id,
+            'pedido_id' => (string)$pedido->id,
             'status' => 'saiu para entrega'
         ]
       ];
 
       $messaging->send($message);
 
-      return response()->json(['success' => true, 'message' => 'NOTIFICAÇÃO ENVIADA COM SUCESSO']);
+      return [
+        'success' => true,
+        'message' => 'NOTIFICAÇÃO ENVIADA COM SUCESSO'
+    ];
     } catch (\Exception $e) {
       throw new \Exception('FALHA AO ENVIAR A NOTIFICAÇÃO DO PEDIDO: '. $e->getMessage());
     }
