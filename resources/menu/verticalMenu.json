@@ -1,0 +1,40 @@
+{
+  "menu": [
+    {
+      "name": "Pedido",
+      "icon": "menu-icon tf-icons mdi mdi-truck-delivery",
+      "slug": "cards-basic",
+      "url": "pedido"
+    },
+    {
+      "name": "Produto",
+      "icon": "menu-icon tf-icons mdi mdi-silverware-fork-knife",
+      "slug": "cards-basic",
+      "url": "produto"
+    },
+    {
+      "name": "Categoria",
+      "icon": "menu-icon tf-icons mdi mdi-store-outline",
+      "slug": "cards-basic",
+      "url": "categoria"
+    },
+    {
+      "name": "Cliente",
+      "icon": "menu-icon tf-icons mdi mdi-account-credit-card-outline",
+      "slug": "cards-basic",
+      "url": "cliente"
+    },
+    {
+      "name": "Empresa",
+      "icon": "menu-icon tf-icons mdi mdi-form-select",
+      "slug": "cards-basic",
+      "url": "empresa"
+    },
+    {
+      "name": "Usuário",
+      "icon": "menu-icon tf-icons mdi mdi-account-outline",
+      "slug": "cards-basic",
+      "url": "usuario"
+    }
+  ]
+}
