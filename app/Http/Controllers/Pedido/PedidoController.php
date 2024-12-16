@@ -11,6 +11,7 @@ use App\Helpers\ResponseHelper;
 use App\Services\Pedido\PedidoService;
 use App\Services\PedidoItem\PedidoItemService;
 use App\Services\Fcm\FcmService;
+use Illuminate\Support\Facades\DB;
 
 class PedidoController extends Controller
 {
@@ -72,19 +73,22 @@ class PedidoController extends Controller
 
   public function update(Request $request, $id, FcmService $fcmService)
   {
+    DB::beginTransaction();
     try {
         $pedido = Pedido::findOrFail($id);
 
         $resultado = ['success' => true, 'message' => ''];
 
-        if ($request->input('status') === 'S') {
-            $token = optional($pedido->pedido_notificacaos->first())->token_notificacao;
-
-            $resultado = $fcmService->enviaPushNotification($pedido, $token);
-        }
-
         $pedido->status = $request->input('status');
         $pedido->save();
+
+        if ($request->input('status') === 'S') {
+          $token = optional($pedido->pedido_notificacaos->first())->token_notificacao;
+
+          $resultado = $fcmService->enviaPushNotification($pedido, $token);
+        }
+
+        DB::commit();
 
         $mensagem = $resultado['success']
             ? 'PEDIDO ATUALIZADO COM SUCESSO. ' . $resultado['message']
@@ -92,6 +96,7 @@ class PedidoController extends Controller
 
         return redirect()->back()->with('success', $mensagem);
     } catch (\Exception $e) {
+      DB::rollBack();
         return redirect()->back()->with('error', 'PEDIDO NÃO FOI ATUALIZADO. ' . $e->getMessage());
     }
   }
