@@ -71,22 +71,29 @@ class PedidoController extends Controller
   }
 
   public function update(Request $request, $id, FcmService $fcmService)
-    {
-      try{
-        // Encontrar o pedido pelo ID
+  {
+    try {
         $pedido = Pedido::findOrFail($id);
 
-        // Atualizar o status do pedido
-        if($request->input('status') === 'S'){
-          $teste = $fcmService->enviaPushNotification($id);
+        $resultado = ['success' => true, 'message' => ''];
+
+        if ($request->input('status') === 'S') {
+            $token = optional($pedido->pedido_notificacaos->first())->token_notificacao;
+
+            $resultado = $fcmService->enviaPushNotification($pedido, $token);
         }
+
         $pedido->status = $request->input('status');
         $pedido->save();
 
-        // Redirecionar com mensagem de sucesso
-        return redirect()->back()->with('success', 'PEDIDO ATUALIZADO COM SUCESSO');
-      } catch (\Exception $e) {
-        return back()->with('error', 'PEDIDO NÃO FOI ATUALIZADO. '.$e);
-      }
+        $mensagem = $resultado['success']
+            ? 'PEDIDO ATUALIZADO COM SUCESSO. ' . $resultado['message']
+            : 'PEDIDO ATUALIZADO COM SUCESSO, MAS A NOTIFICAÇÃO FALHOU: ' . $resultado['message'];
+
+        return redirect()->back()->with('success', $mensagem);
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'PEDIDO NÃO FOI ATUALIZADO. ' . $e->getMessage());
     }
+  }
+
 }
