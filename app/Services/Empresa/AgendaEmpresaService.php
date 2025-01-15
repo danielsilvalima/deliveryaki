@@ -13,6 +13,12 @@ use App\Models\AgendaEmpresaServico;
 
 class AgendaEmpresaService
 {
+  private $base_url;
+  public function __construct()
+  {
+      $this->base_url = config('app.url_agendacliente'); // Inicializa o valor da variável a partir da configuração
+  }
+
   public function create($empresa)
   {
     DB::beginTransaction();
@@ -153,7 +159,7 @@ class AgendaEmpresaService
   public function findByEmail(string $email)
 	{
     try{
-      return AgendaEmpresa::with([
+      $empresa = AgendaEmpresa::with([
         'agenda_user', // Relacionamento direto com usuários
         'agenda_empresa_expedientes.agenda_horario_expedientes', // Relacionamento de expediente e horários
         'agenda_empresa_servicos.agenda_servicos' // Relacionamento de serviços
@@ -164,6 +170,18 @@ class AgendaEmpresaService
       })
       ->where('status', 'A') // Empresa ativa
       ->first();
+
+      $empresa->hash = $this->base_url . $empresa->hash;
+      unset($empresa->expiration_at);
+
+      if($this->validaDataExpiracao($empresa)){
+        $empresa->expiration = false;
+        return $empresa;
+      }else{
+        $empresa->expiration = true;
+        $empresa->message = 'CADASTRO DA EMPRESA EXPIRADO, ENTRE EM CONTATO COM O SUPORTE';
+        return $empresa;
+      }
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
       throw new \Exception('EMAIL NÃO ENCONTRADO.' . $e->getMessage());
     } catch (\Exception $e) {
@@ -197,4 +215,12 @@ class AgendaEmpresaService
 
     return ['status' => $status, 'mensagem' => $mensagem];
   }*/
+
+  public function validaDataExpiracao(AgendaEmpresa $empresa){
+    $dataHoje = Carbon::now()->startOfDay(); // Ajusta a data atual para o início do dia
+    $dataExpiracao = Carbon::parse($empresa->expiration_at)->startOfDay(); // Ajusta a data de expiração para o início do dia
+
+    // Retorna true se a data de expiração for igual ou posterior à data de hoje
+    return $dataExpiracao < $dataHoje;
+  }
 }

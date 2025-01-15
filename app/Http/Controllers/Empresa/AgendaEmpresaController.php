@@ -25,12 +25,17 @@ class AgendaEmpresaController extends Controller
       }
       $empresa = $agendaEmpresaService->findByEmail($email);
 
-      return response()->json(
-        $empresa,
-        Response::HTTP_OK,
-        //$this->header,
-        //$this->options
-      );
+      if($empresa->expiration){
+        return response()->json(
+          $empresa,
+          Response::HTTP_OK,
+        );
+      }else{
+        return response()->json(
+          $empresa,
+          Response::HTTP_ACCEPTED,
+        );
+      }
     } catch (\Exception $e) {
       return ResponseHelper::error($e->getMessage());
     }

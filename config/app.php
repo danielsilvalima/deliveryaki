@@ -19,6 +19,7 @@ return [
   'name' => env('APP_NAME', 'Laravel'),
 
   'url_pedido' => env('APP_URL_PEDIDO'),
+  'url_agendacliente' => env('APP_URL_AGENDA_CLIENTE'),
 
   /*
     |--------------------------------------------------------------------------
