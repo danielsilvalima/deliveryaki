@@ -48,7 +48,7 @@ class AgendaEmpresaController extends Controller
 
       $empresa = $agendaEmpresaService->findByEmail($request->email);
       if($empresa){
-        $empresa->razao_social = $request->razao_social;
+        $empresa->razao_social = strtoupper($request->razao_social);
         $empresa->cnpj = $request->cnpj;
 
         if ($empresa->agenda_user) {

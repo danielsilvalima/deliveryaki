@@ -26,7 +26,7 @@ class AgendaEmpresaService
       } while (AgendaEmpresa::where('hash', $hash)->exists());
 
       $empresa_db = AgendaEmpresa::create([
-        'razao_social' => $empresa['razao_social'],
+        'razao_social' => strtoupper($empresa['razao_social']),
         'cnpj' => $empresa['cnpj'],
         'expiration_at' => $expiration,
         'hash' => $hash
