@@ -6,7 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class HorarioExpedienteSeeder extends Seeder
+class AgendaHorarioExpedienteSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -23,7 +23,7 @@ class HorarioExpedienteSeeder extends Seeder
           ['dia_semana' => 6, 'descricao' => 'Sabado'],
       ];
 
-      $existingDiaSemana = DB::table('horario_expedientes')->pluck('dia_semana')->toArray();
+      $existingDiaSemana = DB::table('agenda_horario_expedientes')->pluck('dia_semana')->toArray();
 
       // Filtrar os serviços que ainda não estão cadastrados
       $newDiaSemana = array_filter($diasSemanas, function ($diasSemana) use ($existingDiaSemana) {
@@ -32,7 +32,7 @@ class HorarioExpedienteSeeder extends Seeder
 
       // Inserir os novos serviços que não foram encontrados no banco
       if (!empty($newDiaSemana)) {
-          DB::table('horario_expedientes')->insert($newDiaSemana);
+          DB::table('agenda_horario_expedientes')->insert($newDiaSemana);
       }
     }
 }

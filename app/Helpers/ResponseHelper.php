@@ -6,6 +6,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ResponseHelper
 {
+  private static $defaultHeaders = [
+    'Content-Type' => 'application/json; charset=UTF-8',
+    'charset' => 'utf-8',
+  ];
+
+  private static $defaultOptions = JSON_UNESCAPED_UNICODE;
   /**
      * Resposta de erro genérica.
      *
@@ -19,7 +25,8 @@ class ResponseHelper
         return response()->json(
             ['message' => $message],
             $status,
-            $header
+            array_merge(self::$defaultHeaders, $header),
+            self::$defaultOptions
         );
     }
 
@@ -48,7 +55,8 @@ class ResponseHelper
         return response()->json(
             is_array($data) ? $data : ['message' => $data],
             $status,
-            $header
+            array_merge(self::$defaultHeaders, $header),
+            self::$defaultOptions
         );
     }
 }

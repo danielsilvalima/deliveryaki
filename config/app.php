@@ -39,6 +39,8 @@ return [
   'here_key' => env('APP_HERE_KEY', ''),
   'fcm_key' => env('APP_FCM_KEY', ''),
 
+  'agenda_key' => env('APP_AGENDA', ''),
+
 
   /*
     |--------------------------------------------------------------------------

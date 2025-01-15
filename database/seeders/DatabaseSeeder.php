@@ -17,6 +17,8 @@ class DatabaseSeeder extends Seeder
         \App\Models\User::factory(30)->create();
       }
       $this->call(HorarioExpedienteSeeder::class);
+      $this->call(AgendaHorarioExpedienteSeeder::class);
+      $this->call(AgendaServicoSeeder::class);
 
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',
