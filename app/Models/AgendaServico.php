@@ -15,4 +15,9 @@ class AgendaServico extends Model
     {
       return $this->hasMany(AgendaEmpresaServico::class, 'servico_id', 'id');
     }
+
+    public function agenda_empresa()
+    {
+      return $this->belongsTo(AgendaEmpresa::class, 'empresa_id');
+    }
 }

@@ -12,8 +12,6 @@ class AgendaEmpresa extends Model
 
     protected $guarded = [];
 
-    protected $with = ['agenda_empresa_expedientes'];
-
   public static function booted()
   {
     static::creating(function ($model) {
@@ -36,16 +34,19 @@ class AgendaEmpresa extends Model
     return $this->hasMany(AgendaEmpresaServico::class, 'empresa_id', 'id');
   }
 
-  public function getListaExpedientesAttribute()
-{
-  return $this->agenda_empresa_expedientes->map(function ($expediente) {
-      return [
-          'horario_expediente_id' => $expediente->horario_expediente_id,
-          'hora_abertura' => $expediente->hora_abertura,
-          'hora_fechamento' => $expediente->hora_fechamento,
-          'intervalo_inicio' => $expediente->intervalo_inicio,
-          'intervalo_fim' => $expediente->intervalo_fim,
-      ];
-  })->toArray();
-}
+  public function agenda_clientes()
+  {
+    return $this->hasMany(AgendaCliente::class, 'empresa_id', 'id');
+  }
+
+  public function agenda_cliente_agendamentos()
+  {
+    return $this->hasMany(AgendaClienteAgendamento::class, 'empresa_id', 'id');
+  }
+
+  public function agenda_servicos()
+    {
+      return $this->hasMany(AgendaServico::class, 'empresa_id', 'id');
+    }
+
 }
