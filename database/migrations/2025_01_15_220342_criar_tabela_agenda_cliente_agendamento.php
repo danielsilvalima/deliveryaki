@@ -21,7 +21,7 @@ return new class extends Migration
         $table->foreignId('empresa_id')->constrained('agenda_empresas');
         $table->foreignId('cliente_id')->constrained('agenda_clientes');
         $table->foreignId('empresa_servico_id')->constrained('agenda_empresa_servicos');
-        $table->foreignId('servico_id')->constrained('agenda_servicos');
+        $table->foreignId('empresa_expediente_id')->constrained('agenda_empresa_expedientes');
       });
     }
 

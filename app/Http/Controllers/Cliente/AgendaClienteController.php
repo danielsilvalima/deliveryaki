@@ -22,7 +22,6 @@ class AgendaClienteController extends Controller
       if (empty($email)) {
         return ResponseHelper::error('O "E-MAIL" É OBRIGATÓRIO', Response::HTTP_BAD_REQUEST);
       }
-
       $empresa = $agendaEmpresaService->findByHashEmailCliente($hash, $email);
 
       return response()->json(

@@ -62,7 +62,6 @@ class AgendaEmpresaService
         foreach ($empresa['listaServicos'] as $servico) {
           AgendaEmpresaServico::create([
             'empresa_id' => $empresa_db->id,
-            'servico_id' => $servico['servico_id'],
             'vlr' => str_replace(',', '.', $servico['vlr']),
             'duracao' => $servico['duracao'],
           ]);
@@ -113,7 +112,6 @@ class AgendaEmpresaService
         foreach ($empresa->listaServicos as $servico) {
           AgendaEmpresaServico::create([
               'empresa_id' => $empresa->id,
-              'servico_id' => $servico['servico_id'],
               'vlr' => str_replace(',', '.', $servico['vlr']),
               'duracao' => $servico['duracao'],
           ]);
@@ -146,7 +144,7 @@ class AgendaEmpresaService
     return AgendaEmpresa::with([
       'agenda_user',
       'agenda_empresa_expedientes.agenda_horario_expedientes',
-      'agenda_empresa_servicos.agenda_servicos'
+      'agenda_empresa_servicos'
       ])->find($id);
 	}
 
@@ -158,10 +156,7 @@ class AgendaEmpresaService
         'agenda_empresa_expedientes.agenda_horario_expedientes', // Relacionamento de expediente e horários
         'agenda_empresa_servicos' => function ($query) { // Relacionamento de serviços da empresa
             $query->where('status', 'A'); // Apenas registros com status 'A'
-        },
-        'agenda_empresa_servicos.agenda_servicos' => function ($query) { // Relacionamento de serviços
-            $query->where('status', 'A'); // Apenas registros com status 'A'
-        },
+        }
       ])
       ->whereHas('agenda_user', function ($query) use ($email) {
           $query->where('email', $email)
@@ -226,7 +221,7 @@ class AgendaEmpresaService
       $empresa = AgendaEmpresa::select(['id', 'razao_social'])
         ->with([
             'agenda_empresa_expedientes.agenda_horario_expedientes', // Relacionamento de expediente e horários
-            'agenda_empresa_servicos.agenda_servicos',              // Relacionamento de serviços
+            'agenda_empresa_servicos',              // Relacionamento de serviços
             'agenda_clientes' => function ($query) use ($email) {   // Filtra clientes pelo email
                 $query->where('email', $email)
                       ->with(['agenda_cliente_agendamentos']);   // Inclui os agendamentos do cliente
@@ -259,7 +254,7 @@ class AgendaEmpresaService
       $empresa = AgendaEmpresa::select(['id', 'razao_social'])
         ->with([
             'agenda_empresa_expedientes.agenda_horario_expedientes', // Relacionamento de expediente e horários
-            'agenda_empresa_servicos.agenda_servicos',              // Relacionamento de serviços
+            'agenda_empresa_servicos',              // Relacionamento de serviços
             'agenda_clientes'
         ])
         ->where('status', 'A') // Empresa ativa

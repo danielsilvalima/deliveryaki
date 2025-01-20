@@ -4,17 +4,17 @@ namespace App\Http\Controllers\Servico;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Services\Servico\AgendaServicoService;
+use App\Services\EmpresaServico\AgendaEmpresaServicoService;
 use App\Services\Empresa\AgendaEmpresaService;
 use Illuminate\Http\Response;
 use App\Helpers\ResponseHelper;
 
 class AgendaServicoController extends Controller
 {
-  public function get(Request $request, AgendaServicoService $agendaServicoService)
+  public function get(Request $request, AgendaEmpresaServicoService $gendaEmpresaServicoService)
   {
     try{
-      $agendaServico = $agendaServicoService->findAll();
+      $agendaServico = $gendaEmpresaServicoService->findAll();
 
       return response()->json(
         $agendaServico,
@@ -25,7 +25,7 @@ class AgendaServicoController extends Controller
     }
   }
 
-  public function store(Request $request, AgendaEmpresaService $agendaEmpresaService, AgendaServicoService $agendaServicoService, )
+  public function store(Request $request, AgendaEmpresaService $agendaEmpresaService, AgendaEmpresaServicoService $gendaEmpresaServicoService, )
   {
     try {
       $empresa = (object) $request->post();
@@ -38,7 +38,7 @@ class AgendaServicoController extends Controller
 
       $empresa_db = $agendaEmpresaService->findByEmailSummary($empresa->agenda_user['email']);
       if($empresa_db){
-        $empresa_db = $agendaServicoService->createOrUpdate($empresa_db, $empresa->agenda_empresa_servicos, $agendaEmpresaService);
+        $empresa_db = $gendaEmpresaServicoService->createOrUpdate($empresa_db, $empresa->agenda_empresa_servicos, $agendaEmpresaService);
       }
 
       return response()->json(

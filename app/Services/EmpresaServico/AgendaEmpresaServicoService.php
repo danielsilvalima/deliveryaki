@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Servico;
+namespace App\Services\EmpresaServico;
 use Illuminate\Support\Facades\DB;
 use App\Models\AgendaServico;
 use App\Models\AgendaEmpresa;
@@ -8,11 +8,11 @@ use App\Models\AgendaEmpresaServico;
 use App\Services\Empresa\AgendaEmpresaService;
 
 
-class AgendaServicoService
+class AgendaEmpresaServicoService
 {
   public function findAll()
   {
-    return AgendaServico::select('id', 'descricao')->where('status', 'A')->orderBy('descricao', 'ASC')->get();
+    return AgendaEmpresaServico::select('id', 'descricao')->where('status', 'A')->orderBy('descricao', 'ASC')->get();
   }
 
   public function createOrUpdate(AgendaEmpresa $empresa, array $listaServicos, AgendaEmpresaService $agendaEmpresaService)
@@ -25,7 +25,7 @@ class AgendaServicoService
         $servicoIdsExistentes = [];
 
         foreach ($listaServicos as $servico) {
-            if (!empty($servico['servico_id'])) {
+            if (!empty($servico['id'])) {
                 // Atualizar serviço existente
                 $this->updateExistingService($empresa, $servico, $servicoIdsExistentes);
             } else {
@@ -59,7 +59,7 @@ class AgendaServicoService
     array $servico,
     array &$servicoIdsExistentes
   ) {
-      $servicoExistente = AgendaEmpresaServico::where('servico_id', $servico['servico_id'])
+      $servicoExistente = AgendaEmpresaServico::where('id', $servico['id'])
           ->where('empresa_id', $empresa->id)
           ->first();
 
@@ -67,14 +67,10 @@ class AgendaServicoService
           $servicoExistente->update([
               'duracao' => $servico['duracao'],
               'vlr' => $servico['vlr'],
+              'descricao' => strtoupper($servico['descricao'])
           ]);
 
-          $servicoIdsExistentes[] = $servico['servico_id'];
-
-          // Atualizar descrição na tabela AgendaServico
-          AgendaServico::where('id', $servico['servico_id'])
-              ->where('empresa_id', $empresa->id)
-              ->update(['descricao' => strtoupper($servico['descricao'])]);
+          $servicoIdsExistentes[] = $servico['id'];
       } else {
           throw new \Exception("SERVIÇO NÃO LOCALIZADO: " . $servico['descricao']);
       }
@@ -82,30 +78,20 @@ class AgendaServicoService
 
   private function createNewService(AgendaEmpresa $empresa, array $servico, array &$servicoIdsExistentes)
   {
-      $servicoNovo = AgendaServico::create([
-          'empresa_id' => $empresa->id,
-          'descricao' => strtoupper($servico['descricao']),
-      ]);
+    $servicoNovo = AgendaEmpresaServico::create([
+        'empresa_id' => $empresa->id,
+        'duracao' => $servico['duracao'],
+        'vlr' => $servico['vlr'],
+        'descricao' => strtoupper($servico['descricao']),
+    ]);
 
-      AgendaEmpresaServico::create([
-          'empresa_id' => $empresa->id,
-          'servico_id' => $servicoNovo->id,
-          'duracao' => $servico['duracao'],
-          'vlr' => $servico['vlr'],
-      ]);
-
-      $servicoIdsExistentes[] = $servicoNovo->id;
+    $servicoIdsExistentes[] = $servicoNovo->id;
   }
 
   private function deactivateMissingServices(AgendaEmpresa $empresa, array $servicoIdsExistentes)
   {
     // Desativar registros em AgendaEmpresaServico
     AgendaEmpresaServico::where('empresa_id', $empresa->id)
-        ->whereNotIn('servico_id', $servicoIdsExistentes)
-        ->update(['status' => 'D']);
-
-    // Desativar registros em AgendaServico
-    AgendaServico::where('empresa_id', $empresa->id)
         ->whereNotIn('id', $servicoIdsExistentes)
         ->update(['status' => 'D']);
   }

@@ -17,7 +17,7 @@ return new class extends Migration
         $table->string('email',100)->notNullable()->unique();
         $table->string('nome_completo',255)->notNullable();
         $table->string('cnpj',20)->nullable();
-        $table->string('celular', 20);
+        $table->string('celular', 20)->nullable();
         $table->foreignId('empresa_id')->constrained('agenda_empresas');
       });
     }

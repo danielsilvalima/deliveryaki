@@ -4,6 +4,7 @@ namespace App\Services\Cliente;
 
 use App\Models\AgendaClienteAgendamento;
 use App\Models\AgendaCliente;
+use App\Models\AgendaEmpresa;
 use App\Models\AgendaHorarioExpediente;
 use App\Services\Empresa\AgendaEmpresaService;
 use Illuminate\Support\Carbon;
@@ -21,35 +22,48 @@ class AgendaClienteService
       }
       if($agendaEmpresaService->validaDataExpiracao($empresa)){
         throw new \Exception("CADASTRO DA EMPRESA EXPIRADO, ENTRE EM CONTATO COM O SUPORTE");
-    }
+      }
 
-      $cliente = AgendaCliente::create([
-        "nome_completo" => $agendaCliente->nome_completo,
-        "email" => $agendaCliente->email,
-        "cnpj" => $agendaCliente["cnpj"],
-        "celular" => $agendaCliente["celular"],
-        "empresa_id" => $empresa->id,
-      ])->id;
+      $agenda_cliente = AgendaCliente::where('email', $agendaCliente->email)
+          ->where('empresa_id', $empresa->id)
+          ->first();
 
-      $start_scheduling = $agendaCliente->data. ' : '.$agendaCliente->horario;
-      //acrescentar a duracao
-      $end_scheduling = "";
-      $cliente = AgendaClienteAgendamento::create([
+      if ($agenda_cliente) {
+        $agenda_cliente->update([
+            'nome_completo' => $agendaCliente->nome_completo,
+            'celular' => $agendaCliente->celular,
+        ]);
+      } else {
+        $agenda_cliente = AgendaCliente::create([
+          "nome_completo" => $agendaCliente->nome_completo,
+          "email" => $agendaCliente->email,
+          "cnpj" => $agendaCliente->cnpj,
+          "celular" => $agendaCliente->celular,
+          "empresa_id" => $empresa->id,
+        ]);
+      }
+
+      $start_scheduling_at = $agendaCliente->data. ' '.$agendaCliente->horario;
+
+      $end_scheduling_at = $this->getEndScheduling($start_scheduling_at, $agendaCliente->duracao);
+
+      $agenda_cliente_agendamento = AgendaClienteAgendamento::create([
         "duracao" => $agendaCliente->duracao,
-        "start_scheduling" => $start_scheduling,
-        "end_scheduling" => $end_scheduling,
+        "vlr" => $agendaCliente->vlr,
+        "start_scheduling_at" => $start_scheduling_at,
+        "end_scheduling_at" => $end_scheduling_at,
         "empresa_id" => $empresa->id,
-        "cliente_id" => $cliente->id,
-        "servico_id" => $agendaCliente->servico_id,
-        "empresa_servico_id" =>$agendaCliente->empresa_servico_id
-      ])->id;
+        "cliente_id" => $agenda_cliente->id,
+        "empresa_servico_id" =>$agendaCliente->empresa_servico_id,
+        "empresa_expediente_id" => $agendaCliente->empresa_expediente_id
+      ]);
 
       DB::commit();
 
-      return $cliente;
+      return $agenda_cliente;
     } catch (\Exception $e) {
       DB::rollBack();
-      throw new \Exception('Erro ao criar o pedido: ' . $e->getMessage());
+      throw new \Exception('ERRO AO CRIAR O AGENDAMENTO: ' . $e->getMessage());
     }
   }
 
@@ -69,8 +83,7 @@ class AgendaClienteService
         throw new \Exception("CADASTRO DA EMPRESA EXPIRADO, ENTRE EM CONTATO COM O SUPORTE");
       }
 
-      //$servico = json_decode($agendaCliente->servico, true);
-      $servico = ["id"=>"13", "duracao"=>"00:30:00", "empresa_id"=>1,"servico_id"=>10];//"updated_at":"2025-01-16T20:56:52.000000Z",,"vlr":"120.00","status":"A",,"agenda_servicos":{"id":10,"empresa_id":1,"created_at":"2025-01-16T20:25:30.000000Z","updated_at":"2025-01-16T20:25:30.000000Z","descricao":"SERVICO DE TESTE","status":"A"}];
+      $servico = json_decode($agendaCliente->servico, true);
       $duracaoServico = Carbon::createFromTimeString($servico['duracao'])->diffInMinutes();
 
       $expedientes = AgendaHorarioExpediente::with(['agenda_empresa_expedientes' => function ($query) use ($empresa) {
@@ -84,7 +97,7 @@ class AgendaClienteService
       }
 
       $horariosDisponiveis = [];
-
+      $empresa_expediente_id = null;
       // Itera pelos expedientes do dia e gera os horários disponíveis
       foreach ($expedientes as $expediente) {
         foreach ($expediente->agenda_empresa_expedientes as $empresaExpediente) {
@@ -103,10 +116,14 @@ class AgendaClienteService
             $horariosDisponiveis,
             $this->gerarHorariosIntervalo($intervaloFim, $horaFechamento)
           );
+
+          $empresa_expediente_id = $empresaExpediente->id;
+
+          $horariosDisponiveis = $this->filtraHorarioDisponivel($empresa, $horariosDisponiveis, $data);
         }
       }
 
-      return $horariosDisponiveis;
+      return ['horarios' => $horariosDisponiveis, 'empresa_expediente_id' => $empresa_expediente_id];
     } catch (\Exception $e) {
         return response()->json(['message' => 'ERRO AO CONSULTAR HORÁRIOS DISPONÍVEIS: ' . $e->getMessage()], 500);
     }
@@ -128,5 +145,34 @@ class AgendaClienteService
     }
 
     return $horarios;
+  }
+
+  function getEndScheduling($dataInicial, $duracao){
+    $data = Carbon::createFromFormat('Y-m-d H:i', $dataInicial, 'UTC');
+    $intervaloMinutos = Carbon::createFromTimeString($duracao, 'UTC')->hour * 60 + Carbon::createFromTimeString($duracao, 'UTC')->minute;
+
+    // Adicionar o intervalo de minutos à data inicial
+    return $data->addMinutes($intervaloMinutos)->setTimezone('UTC')->format('Y-m-d H:i:s');
+  }
+
+  function filtraHorarioDisponivel($empresa, array $horariosDisponiveis, $data){
+    $agendamentos = AgendaClienteAgendamento::where('empresa_id', $empresa->id)
+      ->whereDate('start_scheduling_at', $data)
+      ->get();
+
+    // Filtra os horários disponíveis removendo os agendados
+    foreach ($agendamentos as $agendamento) {
+        $startTime = strtotime($agendamento->start_scheduling_at);
+        $endTime = strtotime($agendamento->end_scheduling_at);
+
+        // Remove os horários que caem dentro do intervalo do agendamento
+        $horariosDisponiveis = array_filter($horariosDisponiveis, function($horario) use ($startTime, $endTime) {
+            $horarioTimestamp = strtotime($horario);
+            return !($horarioTimestamp >= $startTime && $horarioTimestamp < $endTime);
+        });
+    }
+
+    // Retorna os horários disponíveis
+    return array_values($horariosDisponiveis); // Reindexa o array
   }
 }

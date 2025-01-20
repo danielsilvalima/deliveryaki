@@ -15,9 +15,4 @@ class AgendaEmpresaServico extends Model
     {
       return $this->belongsTo(AgendaEmpresa::class, 'empresa_id');
     }
-
-    public function agenda_servicos()
-    {
-      return $this->belongsTo(AgendaServico::class, 'servico_id', 'id');
-    }
 }
