@@ -33,6 +33,9 @@ Route::middleware('api.keyagenda')->group(function () {
   Route::post('/agenda/servico', [AgendaServicoController::class, 'store'])->name('servico.store');
 
   Route::get('/agenda/empresa/cliente', [AgendaClienteController::class, 'getByIDEmail'])->name('agenda.getByIDEmail');
+
+  Route::get('/agenda/empresa/cliente/agenda/agendamento', [AgendaClienteController::class, 'getAgendamentoByIDEmail'])->name('agenda.getAgendamentoByIDEmail');
   Route::get('/agenda/empresa/cliente/agenda', [AgendaClienteController::class, 'get'])->name('agenda.get');
-  Route::post('/agenda/empresa/cliente/agenda', [AgendaClienteController::class, 'store'])->name('servico.store');
+  Route::post('/agenda/empresa/cliente/agenda', [AgendaClienteController::class, 'store'])->name('agenda.store');
+  Route::delete('/agenda/empresa/cliente/agenda', [AgendaClienteController::class, 'destroy'])->name('agenda.destroy');
 });

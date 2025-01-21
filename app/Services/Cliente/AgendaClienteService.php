@@ -12,6 +12,12 @@ use Illuminate\Support\Facades\DB;
 
 class AgendaClienteService
 {
+  private $base_url;
+  public function __construct()
+  {
+      $this->base_url = config('app.url_agendacliente'); // Inicializa o valor da variável a partir da configuração
+  }
+
   public function create($agendaCliente, AgendaEmpresaService $agendaEmpresaService){
     DB::beginTransaction();
     try{
@@ -67,11 +73,38 @@ class AgendaClienteService
     }
   }
 
+  public function delete(array $agendamento, AgendaEmpresaService $agendaEmpresaService){
+    DB::beginTransaction();
+    try{
+      $empresa = $agendaEmpresaService->findByHashEmailCliente($agendamento['hash'], $agendamento['email']);
+
+      if(!$empresa){
+        throw new \Exception("EMPRESA NÃO ENCONTRADA");
+      }
+      if($agendaEmpresaService->validaDataExpiracao($empresa)){
+        throw new \Exception("CADASTRO DA EMPRESA EXPIRADO, ENTRE EM CONTATO COM O SUPORTE");
+      }
+
+      $agenda = AgendaClienteAgendamento::find($agendamento['id']);
+      if (!$agenda) {
+        throw new \Exception("AGENDAMENTO NÃO ENCONTRADO");
+      }
+
+      $agenda->delete();
+
+      DB::commit();
+      return $agenda;
+    } catch (\Exception $e) {
+      DB::rollBack();
+      throw new \Exception('ERRO AO CRIAR O AGENDAMENTO: ' . $e->getMessage());
+    }
+  }
+
   public function horariosDisponiveis($agendaCliente, AgendaEmpresaService $agendaEmpresaService)
   {
     try {
       $hash = $agendaCliente->id;
-      $data = Carbon::parse($agendaCliente->data);
+      $data = Carbon::parse($agendaCliente->data, 'UTC')->setTimezone('America/Sao_Paulo');
       $diaSemana = $data->dayOfWeek;
 
       $empresa = $agendaEmpresaService->findByHash($hash);
@@ -156,23 +189,75 @@ class AgendaClienteService
   }
 
   function filtraHorarioDisponivel($empresa, array $horariosDisponiveis, $data){
+    $dataAtual = now()->format('Y-m-d');
+    $agora = strtotime(now()->format('Y-m-d H:i:s'));
+
+    if($data->format('Y-m-d') < $dataAtual){
+      return [];
+    }
+
     $agendamentos = AgendaClienteAgendamento::where('empresa_id', $empresa->id)
       ->whereDate('start_scheduling_at', $data)
       ->get();
 
-    // Filtra os horários disponíveis removendo os agendados
-    foreach ($agendamentos as $agendamento) {
-        $startTime = strtotime($agendamento->start_scheduling_at);
-        $endTime = strtotime($agendamento->end_scheduling_at);
-
-        // Remove os horários que caem dentro do intervalo do agendamento
-        $horariosDisponiveis = array_filter($horariosDisponiveis, function($horario) use ($startTime, $endTime) {
-            $horarioTimestamp = strtotime($horario);
-            return !($horarioTimestamp >= $startTime && $horarioTimestamp < $endTime);
+    if ($agendamentos->isEmpty()) {
+      if($data->format('Y-m-d') === $dataAtual){
+        $horariosDisponiveis = array_filter($horariosDisponiveis, function($horario) use ($agora) {
+          $horarioTimestamp = strtotime($horario);
+          return $horarioTimestamp >= $agora ;
         });
-    }
+      }
+    }else{
+      // Filtra os horários disponíveis removendo os que já passaram e os agendados
+      foreach ($agendamentos as $agendamento) {
+          $startTime = strtotime($agendamento->start_scheduling_at);
+          $endTime = strtotime($agendamento->end_scheduling_at);
 
-    // Retorna os horários disponíveis
-    return array_values($horariosDisponiveis); // Reindexa o array
+          // Remove os horários que caem dentro do intervalo do agendamento ou já passaram
+          $horariosDisponiveis = array_filter($horariosDisponiveis, function($horario) use ($startTime, $endTime, $agora) {
+              $horarioTimestamp = strtotime($horario);
+              return $horarioTimestamp >= $agora && !($horarioTimestamp >= $startTime && $horarioTimestamp < $endTime);
+          });
+      }
+    }
+    return array_values($horariosDisponiveis);
   }
+
+  public function findByHashEmailClienteAgendamento(string $hash, string $email, AgendaEmpresaService $agendaEmpresaService)
+	{
+    try{
+      $empresa = AgendaEmpresa::select(['id', 'razao_social'])
+        ->with([
+            'agenda_empresa_servicos' => function ($query) {         // Filtra serviços com status = 'A'
+                $query->where('status', 'A');
+            },             // Relacionamento de serviços
+            'agenda_clientes' => function ($query) use ($email) {   // Filtra clientes pelo email
+                $query->where('email', $email)
+                  ->with([
+                    'agenda_cliente_agendamentos' => function ($query) {
+                      $query->orderBy('start_scheduling_at', 'DESC'); // Ordena os agendamentos
+                  }
+                ]);
+            }
+        ])
+        ->where('status', 'A') // Empresa ativa
+        ->where('hash', $hash)
+        ->first();
+
+      $empresa->hash = $this->base_url . $empresa->hash;
+
+      if($agendaEmpresaService->validaDataExpiracao($empresa)){
+        $empresa->expiration = true;
+        $empresa->message = 'CADASTRO DA EMPRESA EXPIRADO, ENTRE EM CONTATO COM O SUPORTE';
+      }else{
+        $empresa->expiration = false;
+      }
+      unset($empresa->expiration_at);
+      return $empresa;
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+      throw new \Exception('ID NÃO ENCONTRADO.' . $e->getMessage());
+    } catch (\Exception $e) {
+        throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
+    }
+	}
 }

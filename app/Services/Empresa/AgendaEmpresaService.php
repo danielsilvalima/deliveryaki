@@ -221,7 +221,9 @@ class AgendaEmpresaService
       $empresa = AgendaEmpresa::select(['id', 'razao_social'])
         ->with([
             'agenda_empresa_expedientes.agenda_horario_expedientes', // Relacionamento de expediente e horários
-            'agenda_empresa_servicos',              // Relacionamento de serviços
+            'agenda_empresa_servicos' => function ($query) {         // Filtra serviços com status = 'A'
+                $query->where('status', 'A');
+            },             // Relacionamento de serviços
             'agenda_clientes' => function ($query) use ($email) {   // Filtra clientes pelo email
                 $query->where('email', $email)
                       ->with(['agenda_cliente_agendamentos']);   // Inclui os agendamentos do cliente
@@ -285,4 +287,5 @@ class AgendaEmpresaService
     // Retorna true se a data de expiração for igual ou posterior à data de hoje
     return $dataExpiracao < $dataHoje;
   }
+
 }
