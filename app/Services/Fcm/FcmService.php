@@ -49,4 +49,44 @@ class FcmService
       throw new \Exception('FALHA AO ENVIAR A NOTIFICAÇÃO DO PEDIDO: '. $e->getMessage());
     }
   }
+
+  public function enviaPushNotificationAgendaAdmin($empresa, $mensagem, $titulo)
+  {
+    try{
+      if(!$empresa){
+        throw new \Exception('EMPRESA NÃO FOI LOCALIZADO');
+      }
+
+      if (!$empresa->token_notificacao) {
+        return [
+          'success' => true,
+          'message' => 'EMPRESA NÃO ENCONTRADO OU TOKEN DO DISPOSITIVO NÃO DISPONÍVEL'
+        ];
+      }
+
+      $firebase = (new Factory)->withServiceAccount(config('firebase.credentials.file'));
+      $messaging = $firebase->createMessaging();
+
+      $message = [
+        'token' => $empresa->token_notificacao,
+        'notification' => [
+            'title' => $titulo,
+            'body' => $mensagem,
+        ],
+        'data' => [
+            'pedido_id' => 2,
+            'status' => 'saiu para entrega'
+        ]
+      ];
+
+      $messaging->send($message);
+
+      return [
+        'success' => true,
+        'message' => 'NOTIFICAÇÃO ENVIADA COM SUCESSO'
+    ];
+    } catch (\Exception $e) {
+      throw new \Exception('FALHA AO ENVIAR A NOTIFICAÇÃO DO PEDIDO: '. $e->getMessage());
+    }
+  }
 }

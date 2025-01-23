@@ -35,7 +35,8 @@ class AgendaEmpresaService
         'razao_social' => strtoupper($empresa['razao_social']),
         'cnpj' => $empresa['cnpj'],
         'expiration_at' => $expiration,
-        'hash' => $hash
+        'hash' => $hash,
+        'token_notificacao' => $empresa['token']
       ]);
 
       $user_db = AgendaUser::create([

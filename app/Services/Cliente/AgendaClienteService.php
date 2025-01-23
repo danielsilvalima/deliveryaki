@@ -9,6 +9,7 @@ use App\Models\AgendaHorarioExpediente;
 use App\Services\Empresa\AgendaEmpresaService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Services\Fcm\FcmService;
 
 class AgendaClienteService
 {
@@ -18,7 +19,7 @@ class AgendaClienteService
       $this->base_url = config('app.url_agendacliente'); // Inicializa o valor da variável a partir da configuração
   }
 
-  public function create($agendaCliente, AgendaEmpresaService $agendaEmpresaService){
+  public function create($agendaCliente, AgendaEmpresaService $agendaEmpresaService, FcmService $fcmService){
     DB::beginTransaction();
     try{
       $empresa = $agendaEmpresaService->findByHashEmailCliente($agendaCliente->id, $agendaCliente->email);
@@ -65,6 +66,10 @@ class AgendaClienteService
       ]);
 
       DB::commit();
+
+      $mensagem = "NOVO AGENDAMENTO PARA: ".$start_scheduling_at." COM TÉRMINO EM: ".$end_scheduling_at;
+      $titulo = "NOVO AGENDAMENTO";
+      $fcmService->enviaPushNotificationAgendaAdmin($empresa, $mensagem, $titulo);
 
       return $agenda_cliente;
     } catch (\Exception $e) {
@@ -117,7 +122,6 @@ class AgendaClienteService
       }
 
       $servico = json_decode($agendaCliente->servico, true);
-      $duracaoServico = Carbon::createFromTimeString($servico['duracao'])->diffInMinutes();
 
       $expedientes = AgendaHorarioExpediente::with(['agenda_empresa_expedientes' => function ($query) use ($empresa) {
         $query->where('empresa_id', $empresa->id);
@@ -142,17 +146,18 @@ class AgendaClienteService
 
           $horariosDisponiveis = array_merge(
             $horariosDisponiveis,
-            $this->gerarHorariosIntervalo($horaAbertura, $intervaloInicio)
+            $this->gerarHorariosIntervalo($horaAbertura, $intervaloInicio, $servico['duracao'])
           );
 
           $horariosDisponiveis = array_merge(
             $horariosDisponiveis,
-            $this->gerarHorariosIntervalo($intervaloFim, $horaFechamento)
+            $this->gerarHorariosIntervalo($intervaloFim, $horaFechamento, $servico['duracao'])
           );
 
           $empresa_expediente_id = $empresaExpediente->id;
 
-          $horariosDisponiveis = $this->filtraHorarioDisponivel($empresa, $horariosDisponiveis, $data);
+          $horariosDisponiveis = $this->filtraHorarioDisponivel($empresa, $horariosDisponiveis, $data, $servico['duracao']);
+
         }
       }
 
@@ -162,19 +167,21 @@ class AgendaClienteService
     }
   }
 
-  function gerarHorariosIntervalo($dataInicial, $dataFinal, $intervaloMinutos = 30)
+  function gerarHorariosIntervalo($dataInicial, $dataFinal, $duracao)
   {
+    $intervaloMinutos = 30;
     $horarios = [];
+
+    $intervalo = Carbon::createFromTimeString($duracao, 'UTC')->hour * 60 + Carbon::createFromTimeString($duracao, 'UTC')->minute;
 
     // Garantir que a data inicial seja menor que a data final
     if ($dataInicial->greaterThanOrEqualTo($dataFinal)) {
         return $horarios; // Retorna vazio se o intervalo for inválido
     }
 
-    // Gerar os horários
-    while ($dataInicial->lessThan($dataFinal)) {
-      $horarios[] = $dataInicial->copy()->setTimezone('UTC')->format('Y-m-d H:i');
-      $dataInicial->addMinutes($intervaloMinutos); // Incrementar pelo intervalo
+    while ($dataInicial->lessThan($dataFinal) && $dataInicial->copy()->setTimezone('UTC')->addMinutes($intervalo)->lessThanOrEqualTo($dataFinal)) {
+        $horarios[] = $dataInicial->copy()->setTimezone('UTC')->format('Y-m-d H:i');
+        $dataInicial->addMinutes($intervaloMinutos); // Incrementar pelo intervalo
     }
 
     return $horarios;
@@ -188,7 +195,7 @@ class AgendaClienteService
     return $data->addMinutes($intervaloMinutos)->setTimezone('UTC')->format('Y-m-d H:i:s');
   }
 
-  function filtraHorarioDisponivel($empresa, array $horariosDisponiveis, $data){
+  function filtraHorarioDisponivel($empresa, array $horariosDisponiveis, $data, $duracaoServico){
     $dataAtual = now()->format('Y-m-d');
     $agora = strtotime(now()->format('Y-m-d H:i:s'));
 
@@ -208,16 +215,26 @@ class AgendaClienteService
         });
       }
     }else{
-      // Filtra os horários disponíveis removendo os que já passaram e os agendados
-      foreach ($agendamentos as $agendamento) {
-          $startTime = strtotime($agendamento->start_scheduling_at);
-          $endTime = strtotime($agendamento->end_scheduling_at);
 
-          // Remove os horários que caem dentro do intervalo do agendamento ou já passaram
-          $horariosDisponiveis = array_filter($horariosDisponiveis, function($horario) use ($startTime, $endTime, $agora) {
-              $horarioTimestamp = strtotime($horario);
-              return $horarioTimestamp >= $agora && !($horarioTimestamp >= $startTime && $horarioTimestamp < $endTime);
-          });
+      foreach ($agendamentos as $agendamento) {
+        $startTime = strtotime($agendamento->start_scheduling_at);//10
+        $endTime = strtotime($agendamento->end_scheduling_at);//11
+
+        $intervaloMinutos = Carbon::createFromTimeString($duracaoServico, 'UTC')->hour * 60 + Carbon::createFromTimeString($duracaoServico, 'UTC')->minute;
+        $startSchedulingAt = Carbon::parse($agendamento->start_scheduling_at, 'UTC');
+
+        $horarioComparacaoAdd = strtotime($startSchedulingAt->copy()->addMinutes($intervaloMinutos)->format('Y-m-d H:i:s'));
+        $horarioComparacaoSub = strtotime($startSchedulingAt->copy()->subMinutes($intervaloMinutos)->format('Y-m-d H:i:s'));
+
+        $horariosDisponiveis = array_filter($horariosDisponiveis, function($horario) use ($startTime, $endTime, $agora) {
+            $horarioTimestamp = strtotime($horario);
+            return $horarioTimestamp >= $agora && $horarioTimestamp && !($horarioTimestamp >= $startTime && $horarioTimestamp < $endTime);
+        });
+
+        $horariosDisponiveis = array_filter($horariosDisponiveis, function($horario) use ($horarioComparacaoAdd, $horarioComparacaoSub) {
+          $horarioTimestamp = strtotime($horario); // Converte o horário atual para timestamp
+          return !($horarioTimestamp < $horarioComparacaoAdd && $horarioTimestamp > $horarioComparacaoSub);
+        });
       }
     }
     return array_values($horariosDisponiveis);

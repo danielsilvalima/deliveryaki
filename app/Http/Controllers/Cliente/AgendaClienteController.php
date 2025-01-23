@@ -8,6 +8,7 @@ use Illuminate\Http\Response;
 use App\Helpers\ResponseHelper;
 use App\Services\Empresa\AgendaEmpresaService;
 use App\Services\Cliente\AgendaClienteService;
+use App\Services\Fcm\FcmService;
 
 class AgendaClienteController extends Controller
 {
@@ -53,7 +54,7 @@ class AgendaClienteController extends Controller
     }
   }
 
-  public function store(Request $request, AgendaClienteService $agendaClienteService, AgendaEmpresaService $agendaEmpresaService){
+  public function store(Request $request, AgendaClienteService $agendaClienteService, AgendaEmpresaService $agendaEmpresaService, FcmService $fcmService){
     try{
       if (empty($request->id)) {
         return ResponseHelper::error('O "ID" É OBRIGATÓRIO', Response::HTTP_BAD_REQUEST);
@@ -65,7 +66,7 @@ class AgendaClienteController extends Controller
         return ResponseHelper::error('A "DATA" É OBRIGATÓRIO', Response::HTTP_BAD_REQUEST);
       }
 
-      $empresa = $agendaClienteService->create($request, $agendaEmpresaService);
+      $empresa = $agendaClienteService->create($request, $agendaEmpresaService, $fcmService);
 
       return response()->json(
         $empresa,

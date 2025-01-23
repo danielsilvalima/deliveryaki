@@ -20,6 +20,7 @@ return new class extends Migration
       $table->enum('status', ['A', 'D'])->default('A');
       $table->foreignId('empresa_id');
       $table->foreign('empresa_id')->references('id')->on('agenda_empresas');
+      $table->string('token_notificacao', 255)->nullable();
     });
   }
 

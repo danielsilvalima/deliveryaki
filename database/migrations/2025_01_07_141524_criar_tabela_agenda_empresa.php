@@ -20,6 +20,7 @@ return new class extends Migration
       $table->enum('status', ['A', 'D'])->default('A');
       $table->string('hash', 8)->unique();
       $table->timestamp('expiration_at')->nullable();
+      $table->string('token_notificacao', 255)->nullable();
     });
   }
 
