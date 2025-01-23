@@ -107,7 +107,7 @@ class AgendaEmpresaService
       }
 
       // Remover os servicos existentes
-      AgendaEmpresaServico::where('empresa_id', $empresa->id)->delete();
+      /*AgendaEmpresaServico::where('empresa_id', $empresa->id)->delete();
       if (!empty($empresa->listaServicos) && is_array($empresa->listaServicos)) {
         // Inserir os novos expedientes
         foreach ($empresa->listaServicos as $servico) {
@@ -117,7 +117,7 @@ class AgendaEmpresaService
               'duracao' => $servico['duracao'],
           ]);
         }
-      }
+      }*/
 
       unset($empresa->listaExpedientes);
       unset($empresa->listaServicos);
