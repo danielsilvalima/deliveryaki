@@ -10,6 +10,8 @@ use App\Models\AgendaUser;
 use App\Models\AgendaEmpresaExpediente;
 use App\Helpers\HashGenerator;
 use App\Models\AgendaEmpresaServico;
+use App\Mail\NotificacaoEmail;
+use Illuminate\Support\Facades\Mail;
 
 class AgendaEmpresaService
 {
@@ -70,6 +72,8 @@ class AgendaEmpresaService
       }
 
       DB::commit();
+
+      $this->enviarEmail($empresa);
 
       return $this->findByID($empresa_db->id);
     } catch (\Exception $e) {
@@ -320,5 +324,29 @@ class AgendaEmpresaService
         throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
     }
 	}
+
+  public function enviarEmail($empresa)
+    {
+      // Obtém o e-mail do remetente a partir da variável de ambiente
+      $emailDestino = env('MAIL_FROM_ADDRESS');
+
+      // Verifica se o e-mail de destino está configurado
+      if (empty($emailDestino)) {
+        //$this->error('Erro: A variável MAIL_FROM_ADDRESS não está configurada.');
+        return;
+      }
+
+      $dados = [
+        'nome' => $empresa->razao_social,
+        'mensagem' => "NOVO CLIENTE COM EXPIRAÇÃO PARA: " .
+            Carbon::parse($empresa->expiration_at)->format('d/m/Y H:i')
+      ];
+
+      try {
+          Mail::to($emailDestino)->send(new NotificacaoEmail($dados));
+      } catch (\Exception $e) {
+          //$this->error('Erro ao enviar e-mail: ' . $e->getMessage());
+      }
+    }
 
 }

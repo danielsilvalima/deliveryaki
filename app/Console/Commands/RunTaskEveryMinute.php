@@ -7,8 +7,6 @@ use App\Services\Fcm\FcmService;
 use App\Services\Empresa\AgendaEmpresaService;
 use App\Services\Cliente\AgendaClienteService;
 use Illuminate\Support\Carbon;
-use App\Mail\NotificacaoEmail;
-use Illuminate\Support\Facades\Mail;
 
 class RunTaskEveryMinute extends Command
 {
@@ -59,31 +57,6 @@ class RunTaskEveryMinute extends Command
       return 0;
     }
 
-    public function enviarEmail($empresa)
-    {
-      // Obtém o e-mail do remetente a partir da variável de ambiente
-      $emailDestino = env('MAIL_FROM_ADDRESS');
-
-      // Verifica se o e-mail de destino está configurado
-      if (empty($emailDestino)) {
-        $this->error('Erro: A variável MAIL_FROM_ADDRESS não está configurada.');
-        return;
-      }
-
-      $dados = [
-        'nome' => $empresa->razao_social,
-        'mensagem' => "NOVO CLIENTE COM EXPIRAÇÃO PARA: " .
-            Carbon::parse($empresa->expiration_at)->format('d/m/Y H:i')
-      ];
-
-      try {
-          Mail::to($emailDestino)->send(new NotificacaoEmail($dados));
-          $this->info('E-mail enviado com sucesso para ' . $emailDestino);
-      } catch (\Exception $e) {
-          $this->error('Erro ao enviar e-mail: ' . $e->getMessage());
-      }
-    }
-
     public function enviaNotificacaoCancelamentoAgendamento($empresa, $agendamento, FcmService $fcmService, AgendaClienteService $agendaClienteService){
       $mensagem = "AGENDAMENTO CANCELADO PARA: ".
       Carbon::parse($agendamento->start_scheduling_at)->format('Y-m-d H:i') .
@@ -103,7 +76,6 @@ class RunTaskEveryMinute extends Command
       $retorno = $fcmService->enviaPushNotificationAgendaAdmin($empresa, $mensagem, $titulo);
       $this->line('Retorno da notificacao.');
       $this->line($retorno);
-      $this->enviarEmail($empresa);
       $this->atualizaStatusAgendamentoCliente($agendamento, $agendaClienteService);
     }
 
