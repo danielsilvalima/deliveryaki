@@ -102,6 +102,7 @@ class AgendaClienteService
       }
 
       $agenda->status = 'C';
+      $agenda->notificado = false;
       $agenda->update();
 
       DB::commit();
