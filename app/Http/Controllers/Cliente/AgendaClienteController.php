@@ -68,10 +68,14 @@ class AgendaClienteController extends Controller
 
       $empresa = $agendaClienteService->create($request, $agendaEmpresaService, $fcmService);
 
-      return response()->json(
-        $empresa,
-        Response::HTTP_OK,
-      );
+      if ($empresa instanceof \Illuminate\Http\JsonResponse) {
+        return $empresa;
+      }
+
+      return response()->json([
+          "message" => "AGENDAMENTO CRIADO COM SUCESSO!",
+          "data" => $empresa
+      ], Response::HTTP_OK);
     } catch (\Exception $e) {
       return ResponseHelper::error($e->getMessage());
     }

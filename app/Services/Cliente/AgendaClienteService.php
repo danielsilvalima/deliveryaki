@@ -51,25 +51,31 @@ class AgendaClienteService
       }
 
       $start_scheduling_at = $agendaCliente->data. ' '.$agendaCliente->horario;
-
       $end_scheduling_at = $this->getEndScheduling($start_scheduling_at, $agendaCliente->duracao);
 
+      // Verificar se já existe um agendamento para a mesma data e empresa
+      $agendamento_existente = AgendaClienteAgendamento::where('empresa_id', $empresa->id)
+      ->where('start_scheduling_at', $start_scheduling_at)
+      ->exists();
+
+      if ($agendamento_existente) {
+          DB::rollBack();
+          return response()->json(["message" => "JÁ EXISTE UM AGENDAMENTO PARA ESTA DATA E HORÁRIO"], 400);
+      }
+
+      // Criar o agendamento
       $agenda_cliente_agendamento = AgendaClienteAgendamento::create([
-        "duracao" => $agendaCliente->duracao,
-        "vlr" => $agendaCliente->vlr,
-        "start_scheduling_at" => $start_scheduling_at,
-        "end_scheduling_at" => $end_scheduling_at,
-        "empresa_id" => $empresa->id,
-        "cliente_id" => $agenda_cliente->id,
-        "empresa_servico_id" =>$agendaCliente->empresa_servico_id,
-        "empresa_expediente_id" => $agendaCliente->empresa_expediente_id
+          "duracao" => $agendaCliente->duracao,
+          "vlr" => $agendaCliente->vlr,
+          "start_scheduling_at" => $start_scheduling_at,
+          "end_scheduling_at" => $end_scheduling_at,
+          "empresa_id" => $empresa->id,
+          "cliente_id" => $agenda_cliente->id,
+          "empresa_servico_id" => $agendaCliente->empresa_servico_id,
+          "empresa_expediente_id" => $agendaCliente->empresa_expediente_id
       ]);
 
       DB::commit();
-
-      $mensagem = "NOVO AGENDAMENTO PARA: ".$start_scheduling_at." COM TÉRMINO EM: ".$end_scheduling_at;
-      $titulo = "NOVO AGENDAMENTO";
-      $fcmService->enviaPushNotificationAgendaAdmin($empresa, $mensagem, $titulo);
 
       return $agenda_cliente;
     } catch (\Exception $e) {
@@ -95,7 +101,8 @@ class AgendaClienteService
         throw new \Exception("AGENDAMENTO NÃO ENCONTRADO");
       }
 
-      $agenda->delete();
+      $agenda->status = 'C';
+      $agenda->update();
 
       DB::commit();
       return $agenda;
@@ -205,6 +212,7 @@ class AgendaClienteService
 
     $agendamentos = AgendaClienteAgendamento::where('empresa_id', $empresa->id)
       ->whereDate('start_scheduling_at', $data)
+      ->where('status', 'A')
       ->get();
 
     if ($agendamentos->isEmpty()) {
@@ -252,7 +260,8 @@ class AgendaClienteService
                 $query->where('email', $email)
                   ->with([
                     'agenda_cliente_agendamentos' => function ($query) {
-                      $query->orderBy('start_scheduling_at', 'DESC'); // Ordena os agendamentos
+                      $query->where('status', 'A')
+                      ->orderBy('start_scheduling_at', 'DESC'); // Ordena os agendamentos
                   }
                 ]);
             }
@@ -277,4 +286,24 @@ class AgendaClienteService
         throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
     }
 	}
+
+  public function updateStatus($agendamento){
+    DB::beginTransaction();
+    try{
+
+      $agenda = AgendaClienteAgendamento::find($agendamento->id);
+      if (!$agenda) {
+        throw new \Exception("AGENDAMENTO NÃO ENCONTRADO");
+      }
+
+      $agenda->notificado = true;
+      $agenda->update();
+
+      DB::commit();
+      return $agenda;
+    } catch (\Exception $e) {
+      DB::rollBack();
+      throw new \Exception('ERRO AO CRIAR O AGENDAMENTO: ' . $e->getMessage());
+    }
+  }
 }

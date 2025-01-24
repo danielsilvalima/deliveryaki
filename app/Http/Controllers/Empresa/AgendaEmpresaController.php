@@ -55,6 +55,12 @@ class AgendaEmpresaController extends Controller
             $empresa->agenda_user->celular = $request->celular;
         }
 
+        if (isset($request->token)) {
+          $empresa->token_notificacao = $request->token;
+        }else{
+          unset($empresa->token_notificacao);
+        }
+
         $empresa->listaExpedientes = $request->listaExpedientes ?? []; // Atualiza os expedientes
         $empresa->listaServicos = $request->listaServicos ?? []; // Atualiza os servicos
 

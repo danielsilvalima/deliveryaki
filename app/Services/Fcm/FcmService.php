@@ -74,7 +74,7 @@ class FcmService
             'body' => $mensagem,
         ],
         'data' => [
-            'pedido_id' => 2,
+            'pedido_id' => "2",
             'status' => 'saiu para entrega'
         ]
       ];

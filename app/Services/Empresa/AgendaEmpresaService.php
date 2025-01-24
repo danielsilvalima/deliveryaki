@@ -90,32 +90,55 @@ class AgendaEmpresaService
           $user_db->save();
       }
 
-      // Remover os expedientes existentes
-      AgendaEmpresaExpediente::where('empresa_id', $empresa->id)->delete();
-      if (!empty($empresa->listaExpedientes) && is_array($empresa->listaExpedientes)) {
-        // Inserir os novos expedientes
-        foreach ($empresa->listaExpedientes as $expediente) {
-          AgendaEmpresaExpediente::create([
-              'empresa_id' => $empresa->id,
-              'horario_expediente_id' => $expediente['horario_expediente_id'],
-              'hora_abertura' => $expediente['hora_abertura'],
-              'hora_fechamento' => $expediente['hora_fechamento'],
-              'intervalo_inicio' => $expediente['intervalo_inicio'],
-              'intervalo_fim' => $expediente['intervalo_fim']
-          ]);
-        }
+      $novosExpedientes = collect($empresa->listaExpedientes ?? []);
+
+      // Busca os expedientes existentes no banco para essa empresa
+      $expedientesExistentes = AgendaEmpresaExpediente::where('empresa_id', $empresa->id)->get();
+
+      // Mapeia os expedientes existentes pelo horario_expediente_id para facilitar a comparação
+      $expedientesMap = $expedientesExistentes->keyBy('horario_expediente_id');
+
+      // Atualizar ou criar novos expedientes
+      foreach ($novosExpedientes as $expediente) {
+          if ($expedientesMap->has($expediente['horario_expediente_id'])) {
+              // Atualizar expediente existente
+              $expedienteExistente = $expedientesMap[$expediente['horario_expediente_id']];
+              $expedienteExistente->update([
+                  'hora_abertura' => $expediente['hora_abertura'],
+                  'hora_fechamento' => $expediente['hora_fechamento'],
+                  'intervalo_inicio' => $expediente['intervalo_inicio'],
+                  'intervalo_fim' => $expediente['intervalo_fim'],
+                  'status' => 'A' // Garante que o expediente continua ativo
+              ]);
+          } else {
+              // Criar novo expediente
+              AgendaEmpresaExpediente::create([
+                  'empresa_id' => $empresa->id,
+                  'horario_expediente_id' => $expediente['horario_expediente_id'],
+                  'hora_abertura' => $expediente['hora_abertura'],
+                  'hora_fechamento' => $expediente['hora_fechamento'],
+                  'intervalo_inicio' => $expediente['intervalo_inicio'],
+                  'intervalo_fim' => $expediente['intervalo_fim'],
+                  'status' => 'A'
+              ]);
+          }
       }
 
-      unset($empresa->listaExpedientes);
-      unset($empresa->listaServicos);
-      unset($empresa->expiration);
-      unset($empresa->message);
-      unset($empresa->hash);
+      // Desativar expedientes que não estão mais na lista enviada
+      $horariosAtivos = $novosExpedientes->pluck('horario_expediente_id')->toArray();
+      AgendaEmpresaExpediente::where('empresa_id', $empresa->id)
+          ->whereNotIn('horario_expediente_id', $horariosAtivos)
+          ->update(['status' => 'D']);
+
+      // Atualiza os dados da empresa
+      unset($empresa->listaExpedientes, $empresa->listaServicos, $empresa->expiration, $empresa->message, $empresa->hash);
       $empresa->save();
 
       DB::commit();
 
-      return $this->findByID($empresa->id);
+      $empresa_db = $this->findByID($empresa->id);
+      $empresa_db->hash = $empresa_db->hash ? $this->base_url . $empresa_db->hash : '';
+      return $empresa_db;
     } catch (\Exception $e) {
         DB::rollBack();
         throw new \Exception('ERRO AO ATUALIZAR A EMPRESA: ' . $e->getMessage());
@@ -141,7 +164,10 @@ class AgendaEmpresaService
     try{
       $empresa = AgendaEmpresa::with([
         'agenda_user', // Relacionamento direto com usuários
-        'agenda_empresa_expedientes.agenda_horario_expedientes', // Relacionamento de expediente e horários
+        'agenda_empresa_expedientes' => function ($query) { // Relacionamento de expediente
+            $query->where('status', 'A') // Apenas expedientes ativos
+                  ->with('agenda_horario_expedientes'); // Carrega os horários do expediente
+        },
         'agenda_empresa_servicos' => function ($query) { // Relacionamento de serviços da empresa
             $query->where('status', 'A'); // Apenas registros com status 'A'
         }
@@ -275,5 +301,24 @@ class AgendaEmpresaService
     // Retorna true se a data de expiração for igual ou posterior à data de hoje
     return $dataExpiracao < $dataHoje;
   }
+
+  public function findByAtivoNotExpirated()
+	{
+    try{
+      $empresa = AgendaEmpresa::with([
+        'agenda_cliente_agendamentos', // Relacionamento direto com usuários
+      ])
+      ->whereHas('agenda_cliente_agendamentos', function ($query) {
+          $query->where('notificado', false);
+      })
+      ->where('status', 'A')
+      ->where('expiration_at', '>=', Carbon::today())
+      ->get();
+
+      return $empresa;
+    } catch (\Exception $e) {
+        throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
+    }
+	}
 
 }
