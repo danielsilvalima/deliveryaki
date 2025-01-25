@@ -79,4 +79,25 @@ class AgendaEmpresaController extends Controller
       return ResponseHelper::error($e->getMessage());
     }
   }
+
+  public function getByID(Request $request, AgendaEmpresaService $agendaEmpresaService)
+  {
+    try{
+      $id = $request->query('id');
+      $data = $request->query('data');
+      if (empty($id)) {
+        return ResponseHelper::error('O "ID" É OBRIGATÓRIO', Response::HTTP_BAD_REQUEST);
+      }
+      if (empty($data)) {
+        return ResponseHelper::error('O "DATA" É OBRIGATÓRIO', Response::HTTP_BAD_REQUEST);
+      }
+      $empresa = $agendaEmpresaService->findByHashAgendamento($id, $data);
+      return response()->json(
+        $empresa,
+        Response::HTTP_OK,
+      );
+    } catch (\Exception $e) {
+      return ResponseHelper::error($e->getMessage());
+    }
+  }
 }

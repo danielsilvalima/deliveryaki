@@ -27,6 +27,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //API FRONT
 Route::middleware('api.keyagenda')->group(function () {
   Route::get('/agenda/empresa', [AgendaEmpresaController::class, 'get'])->name('agenda.get');
+  Route::get('/agenda/empresa/agendamento', [AgendaEmpresaController::class, 'getByID'])->name('agenda.getByID');
   Route::post('/agenda/empresa', [AgendaEmpresaController::class, 'store'])->name('agenda.store');
   Route::get('/agenda/horario-expediente', [AgendaHorarioExpedienteController::class, 'get'])->name('expediente.get');
   Route::get('/agenda/servico', [AgendaServicoController::class, 'get'])->name('servico.get');

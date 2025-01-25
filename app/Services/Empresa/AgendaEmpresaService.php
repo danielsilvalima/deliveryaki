@@ -296,6 +296,45 @@ class AgendaEmpresaService
     } catch (\Exception $e) {
         throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
     }
+  }
+  public function findByHashAgendamento(string $id, string $data)
+	{
+    try{
+      $empresa = AgendaEmpresa::select(['id', 'razao_social'])
+      ->with([
+          'agenda_empresa_expedientes' => function ($query) {
+              $query->where('status', 'A') // Apenas expedientes ativos
+                  ->with('agenda_horario_expedientes'); // Relacionamento de horários dentro dos expedientes
+          },
+          'agenda_empresa_servicos', // Relacionamento de serviços
+          'agenda_clientes.agenda_cliente_agendamentos' => function ($query) use ($data) {
+            $startOfDay = Carbon::parse($data)->startOfDay(); // 2025-01-25 00:00:00
+            $endOfDay = Carbon::parse($data)->endOfDay();     // 2025-01-25 23:59:59
+
+            $query->whereBetween('start_scheduling_at', [$startOfDay, $endOfDay])->orderBy('start_scheduling_at', 'ASC');
+        }
+      ])
+      ->where('status', 'A') // Apenas empresas ativas
+      ->where('id', $id)
+      ->first();
+
+      if(!$empresa){
+        return null;
+      }
+
+      if($this->validaDataExpiracao($empresa)){
+        $empresa->expiration = true;
+        $empresa->message = 'CADASTRO DA EMPRESA EXPIRADO, ENTRE EM CONTATO COM O SUPORTE';
+      }else{
+        $empresa->expiration = false;
+      }
+      unset($empresa->expiration_at, $empresa->agenda_empresa_expedientes);
+      return $empresa;
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+      throw new \Exception('ID NÃO ENCONTRADO.' . $e->getMessage());
+    } catch (\Exception $e) {
+      throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
+    }
 	}
 
   public function validaDataExpiracao(AgendaEmpresa $empresa){

@@ -130,7 +130,6 @@ class AgendaClienteService
       }
 
       $servico = json_decode($agendaCliente->servico, true);
-
       $expedientes = AgendaHorarioExpediente::with(['agenda_empresa_expedientes' => function ($query) use ($empresa) {
         $query->where('empresa_id', $empresa->id);
       }])
@@ -147,10 +146,22 @@ class AgendaClienteService
       foreach ($expedientes as $expediente) {
         foreach ($expediente->agenda_empresa_expedientes as $empresaExpediente) {
           // Recuperar os horários de abertura, fechamento e intervalos
-          $horaAbertura = Carbon::parse($empresaExpediente->hora_abertura, 'UTC')->setTimezone('America/Sao_Paulo');
-          $horaFechamento = Carbon::parse($empresaExpediente->hora_fechamento, 'UTC')->setTimezone('America/Sao_Paulo');
-          $intervaloInicio = Carbon::parse($empresaExpediente->intervalo_inicio, 'UTC')->setTimezone('America/Sao_Paulo');
-          $intervaloFim = Carbon::parse($empresaExpediente->intervalo_fim, 'UTC')->setTimezone('America/Sao_Paulo');
+
+          $horaAbertura = Carbon::parse($empresaExpediente->hora_abertura, 'UTC')
+          ->setTimezone('America/Sao_Paulo')
+          ->setDate($data->year, $data->month, $data->day);
+
+          $horaFechamento = Carbon::parse($empresaExpediente->hora_fechamento, 'UTC')
+            ->setTimezone('America/Sao_Paulo')
+            ->setDate($data->year, $data->month, $data->day);
+
+          $intervaloInicio = Carbon::parse($empresaExpediente->intervalo_inicio, 'UTC')
+            ->setTimezone('America/Sao_Paulo')
+            ->setDate($data->year, $data->month, $data->day);
+
+          $intervaloFim = Carbon::parse($empresaExpediente->intervalo_fim, 'UTC')
+            ->setTimezone('America/Sao_Paulo')
+            ->setDate($data->year, $data->month, $data->day);
 
           $horariosDisponiveis = array_merge(
             $horariosDisponiveis,
