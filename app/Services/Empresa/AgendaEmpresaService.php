@@ -12,6 +12,7 @@ use App\Helpers\HashGenerator;
 use App\Models\AgendaEmpresaServico;
 use App\Mail\NotificacaoEmail;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class AgendaEmpresaService
 {
@@ -365,27 +366,28 @@ class AgendaEmpresaService
 	}
 
   public function enviarEmail($empresa)
-    {
-      // Obtém o e-mail do remetente a partir da variável de ambiente
-      $emailDestino = env('MAIL_FROM_ADDRESS');
+  {
+    Log::info('Método enviarEmail() chamado para: ' . $empresa['email']);
 
-      // Verifica se o e-mail de destino está configurado
-      if (empty($emailDestino)) {
-        //$this->error('Erro: A variável MAIL_FROM_ADDRESS não está configurada.');
+    $emailDestino = env('MAIL_FROM_ADDRESS');
+
+    if (empty($emailDestino)) {
+        Log::error('Erro: MAIL_FROM_ADDRESS não está configurado.');
         return;
-      }
-
-      $dados = [
-        'nome' => $empresa->razao_social,
-        'mensagem' => "NOVO CLIENTE COM EXPIRAÇÃO PARA: " .
-            Carbon::parse($empresa->expiration_at)->format('d/m/Y H:i')
-      ];
-
-      try {
-          Mail::to($emailDestino)->send(new NotificacaoEmail($dados));
-      } catch (\Exception $e) {
-          //$this->error('Erro ao enviar e-mail: ' . $e->getMessage());
-      }
     }
+
+    $dados = [
+        'nome' => $empresa['razao_social'],
+        'mensagem' => "NOVO CLIENTE COM EXPIRAÇÃO PARA: " .
+            Carbon::parse($empresa['expiration_at'])->format('d/m/Y H:i')
+    ];
+
+    try {
+        Mail::to($emailDestino)->send(new NotificacaoEmail($dados));
+        Log::info('E-mail enviado com sucesso para ' . $emailDestino);
+    } catch (\Exception $e) {
+        Log::error('Erro ao enviar e-mail: ' . $e->getMessage());
+    }
+  }
 
 }
