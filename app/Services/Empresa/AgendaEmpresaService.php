@@ -370,7 +370,7 @@ class AgendaEmpresaService
   {
     Log::info('Método enviarEmail() chamado para: ' . $empresa['email']);
 
-    $emailDestino = env('MAIL_FROM_ADDRESS');
+    $emailDestino = config('app.email_adress');
 
     if (empty($emailDestino)) {
         Log::error('Erro: MAIL_FROM_ADDRESS não está configurado.');

@@ -42,6 +42,8 @@ return [
 
   'agenda_key' => env('APP_AGENDA', ''),
 
+  'email_adress' => env('MAIL_FROM_ADDRESS', ''),
+
 
   /*
     |--------------------------------------------------------------------------
