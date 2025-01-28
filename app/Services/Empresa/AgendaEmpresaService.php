@@ -74,7 +74,7 @@ class AgendaEmpresaService
 
       DB::commit();
 
-      $this->enviarEmail($empresa);
+      $this->enviarEmail($empresa, 'CREATE');
       return $this->findByID($empresa_db->id);
     } catch (\Exception $e) {
         DB::rollBack();
@@ -143,7 +143,7 @@ class AgendaEmpresaService
       $empresa_db = $this->findByID($empresa->id);
       $empresa_db->hash = $empresa_db->hash ? $this->base_url . $empresa_db->hash : '';
 
-      $this->enviarEmail($empresa);
+      $this->enviarEmail($empresa, 'UPDATE');
       return $empresa_db;
     } catch (\Exception $e) {
         DB::rollBack();
@@ -366,11 +366,18 @@ class AgendaEmpresaService
     }
 	}
 
-  public function enviarEmail($empresa)
+  public function enviarEmail($empresa, $tipo)
   {
     Log::info('Método enviarEmail() chamado para: ' . $empresa['email']);
 
     $emailDestino = config('app.email_adress');
+
+    if($tipo === 'CREATE'){
+      $mensagem = "NOVO CLIENTE COM EXPIRAÇÃO PARA: ".
+            Carbon::parse($empresa['expiration_at'])->format('d/m/Y H:i');
+    }else if($tipo === 'UPDATE'){
+      $mensagem = "CLIENTE ATUALIZADO: ".$empresa['razao_social'];
+    }
 
     if (empty($emailDestino)) {
         Log::error('Erro: MAIL_FROM_ADDRESS não está configurado.');
@@ -379,8 +386,7 @@ class AgendaEmpresaService
 
     $dados = [
         'nome' => $empresa['razao_social'],
-        'mensagem' => "NOVO CLIENTE COM EXPIRAÇÃO PARA: " .
-            Carbon::parse($empresa['expiration_at'])->format('d/m/Y H:i')
+        'mensagem' => $mensagem
     ];
 
     try {
