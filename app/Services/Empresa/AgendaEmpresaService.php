@@ -10,9 +10,6 @@ use App\Models\AgendaUser;
 use App\Models\AgendaEmpresaExpediente;
 use App\Helpers\HashGenerator;
 use App\Models\AgendaEmpresaServico;
-use App\Mail\NotificacaoEmail;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Log;
 
 class AgendaEmpresaService
 {
@@ -74,7 +71,6 @@ class AgendaEmpresaService
 
       DB::commit();
 
-      $this->enviarEmail($empresa, 'CREATE');
       return $this->findByID($empresa_db->id);
     } catch (\Exception $e) {
         DB::rollBack();
@@ -143,7 +139,6 @@ class AgendaEmpresaService
       $empresa_db = $this->findByID($empresa->id);
       $empresa_db->hash = $empresa_db->hash ? $this->base_url . $empresa_db->hash : '';
 
-      $this->enviarEmail($empresa, 'UPDATE');
       return $empresa_db;
     } catch (\Exception $e) {
         DB::rollBack();
@@ -351,10 +346,13 @@ class AgendaEmpresaService
 	{
     try{
       $empresa = AgendaEmpresa::with([
-        'agenda_cliente_agendamentos', // Relacionamento direto com usuários
+        'agenda_cliente_agendamentos', // Relacionamento com os agendamentos
       ])
-      ->whereHas('agenda_cliente_agendamentos', function ($query) {
-          $query->where('notificado', false);
+      ->where(function ($query) {
+          $query->whereHas('agenda_cliente_agendamentos', function ($subQuery) {
+              $subQuery->where('notificado', false);
+          })
+          ->orWhereDoesntHave('agenda_cliente_agendamentos'); // Retorna a empresa se não houver agendamentos
       })
       ->where('status', 'A')
       ->where('expiration_at', '>=', Carbon::today())
@@ -365,36 +363,5 @@ class AgendaEmpresaService
         throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
     }
 	}
-
-  public function enviarEmail($empresa, $tipo)
-  {
-    Log::info('Método enviarEmail() chamado para: ' . $empresa['email']);
-
-    $emailDestino = config('app.email_adress');
-
-    if($tipo === 'CREATE'){
-      $mensagem = "NOVO CLIENTE COM EXPIRAÇÃO PARA: ".
-            Carbon::parse($empresa['expiration_at'])->format('d/m/Y H:i');
-    }else if($tipo === 'UPDATE'){
-      $mensagem = "CLIENTE ATUALIZADO: ".$empresa['razao_social'];
-    }
-
-    if (empty($emailDestino)) {
-        Log::error('Erro: MAIL_FROM_ADDRESS não está configurado.');
-        return;
-    }
-
-    $dados = [
-        'nome' => $empresa['razao_social'],
-        'mensagem' => $mensagem
-    ];
-
-    try {
-        Mail::to($emailDestino)->send(new NotificacaoEmail($dados));
-        Log::info('E-mail enviado com sucesso para ' . $emailDestino);
-    } catch (\Exception $e) {
-        Log::error('Erro ao enviar e-mail: ' . $e->getMessage());
-    }
-  }
 
 }

@@ -6,7 +6,11 @@ use Illuminate\Console\Command;
 use App\Services\Fcm\FcmService;
 use App\Services\Empresa\AgendaEmpresaService;
 use App\Services\Cliente\AgendaClienteService;
+use App\Models\AgendaEmpresa;
 use Illuminate\Support\Carbon;
+use App\Mail\NotificacaoEmail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class RunTaskEveryMinute extends Command
 {
@@ -33,7 +37,7 @@ class RunTaskEveryMinute extends Command
         $this->info('Iniciando envio de notificações...');
         $empresas = $agendaEmpresaService->findByAtivoNotExpirated();
         foreach($empresas as $empresa){
-          if(!empty($empresa->token_notificacao)){
+          if(!empty($empresa->token_notificacao)){//notificacao para o admin
             foreach ($empresa->agenda_cliente_agendamentos as $agendamento){
               if(!$agendamento->notificado && $agendamento->tipo_notificacao === 'A'){
                 $this->enviaNotificacaoAgendamento($empresa, $agendamento, $fcmService, $agendaClienteService);
@@ -47,8 +51,12 @@ class RunTaskEveryMinute extends Command
           }else if($empresa && !$empresa->token_notificacao){
             $this->line('Empresa '. $empresa->razao_social.' está sem token');
           }
-          $this->info('Notificações enviadas com sucesso!');
+
+          if(!$empresa->notificado){
+            $this->enviarEmail($empresa);
+          }
         }
+        $this->info('Notificações enviadas com sucesso!');
       } catch (\Exception $e) {
         $this->error('Erro ao enviar notificações: ' . $e->getMessage());
       }
@@ -81,6 +89,33 @@ class RunTaskEveryMinute extends Command
 
     public function atualizaStatusAgendamentoCliente($agendamento, $gendaClienteService){
       $gendaClienteService->updateStatus($agendamento);
+    }
+
+    public function enviarEmail($empresa)
+    {
+      Log::info('Método enviarEmail() chamado para: ' . $empresa['email']);
+
+      $emailDestino = config('app.email_adress');
+      $mensagem = "NOVO CLIENTE COM EXPIRAÇÃO PARA: ". Carbon::parse($empresa['expiration_at'])->format('d/m/Y H:i');
+
+      if (empty($emailDestino)) {
+          Log::error('Erro: MAIL_FROM_ADDRESS não está configurado.');
+          return;
+      }
+
+      $dados = [
+          'nome' => $empresa['razao_social'],
+          'mensagem' => $mensagem
+      ];
+
+      try {
+          Mail::to($emailDestino)->send(new NotificacaoEmail($dados));
+          Log::info('E-mail enviado com sucesso para ' . $emailDestino);
+
+          AgendaEmpresa::where('id', $empresa['id'])->update(['notificado' => true]);
+      } catch (\Exception $e) {
+          Log::error('Erro ao enviar e-mail: ' . $e->getMessage());
+      }
     }
 
 }
