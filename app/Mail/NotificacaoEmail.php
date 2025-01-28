@@ -23,7 +23,7 @@ class NotificacaoEmail extends Mailable
     public function build()
     {
       return $this->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'))
-        ->subject('NOVO CLIENTE!')
+        ->subject($this->dados->assunto)
         ->view('email.notificacao')
         ->with(['dados' => $this->dados]);
     }

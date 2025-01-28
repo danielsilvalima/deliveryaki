@@ -375,8 +375,10 @@ class AgendaEmpresaService
     if($tipo === 'CREATE'){
       $mensagem = "NOVO CLIENTE COM EXPIRAÇÃO PARA: ".
             Carbon::parse($empresa['expiration_at'])->format('d/m/Y H:i');
+      $assunto = "NOVO CLIENTE";
     }else if($tipo === 'UPDATE'){
       $mensagem = "CLIENTE ATUALIZADO: ".$empresa['razao_social'];
+      $assunto = "ATUALIZAÇÃO CLIENTE";
     }
 
     if (empty($emailDestino)) {
@@ -386,7 +388,8 @@ class AgendaEmpresaService
 
     $dados = [
         'nome' => $empresa['razao_social'],
-        'mensagem' => $mensagem
+        'mensagem' => $mensagem,
+        'assunto' => $assunto
     ];
 
     try {
