@@ -74,7 +74,9 @@ class AgendaEmpresaService
 
       DB::commit();
 
-      $this->enviarEmail($empresa);
+      dispatch(function () use ($empresa) {
+        $this->enviarEmail($empresa);
+      })->delay(now()->addSeconds(2));
 
       return $this->findByID($empresa_db->id);
     } catch (\Exception $e) {
@@ -144,6 +146,10 @@ class AgendaEmpresaService
       $empresa_db = $this->findByID($empresa->id);
       $empresa_db->hash = $empresa_db->hash ? $this->base_url . $empresa_db->hash : '';
       return $empresa_db;
+
+      dispatch(function () use ($empresa) {
+        $this->enviarEmail($empresa);
+      })->delay(now()->addSeconds(2));
     } catch (\Exception $e) {
         DB::rollBack();
         throw new \Exception('ERRO AO ATUALIZAR A EMPRESA: ' . $e->getMessage());
