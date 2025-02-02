@@ -27,7 +27,6 @@ class AgendaEmpresaRecursoService
                 $directory = "public/recursos/{$empresa->cnpj}";
 
                 $timestamp = strtotime(now());
-                info("HOJE" . $timestamp);
                 $extension = $imagem->getClientOriginalExtension();
                 $fileName = "{$empresa->cnpj}_{$timestamp}.{$extension}";
                 $filePath = $imagem->storeAs($directory, $fileName);
@@ -150,12 +149,11 @@ class AgendaEmpresaRecursoService
     $recurso = AgendaEmpresaRecurso::find($recursoId);
     if ($recurso && $recurso->path) {
         $oldFilePath = storage_path("app/public/{$recurso->path}");
-        info("Caminho do arquivo a ser deletado: " . $oldFilePath);
         if (file_exists($oldFilePath)) {
             unlink($oldFilePath);
         }else {
           info("Arquivo não encontrado: " . $oldFilePath);
-      }
+        }
     }
   }
 }
