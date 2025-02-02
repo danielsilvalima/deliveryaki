@@ -59,7 +59,7 @@ class EmpresaExpedienteController extends Controller
 
       $empresa_db = $agendaEmpresaService->findByIDEmailSummary($id, $email);
       if($empresa_db){
-        $empresa_db = $agendaEmpresaExpedienteService->createOrUpdate($empresa_db, $empresa->agenda_empresa_expedientes, $agendaEmpresaService);
+        $empresa_db = $agendaEmpresaExpedienteService->createOrUpdate($empresa_db, $empresa->agenda_empresa_recursos, $empresa->agenda_empresa_expedientes, $agendaEmpresaService);
       }
 
       return response()->json(

@@ -46,7 +46,7 @@ class AgendaEmpresaExpedienteService
     }
   }
 
-  public function createOrUpdate(AgendaEmpresa $empresa, array $listaExpedientes, AgendaEmpresaService $agendaEmpresaService)
+  public function createOrUpdate(AgendaEmpresa $empresa, string $agenda_empresa_recursos, array $listaExpedientes, AgendaEmpresaService $agendaEmpresaService)
   {
     try {
         // Validação de expiração da empresa
@@ -54,6 +54,11 @@ class AgendaEmpresaExpedienteService
 
         // IDs dos serviços existentes para rastreamento
         $expedienteIdsExistentes = [];
+
+        if(empty($listaExpedientes) && $empresa->agenda_empresa_recursos){
+          $this->deactivateMissingOfficeHoursAll($empresa, $agenda_empresa_recursos);
+          return $empresa->load('agenda_empresa_expedientes');
+        }
 
         foreach ($listaExpedientes as $expediente) {
             if (!empty($expediente['id'])) {
@@ -135,4 +140,13 @@ class AgendaEmpresaExpedienteService
         ->where('empresa_recurso_id', $empresaRecursoIds)
         ->update(['status' => 'D']);
   }
+
+  private function deactivateMissingOfficeHoursAll(AgendaEmpresa $empresa, string $empresaRecursoIds)
+  {
+    // Desativar registros em AgendaEmpresaServico
+    AgendaEmpresaExpediente::where('empresa_id', $empresa->id)
+        ->where('empresa_recurso_id', $empresaRecursoIds)
+        ->update(['status' => 'D']);
+  }
+
 }

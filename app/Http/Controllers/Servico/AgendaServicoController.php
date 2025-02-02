@@ -44,7 +44,7 @@ class AgendaServicoController extends Controller
 
       $empresa_db = $agendaEmpresaService->findByIDEmailSummary($id, $email);
       if($empresa_db){
-        $empresa_db = $gendaEmpresaServicoService->createOrUpdate($empresa_db, $empresa->agenda_empresa_servicos, $agendaEmpresaService);
+        $empresa_db = $gendaEmpresaServicoService->createOrUpdate($empresa_db, $empresa->agenda_empresa_recursos, $empresa->agenda_empresa_servicos, $agendaEmpresaService);
       }
 
       return response()->json(

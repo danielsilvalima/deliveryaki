@@ -15,7 +15,7 @@ class AgendaEmpresaServicoService
     return AgendaEmpresaServico::select('id', 'descricao')->where('status', 'A')->orderBy('descricao', 'ASC')->get();
   }
 
-  public function createOrUpdate(AgendaEmpresa $empresa, array $listaServicos, AgendaEmpresaService $agendaEmpresaService)
+  public function createOrUpdate(AgendaEmpresa $empresa, string $agenda_empresa_recursos, array $listaServicos, AgendaEmpresaService $agendaEmpresaService)
   {
     try {
         // Validação de expiração da empresa
@@ -23,6 +23,11 @@ class AgendaEmpresaServicoService
 
         // IDs dos serviços existentes para rastreamento
         $servicoIdsExistentes = [];
+
+        if(empty($listaServicos) && $empresa->agenda_empresa_recursos){
+          $this->deactivateMissingServicesAll($empresa, $agenda_empresa_recursos);
+          return $empresa->load('agenda_empresa_servicos');
+        }
 
         foreach ($listaServicos as $servico) {
             if (!empty($servico['id'])) {
@@ -36,7 +41,7 @@ class AgendaEmpresaServicoService
 
         $empresa_recurso_id = array_column($listaServicos, 'agenda_empresa_recursos');
         // Desativar serviços não presentes na lista
-        $this->deactivateMissingServices($empresa, array_column($empresa_recurso_id, 'empresa_recurso_id'), $servicoIdsExistentes);
+        $this->deactivateMissingServices($empresa, array_column($empresa_recurso_id, 'id'), $servicoIdsExistentes);
 
         return $empresa->load('agenda_empresa_servicos'); // Retorna a empresa com os serviços atualizados
     } catch (\Exception $e) {
@@ -93,11 +98,17 @@ class AgendaEmpresaServicoService
 
   private function deactivateMissingServices(AgendaEmpresa $empresa, array $empresaRecursoIds, array $servicoIdsExistentes)
   {
-    // Desativar registros em AgendaEmpresaServico
     AgendaEmpresaServico::where('empresa_id', $empresa->id)
-        ->whereNotIn('id', $servicoIdsExistentes)
-        ->where('empresa_recurso_id', $empresaRecursoIds)
-        ->update(['status' => 'D']);
+      ->whereNotIn('id', $servicoIdsExistentes)
+      ->where('empresa_recurso_id', $empresaRecursoIds)
+      ->update(['status' => 'D']);
+  }
+
+  private function deactivateMissingServicesAll(AgendaEmpresa $empresa, string $empresaRecursoIds)
+  {
+    AgendaEmpresaServico::where('empresa_id', $empresa->id)
+      ->where('empresa_recurso_id', $empresaRecursoIds)
+      ->update(['status' => 'D']);
   }
 
   public function findByServiceByID($id, AgendaEmpresaService $agendaEmpresaService){
