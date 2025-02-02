@@ -20,13 +20,14 @@ class AgendaEmpresaRecursoService
         $recursoIdsExistentes = [];
 
         foreach ($listaRecursos as $index => $recurso) {
-          if ($request->hasFile("agenda_empresa_recursos.$index.imagem")) {
+          if ($request->hasFile("agenda_empresa_recursos.$index.imagem") && empty($recurso->id)) {
             $imagem = $request->file("agenda_empresa_recursos.$index.imagem");
 
             if ($imagem->isValid()) {
                 $directory = "public/recursos/{$empresa->cnpj}";
 
                 $timestamp = strtotime(now());
+                info("HOJE" . $timestamp);
                 $extension = $imagem->getClientOriginalExtension();
                 $fileName = "{$empresa->cnpj}_{$timestamp}.{$extension}";
                 $filePath = $imagem->storeAs($directory, $fileName);
@@ -148,7 +149,7 @@ class AgendaEmpresaRecursoService
   {
     $recurso = AgendaEmpresaRecurso::find($recursoId);
     if ($recurso && $recurso->path) {
-        $oldFilePath = storage_path($recurso->path);
+        $oldFilePath = storage_path("app/public/{$recurso->path}");
         info("Caminho do arquivo a ser deletado: " . $oldFilePath);
         if (file_exists($oldFilePath)) {
             unlink($oldFilePath);
