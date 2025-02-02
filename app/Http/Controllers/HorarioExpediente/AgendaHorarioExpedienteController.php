@@ -13,7 +13,7 @@ class AgendaHorarioExpedienteController extends Controller
   public function get(Request $request, AgendaHorarioExpedienteService $agendaHorarioExpedienteService)
   {
     try{
-      $agendaHorarioExpediente = $agendaHorarioExpedienteService->findAll();
+      $agendaHorarioExpediente = $agendaHorarioExpedienteService->findByIDEmpresaResource();
 
       return response()->json(
         $agendaHorarioExpediente,

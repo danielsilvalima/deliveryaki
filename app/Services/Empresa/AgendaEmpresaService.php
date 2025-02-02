@@ -153,12 +153,33 @@ class AgendaEmpresaService
 
   public function findByID(string $id)
 	{
-    return AgendaEmpresa::with([
-      'agenda_user',
-      'agenda_empresa_expedientes.agenda_horario_expedientes',
-      'agenda_empresa_servicos'
-      ])->find($id);
-	}
+    try{
+      $empresa = AgendaEmpresa::select(['id', 'razao_social'])
+        ->with([
+            'agenda_empresa_expedientes.agenda_horario_expedientes', // Relacionamento de expediente e horários
+            'agenda_empresa_servicos',              // Relacionamento de serviços
+            'agenda_clientes'
+        ])
+        ->where('status', 'A') // Empresa ativa
+        ->where('id', $id)
+        ->first();
+
+      $empresa->hash = $this->base_url . $empresa->hash;
+
+      if($this->validaDataExpiracao($empresa)){
+        $empresa->expiration = true;
+        $empresa->message = 'CADASTRO DA EMPRESA EXPIRADO, ENTRE EM CONTATO COM O SUPORTE';
+      }else{
+        $empresa->expiration = false;
+      }
+      unset($empresa->expiration_at);
+      return $empresa;
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+      throw new \Exception('ID NÃO ENCONTRADO.' . $e->getMessage());
+    } catch (\Exception $e) {
+        throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
+    }
+  }
 
   public function findByEmail(string $email)
 	{
@@ -170,6 +191,9 @@ class AgendaEmpresaService
                   ->with('agenda_horario_expedientes'); // Carrega os horários do expediente
         },
         'agenda_empresa_servicos' => function ($query) { // Relacionamento de serviços da empresa
+            $query->where('status', 'A'); // Apenas registros com status 'A'
+        },
+        'agenda_empresa_recursos' => function ($query) { // Relacionamento de recursos da empresa
             $query->where('status', 'A'); // Apenas registros com status 'A'
         }
       ])
@@ -230,18 +254,49 @@ class AgendaEmpresaService
     }
 	}
 
+  public function findByIDEmailSummary(string $id, string $email)
+	{
+    try{
+      $empresa = AgendaEmpresa::with([
+        'agenda_user', // Relacionamento direto com usuários
+      ])
+      ->whereHas('agenda_user', function ($query) use ($email) {
+          $query->where('email', $email)
+                ->where('status', 'A'); // Usuário ativo
+      })
+      ->where('status', 'A')
+      ->where('id', $id) // Empresa ativa
+      ->first();
+
+      if($empresa){
+        if($this->validaDataExpiracao($empresa)){
+          return [];
+        }else{
+          return $empresa;
+        }
+      }else{
+        return $empresa;
+      }
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+      throw new \Exception('EMAIL NÃO ENCONTRADO.' . $e->getMessage());
+    } catch (\Exception $e) {
+        throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
+    }
+	}
+
   public function findByHashEmailCliente(string $hash, string $email)
 	{
     try{
       $empresa = AgendaEmpresa::select(['id', 'razao_social'])
         ->with([
-            'agenda_empresa_expedientes.agenda_horario_expedientes', // Relacionamento de expediente e horários
-            'agenda_empresa_servicos' => function ($query) {         // Filtra serviços com status = 'A'
+            // Relacionamento de serviços com status 'A'
+            'agenda_empresa_recursos' => function ($query) {
                 $query->where('status', 'A');
-            },             // Relacionamento de serviços
-            'agenda_clientes' => function ($query) use ($email) {   // Filtra clientes pelo email
+            },
+            // Relacionamento de clientes vinculados à empresa, filtrando pelo email
+            'agenda_clientes' => function ($query) use ($email) {
                 $query->where('email', $email)
-                      ->with(['agenda_cliente_agendamentos']);   // Inclui os agendamentos do cliente
+                      ->with(['agenda_cliente_agendamentos']); // Inclui os agendamentos do cliente
             }
         ])
         ->where('status', 'A') // Empresa ativa
@@ -256,7 +311,7 @@ class AgendaEmpresaService
       }else{
         $empresa->expiration = false;
       }
-      unset($empresa->expiration_at);
+      unset($empresa->expiration_at, $empresa->agenda_clientes);
       return $empresa;
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
       throw new \Exception('ID NÃO ENCONTRADO.' . $e->getMessage());

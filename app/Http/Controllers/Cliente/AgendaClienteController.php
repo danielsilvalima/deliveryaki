@@ -36,7 +36,6 @@ class AgendaClienteController extends Controller
 
   public function get(Request $request, AgendaClienteService $agendaClienteService, AgendaEmpresaService $agendaEmpresaService){
     try{
-
       if (empty($request->id)) {
         return ResponseHelper::error('O "ID" É OBRIGATÓRIOOO', Response::HTTP_BAD_REQUEST);
       }
@@ -114,6 +113,29 @@ class AgendaClienteController extends Controller
       }
 
       $agenda_cliente = $agendaClienteService->delete($request->agendamento, $agendaEmpresaService);
+
+      return response()->json(
+        $agenda_cliente,
+        Response::HTTP_OK,
+      );
+    } catch (\Exception $e) {
+      return ResponseHelper::error($e->getMessage());
+    }
+  }
+
+  public function getClienteByIDEmail(Request $request, AgendaClienteService $agendaClienteService, AgendaEmpresaService $agendaEmpresaService){
+    try{
+      $requiredFields = ['id', 'empresa_recurso_id', 'email'];
+      foreach ($requiredFields as $field) {
+          if (empty($request[$field])) {
+              return ResponseHelper::error("O campo \"$field\" é obrigatório.", Response::HTTP_BAD_REQUEST);
+          }
+      }
+      $hash = $request->query('id');
+      $email = $request->query('email');
+      $empresa_recurso_id = $request->query('empresa_recurso_id');
+
+      $agenda_cliente = $agendaClienteService->findServiceBydResource($hash, $email, $empresa_recurso_id, $agendaEmpresaService);
 
       return response()->json(
         $agenda_cliente,

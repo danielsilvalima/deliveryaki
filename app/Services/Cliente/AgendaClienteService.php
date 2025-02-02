@@ -130,8 +130,9 @@ class AgendaClienteService
       }
 
       $servico = json_decode($agendaCliente->servico, true);
-      $expedientes = AgendaHorarioExpediente::with(['agenda_empresa_expedientes' => function ($query) use ($empresa) {
-        $query->where('empresa_id', $empresa->id);
+      $expedientes = AgendaHorarioExpediente::with(['agenda_empresa_expedientes' => function ($query) use ($empresa, $servico) {
+        $query->where('empresa_id', $empresa->id)
+        ->where('empresa_recurso_id', $servico->empresa_recurso_id);
       }])
       ->where('dia_semana', $diaSemana)
       ->get();
@@ -316,6 +317,37 @@ class AgendaClienteService
     } catch (\Exception $e) {
       DB::rollBack();
       throw new \Exception('ERRO AO CRIAR O AGENDAMENTO: ' . $e->getMessage());
+    }
+  }
+
+  public function findServiceBydResource(string $hash, string $email, string  $empresa_recurso_id, AgendaEmpresaService $agendaEmpresaService){
+    try{
+      $empresa = AgendaEmpresa::select(['id', 'razao_social'])
+        ->with([
+            'agenda_empresa_servicos' => function ($query) use ($empresa_recurso_id) {         // Filtra serviços com status = 'A'
+                $query->where('status', 'A')
+                ->where('empresa_recurso_id', $empresa_recurso_id);
+            },             // Relacionamento de serviços
+            'agenda_clientes' => function ($query) use ($email) {   // Filtra clientes pelo email
+                $query->where('email', $email);
+            }
+        ])
+        ->where('status', 'A') // Empresa ativa
+        ->where('hash', $hash)
+        ->first();
+
+      if($agendaEmpresaService->validaDataExpiracao($empresa)){
+        $empresa->expiration = true;
+        $empresa->message = 'CADASTRO DA EMPRESA EXPIRADO, ENTRE EM CONTATO COM O SUPORTE';
+      }else{
+        $empresa->expiration = false;
+      }
+      unset($empresa->expiration_at);
+      return $empresa;
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+      throw new \Exception('ID NÃO ENCONTRADO.' . $e->getMessage());
+    } catch (\Exception $e) {
+        throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
     }
   }
 }

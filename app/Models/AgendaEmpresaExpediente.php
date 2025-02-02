@@ -20,4 +20,9 @@ class AgendaEmpresaExpediente extends Model
     {
       return $this->belongsTo(AgendaHorarioExpediente::class, 'horario_expediente_id', 'id');
     }
+
+    public function agenda_empresa_recursos()
+    {
+      return $this->belongsTo(AgendaEmpresaRecurso::class, 'empresa_recurso_id');
+    }
 }

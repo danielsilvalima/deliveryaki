@@ -44,4 +44,9 @@ class AgendaEmpresa extends Model
     return $this->hasMany(AgendaClienteAgendamento::class, 'empresa_id', 'id');
   }
 
+  public function agenda_empresa_recursos()
+  {
+    return $this->hasMany(AgendaEmpresaRecurso::class, 'empresa_id', 'id');
+  }
+
 }

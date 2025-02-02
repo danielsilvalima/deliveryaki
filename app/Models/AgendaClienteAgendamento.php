@@ -25,4 +25,14 @@ class AgendaClienteAgendamento extends Model
     {
         return $this->belongsTo(AgendaEmpresaServico::class, 'empresa_servico_id');
     }
+
+    public function agenda_empresa_expediente()
+    {
+        return $this->belongsTo(AgendaEmpresaExpediente::class, 'empresa_expediente_id');
+    }
+
+    public function agenda_empresa_recursos()
+    {
+        return $this->belongsTo(AgendaEmpresaRecurso::class, 'empresa_recurso_id');
+    }
 }

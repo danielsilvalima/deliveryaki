@@ -27,19 +27,20 @@ class AgendaEmpresaServicoService
         foreach ($listaServicos as $servico) {
             if (!empty($servico['id'])) {
                 // Atualizar serviço existente
-                $this->updateExistingService($empresa, $servico, $servicoIdsExistentes);
+                $this->updateExistingService($empresa, $servico, $servicoIdsExistentes, );
             } else {
                 // Criar novo serviço
-                $this->createNewService($empresa, $servico, $servicoIdsExistentes);
+                $this->createNewService($empresa, $servico, $servicoIdsExistentes, );
             }
         }
 
+        $empresa_recurso_id = array_column($listaServicos, 'agenda_empresa_recursos');
         // Desativar serviços não presentes na lista
-        $this->deactivateMissingServices($empresa, $servicoIdsExistentes);
+        $this->deactivateMissingServices($empresa, array_column($empresa_recurso_id, 'empresa_recurso_id'), $servicoIdsExistentes);
 
         return $empresa->load('agenda_empresa_servicos'); // Retorna a empresa com os serviços atualizados
     } catch (\Exception $e) {
-        throw new \Exception("ERRO AO ATUALIZAR SERVIÇOS: " . $e->getMessage());
+      throw new \Exception($e->getMessage());
     }
   }
 
@@ -67,7 +68,8 @@ class AgendaEmpresaServicoService
           $servicoExistente->update([
               'duracao' => $servico['duracao'],
               'vlr' => $servico['vlr'],
-              'descricao' => strtoupper($servico['descricao'])
+              'descricao' => strtoupper($servico['descricao']),
+              'empresa_recurso_id' => $servico['agenda_empresa_recursos']['id']
           ]);
 
           $servicoIdsExistentes[] = $servico['id'];
@@ -83,16 +85,82 @@ class AgendaEmpresaServicoService
         'duracao' => $servico['duracao'],
         'vlr' => $servico['vlr'],
         'descricao' => strtoupper($servico['descricao']),
+        'empresa_recurso_id' => $servico['agenda_empresa_recursos']['id']
     ]);
 
     $servicoIdsExistentes[] = $servicoNovo->id;
   }
 
-  private function deactivateMissingServices(AgendaEmpresa $empresa, array $servicoIdsExistentes)
+  private function deactivateMissingServices(AgendaEmpresa $empresa, array $empresaRecursoIds, array $servicoIdsExistentes)
   {
     // Desativar registros em AgendaEmpresaServico
     AgendaEmpresaServico::where('empresa_id', $empresa->id)
         ->whereNotIn('id', $servicoIdsExistentes)
+        ->where('empresa_recurso_id', $empresaRecursoIds)
         ->update(['status' => 'D']);
+  }
+
+  public function findByServiceByID($id, AgendaEmpresaService $agendaEmpresaService){
+    try{
+      $empresa = AgendaEmpresa::with([
+        'agenda_empresa_servicos' => function ($query) {
+            $query->where('status', 'A')
+                  ->with(['agenda_empresa_recursos' => function ($q) { // Pega os recursos de cada serviço
+                      $q->where('status', 'A');
+                  }]);
+        },
+        'agenda_empresa_recursos' => function ($query) {
+            $query->where('status', 'A');
+        }
+      ])
+      ->where('status', 'A')
+      ->where('id', $id)
+      ->first();
+
+      if($empresa){
+        if($agendaEmpresaService->validaDataExpiracao($empresa)){
+          $empresa->expiration = true;
+          $empresa->message = 'CADASTRO DA EMPRESA EXPIRADO, ENTRE EM CONTATO COM O SUPORTE';
+        }else{
+          $empresa->expiration = false;
+        }
+        unset($empresa->expiration_at);
+        return $empresa;
+      }else{
+        return $empresa;
+      }
+    } catch (\Exception $e) {
+      throw new \Exception($e->getMessage());
+    }
+  }
+
+  public function findByServiceByIDEmpresaResource($id, $empresa_recurso_id, AgendaEmpresaService $agendaEmpresaService){
+    try{
+      $empresa = AgendaEmpresa::with([
+        'agenda_empresa_servicos' => function ($query) use($empresa_recurso_id) {
+            $query->where('status', 'A')
+            ->where('empresa_recurso_id', $empresa_recurso_id)
+            ->with('agenda_empresa_recursos');
+        },
+      ])
+      ->where('status', 'A')
+      ->where('id', $id)
+      ->first();
+
+      if($empresa){
+        if($agendaEmpresaService->validaDataExpiracao($empresa)){
+          $empresa->expiration = true;
+          $empresa->message = 'CADASTRO DA EMPRESA EXPIRADO, ENTRE EM CONTATO COM O SUPORTE';
+        }else{
+          $empresa->expiration = false;
+        }
+        unset($empresa->expiration_at);
+        return $empresa;
+      }else{
+        return $empresa;
+      }
+    } catch (\Exception $e) {
+      throw new \Exception($e->getMessage());
+    }
   }
 }

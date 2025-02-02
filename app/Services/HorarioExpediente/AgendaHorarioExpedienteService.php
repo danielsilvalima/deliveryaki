@@ -7,7 +7,7 @@ use App\Models\AgendaHorarioExpediente;
 
 class AgendaHorarioExpedienteService
 {
-  public function findAll()
+  public function findByIDEmpresaResource()
   {
     return AgendaHorarioExpediente::select('id', 'dia_semana', 'descricao')->orderBy('id', 'ASC')->get();
   }
