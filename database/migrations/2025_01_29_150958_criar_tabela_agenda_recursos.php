@@ -20,15 +20,15 @@ return new class extends Migration
       });
 
       Schema::table('agenda_empresa_servicos', function (Blueprint $table) {
-        $table->foreignId('empresa_recurso_id')->constrained('agenda_empresa_recursos');
+        $table->foreignId('empresa_recurso_id')->nullable()->constrained('agenda_empresa_recursos');
       });
 
       Schema::table('agenda_cliente_agendamentos', function (Blueprint $table) {
-          $table->foreignId('empresa_recurso_id')->constrained('agenda_empresa_recursos');
+          $table->foreignId('empresa_recurso_id')->nullable()->constrained('agenda_empresa_recursos');
       });
 
       Schema::table('agenda_empresa_expedientes', function (Blueprint $table) {
-        $table->foreignId('empresa_recurso_id')->constrained('agenda_empresa_recursos');
+        $table->foreignId('empresa_recurso_id')->nullable()->constrained('agenda_empresa_recursos');
     });
     }
 
