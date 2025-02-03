@@ -132,7 +132,8 @@ class AgendaClienteService
       $servico = json_decode($agendaCliente->servico, true);
       $expedientes = AgendaHorarioExpediente::with(['agenda_empresa_expedientes' => function ($query) use ($empresa, $servico) {
         $query->where('empresa_id', $empresa->id)
-        ->where('empresa_recurso_id', $servico->empresa_recurso_id);
+        ->where('empresa_recurso_id', $servico['empresa_recurso_id'])
+        ->where('status', 'A');
       }])
       ->where('dia_semana', $diaSemana)
       ->get();
