@@ -403,14 +403,13 @@ class AgendaEmpresaService
       $empresa = AgendaEmpresa::with([
         'agenda_cliente_agendamentos', // Relacionamento com os agendamentos
       ])
-      ->where(function ($query) {
-          $query->whereHas('agenda_cliente_agendamentos', function ($subQuery) {
-              $subQuery->where('notificado', false)->where('status', 'A');
-          })
-          ->orWhereDoesntHave('agenda_cliente_agendamentos'); // Retorna a empresa se não houver agendamentos
-      })
       ->where('status', 'A')
       ->where('expiration_at', '>=', Carbon::today())
+      /*->where(function ($query) {
+          $query->whereHas('agenda_cliente_agendamentos', function ($subQuery) {
+              $subQuery->where('notificado', false)->where('status', 'A');
+          })->orWhereDoesntHave('agenda_cliente_agendamentos'); // Empresas sem agendamentos
+      })*/
       ->get();
 
       return $empresa;

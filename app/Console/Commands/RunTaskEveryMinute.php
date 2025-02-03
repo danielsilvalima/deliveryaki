@@ -55,8 +55,9 @@ class RunTaskEveryMinute extends Command
           if($empresa->notificado === false){
             $this->enviarEmail($empresa);
           }
+          $this->info('Notificações enviadas com sucesso!');
         }
-        $this->info('Notificações enviadas com sucesso!');
+
       } catch (\Exception $e) {
         $this->error('Erro ao enviar notificações: ' . $e->getMessage());
       }
