@@ -56,6 +56,7 @@ class AgendaClienteService
       // Verificar se já existe um agendamento para a mesma data e empresa
       $agendamento_existente = AgendaClienteAgendamento::where('empresa_id', $empresa->id)
       ->where('start_scheduling_at', $start_scheduling_at)
+      ->where('empresa_recurso_id', $empresa->empresa_recurso_id)
       ->exists();
 
       if ($agendamento_existente) {
@@ -72,7 +73,8 @@ class AgendaClienteService
           "empresa_id" => $empresa->id,
           "cliente_id" => $agenda_cliente->id,
           "empresa_servico_id" => $agendaCliente->empresa_servico_id,
-          "empresa_expediente_id" => $agendaCliente->empresa_expediente_id
+          "empresa_expediente_id" => $agendaCliente->empresa_expediente_id,
+          "empresa_recurso_id" => $agendaCliente->empresa_recurso_id
       ]);
 
       DB::commit();
