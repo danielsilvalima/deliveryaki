@@ -52,7 +52,7 @@ class RunTaskEveryMinute extends Command
             $this->line('Empresa '. $empresa->razao_social.' está sem token');
           }
 
-          if(!$empresa->notificado){
+          if($empresa->notificado === false){
             $this->enviarEmail($empresa);
           }
         }
