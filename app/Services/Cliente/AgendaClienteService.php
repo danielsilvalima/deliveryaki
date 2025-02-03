@@ -103,7 +103,7 @@ class AgendaClienteService
         throw new \Exception("AGENDAMENTO NÃO ENCONTRADO");
       }
 
-      $agenda->status = 'C';
+      $agenda->tipo_notificacao = 'C';
       $agenda->notificado = false;
       $agenda->update();
 
