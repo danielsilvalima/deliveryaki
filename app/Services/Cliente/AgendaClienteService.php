@@ -178,8 +178,7 @@ class AgendaClienteService
           );
 
           $empresa_expediente_id = $empresaExpediente->id;
-
-          $horariosDisponiveis = $this->filtraHorarioDisponivel($empresa, $horariosDisponiveis, $data, $servico['duracao']);
+          $horariosDisponiveis = $this->filtraHorarioDisponivel($empresa, $horariosDisponiveis, $data, $servico['duracao'], $empresaExpediente->empresa_recurso_id);
 
         }
       }
@@ -218,7 +217,7 @@ class AgendaClienteService
     return $data->addMinutes($intervaloMinutos)->setTimezone('UTC')->format('Y-m-d H:i:s');
   }
 
-  function filtraHorarioDisponivel($empresa, array $horariosDisponiveis, $data, $duracaoServico){
+  function filtraHorarioDisponivel($empresa, array $horariosDisponiveis, $data, $duracaoServico, $empresa_recurso_id){
     $dataAtual = now()->format('Y-m-d');
     $agora = strtotime(now()->format('Y-m-d H:i:s'));
 
@@ -229,6 +228,7 @@ class AgendaClienteService
     $agendamentos = AgendaClienteAgendamento::where('empresa_id', $empresa->id)
       ->whereDate('start_scheduling_at', $data)
       ->where('status', 'A')
+      ->where('empresa_recurso_id', $empresa_recurso_id)
       ->get();
 
     if ($agendamentos->isEmpty()) {
