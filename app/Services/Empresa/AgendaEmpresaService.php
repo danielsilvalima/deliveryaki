@@ -358,7 +358,9 @@ class AgendaEmpresaService
               $query->where('status', 'A') // Apenas expedientes ativos
                   ->with('agenda_horario_expedientes'); // Relacionamento de horários dentro dos expedientes
           },
-          'agenda_empresa_servicos', // Relacionamento de serviços
+          'agenda_empresa_servicos' => function ($query) {
+            $query->where('status', 'A')->with('agenda_empresa_recursos');
+          },
           'agenda_clientes.agenda_cliente_agendamentos' => function ($query) use ($data) {
             $startOfDay = Carbon::parse($data)->startOfDay(); // 2025-01-25 00:00:00
             $endOfDay = Carbon::parse($data)->endOfDay();     // 2025-01-25 23:59:59

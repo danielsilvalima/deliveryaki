@@ -34,9 +34,6 @@ class AgendaEmpresaExpedienteService
       if(!$empresa){
         throw new \Exception("EMPRESA NÃO ENCONTRADA");
       }
-      if($empresa->expiration){
-        throw new \Exception("CADASTRO DA EMPRESA EXPIRADO, ENTRE EM CONTATO COM O SUPORTE");
-      }
 
       unset($empresa->token_notificacao, $empresa->hash);
 
