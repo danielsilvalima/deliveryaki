@@ -287,7 +287,7 @@ class AgendaEmpresaService
   public function findByHashEmailCliente(string $hash, string $email)
 	{
     try{
-      $empresa = AgendaEmpresa::select(['id', 'razao_social'])
+      $empresa = AgendaEmpresa::select(['id', 'razao_social', 'expiration_at'])
         ->with([
             // Relacionamento de serviços com status 'A'
             'agenda_empresa_recursos' => function ($query) {
