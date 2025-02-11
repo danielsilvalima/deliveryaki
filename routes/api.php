@@ -6,6 +6,7 @@ use App\Http\Controllers\EmpresaExpediente\EmpresaExpedienteController;
 use App\Http\Controllers\Servico\AgendaServicoController;
 use App\Http\Controllers\Cliente\AgendaClienteController;
 use App\Http\Controllers\Recurso\AgendaRecursoController;
+use App\Http\Controllers\NumeroVirtual\NumeroVirtualController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,9 +22,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-
-
+  return $request->user();
 });
 
 //API FRONT
@@ -51,4 +50,7 @@ Route::middleware('api.keyagenda')->group(function () {
   Route::get('/agenda/empresa/cliente/agenda', [AgendaClienteController::class, 'get'])->name('agenda.get');
   Route::post('/agenda/empresa/cliente/agenda', [AgendaClienteController::class, 'store'])->name('agenda.store');
   Route::delete('/agenda/empresa/cliente/agenda', [AgendaClienteController::class, 'destroy'])->name('agenda.destroy');
+
+
+  Route::post('/numerovirtual', [NumeroVirtualController::class, 'store'])->name('numero.store');
 });
