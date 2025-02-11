@@ -17,7 +17,7 @@ class TwilioService
   public function start(Request $request)
   {
     $update = json_decode(file_get_contents('php://input'), true);
-    file_put_contents("log_telegram.txt", json_encode($update, JSON_PRETTY_PRINT));
+    return $request;
     if (!isset($update['message'])) {
       return;
     }
