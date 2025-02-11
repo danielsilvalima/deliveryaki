@@ -3,21 +3,25 @@
 namespace App\Services\Twilio;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class TwilioService
 {
   private $TOKEN;
   private $API_URL;
+  private $TOKEN_SMS;
   public function __construct()
   {
     $this->TOKEN = config('app.telegram_bot');
-    $this->API_URL = "https://api.telegram.org/bot$this->TOKEN/";
+    $this->API_URL = "https://api.telegram.org/$this->TOKEN/";
+    $this->TOKEN_SMS = config('app.telegram_sms');
   }
 
   public function start(Request $request)
   {
     $update = json_decode(file_get_contents('php://input'), true);
-    return $request;
+    Log::info('COMECANDO AKI');
+    Log::info(json_encode($update));
     if (!isset($update['message'])) {
       return;
     }
@@ -35,7 +39,7 @@ class TwilioService
     } elseif ($text == '2') {
       $this->sendMessage($chat_id, "O número virtual para Telegram custa R$ 12,00. Digite 'comprar' para prosseguir.");
     } elseif ($text == 'comprar') {
-      $qrcode_url = $this->gerarQRCodePix(15.0, $chat_id);
+      $qrcode_url = $this->gerarQRCodePix(9.0, $chat_id);
       $this->sendMessage(
         $chat_id,
         "Escaneie este QR Code para pagamento:\n$qrcode_url\nApós o pagamento, digite 'confirmar pagamento'."
@@ -47,6 +51,8 @@ class TwilioService
       } else {
         $this->sendMessage($chat_id, 'Ainda não identificamos o pagamento. Tente novamente mais tarde.');
       }
+    } else {
+      $this->sendMessage($chat_id, 'Opção inválida.');
     }
   }
 
@@ -58,30 +64,32 @@ class TwilioService
     file_get_contents($url);
   }
 
-  public function comprarNumeroTwilio()
+  public function comprarNumeroVirtual()
   {
-    $account_sid = "SEU_TWILIO_ACCOUNT_SID";
-    $auth_token = "SEU_TWILIO_AUTH_TOKEN";
-    $twilio_url = "https://api.twilio.com/2010-04-01/Accounts/$account_sid/IncomingPhoneNumbers.json";
+    $api_key = $this->TOKEN_SMS;
+    $url = "https://api.sms-activate.org/stubs/handler_api.php";
 
-    $data = [
-      "PhoneNumber" => "+5582999999999" // Aqui você pode automatizar para buscar números disponíveis
+    // Solicita um número disponível para WhatsApp
+    $params = [
+      "api_key" => $api_key,
+      "action" => "getNumber",
+      "service" => "wa", // 'wa' para WhatsApp, 'tg' para Telegram
+      "country" => "BR" // Código do país (Brasil)
     ];
 
-    $options = [
-      "http" => [
-        "header"  => "Authorization: Basic " . base64_encode("$account_sid:$auth_token"),
-        "method"  => "POST",
-        "content" => http_build_query($data)
-      ]
-    ];
-    $context = stream_context_create($options);
-    $result = file_get_contents($twilio_url, false, $context);
-    $response = json_decode($result, true);
+    $query = http_build_query($params);
+    $response = file_get_contents("$url?$query");
 
-    return $response["phone_number"] ?? "Erro ao gerar número";
+    if (strpos($response, "ACCESS_NUMBER") !== false) {
+      list(, $id, $number) = explode(":", $response);
+      return [
+        "id" => $id,
+        "numero" => $number
+      ];
+    }
+
+    return "Erro ao obter número virtual";
   }
-
 
   public function gerarQRCodePix($valor, $chat_id)
   {

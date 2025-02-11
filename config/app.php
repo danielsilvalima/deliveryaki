@@ -45,6 +45,7 @@ return [
   'email_adress' => env('MAIL_FROM_ADDRESS', ''),
 
   'telegram_bot' => env('TELEGRAM_BOT', ''),
+  'telegram_sms' => env('TELEGRAM_SMS', ''),
 
 
   /*
