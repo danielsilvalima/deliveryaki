@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Services\Twilio;
+namespace App\Services\NumeroVirtual;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-class TwilioService
+class NumeroVirtualService
 {
   private $TOKEN;
   private $API_URL;
@@ -46,7 +46,7 @@ class TwilioService
       );
     } elseif ($text == 'confirmar pagamento') {
       if ($this->verificarPagamento($chat_id)) {
-        $numero_virtual = $this->comprarNumeroTwilio();
+        $numero_virtual = $this->comprarNumeroVirtual();
         $this->sendMessage($chat_id, "Pagamento confirmado! Seu número virtual é: $numero_virtual");
       } else {
         $this->sendMessage($chat_id, 'Ainda não identificamos o pagamento. Tente novamente mais tarde.');
