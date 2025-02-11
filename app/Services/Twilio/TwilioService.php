@@ -6,13 +6,21 @@ use Illuminate\Http\Request;
 
 class TwilioService
 {
+  private $TOKEN;
+  private $API_URL;
+  public function __construct()
+  {
+    $this->TOKEN = config('app.telegram_bot');
+    $this->API_URL = "https://api.telegram.org/bot$this->TOKEN/";
+  }
 
   public function start(Request $request)
   {
-    $TOKEN = '6385429971:AAHTJiPEO-2ZXRIs6ilzNcIpKx0kJljy_2M';
-    $API_URL = "https://api.telegram.org/bot$TOKEN/";
-    return $API_URL;
+    file_put_contents("log_telegram.txt", json_encode($update, JSON_PRETTY_PRINT));
     $update = json_decode(file_get_contents('php://input'), true);
+    if (!isset($update['message'])) {
+      return;
+    }
     $chat_id = $update['message']['chat']['id'];
     $text = strtolower($update['message']['text']);
 
@@ -45,8 +53,8 @@ class TwilioService
   // Função para enviar mensagens no Telegram
   public function sendMessage($chat_id, $message)
   {
-    global $API_URL;
-    $url = $API_URL . "sendMessage?chat_id=$chat_id&text=" . urlencode($message);
+    //global $API_URL;
+    $url = $this->API_URL . "sendMessage?chat_id=$chat_id&text=" . urlencode($message);
     file_get_contents($url);
   }
 
