@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Helpers\ResponseHelper;
-use App\Services\Twilio\TwilioService;
+use App\Services\NumeroVirtual\NumeroVirtualService;
 
 class NumeroVirtualController extends Controller
 {
-  public function store(Request $request, TwilioService $twilioService)
+  public function store(Request $request, NumeroVirtualService $numeroVirtualService)
   {
     try {
       /*if (empty($request->id)) {
@@ -23,7 +23,7 @@ class NumeroVirtualController extends Controller
         return ResponseHelper::error('A "DATA" É OBRIGATÓRIO', Response::HTTP_BAD_REQUEST);
       }*/
 
-      $numero = $twilioService->start($request);
+      $numero = $numeroVirtualService->start($request);
 
       return response()->json([
         $numero
