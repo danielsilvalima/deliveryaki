@@ -21,6 +21,9 @@ class NumeroVirtualService
   {
     $update = json_decode(file_get_contents('php://input'), true);
     Log::info('COMECANDO AKI');
+    Log::info($this->TOKEN);
+    Log::info($this->API_URL);
+    Log::info($this->TOKEN_SMS);
     Log::info(json_encode($update));
     if (!isset($update['message'])) {
       return;
