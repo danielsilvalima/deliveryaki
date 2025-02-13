@@ -36,3 +36,4 @@ package-lock.log
 /public/assets/vendor
 
 /storage/fcm/serviceAccountKey.json
+app/certificate

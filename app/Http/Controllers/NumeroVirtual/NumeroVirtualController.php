@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Helpers\ResponseHelper;
 use App\Services\NumeroVirtual\NumeroVirtualService;
+use Illuminate\Support\Facades\Log;
 
 class NumeroVirtualController extends Controller
 {
@@ -25,9 +26,19 @@ class NumeroVirtualController extends Controller
 
       $numero = $numeroVirtualService->start($request);
 
-      return response()->json([
-        $numero
-      ], Response::HTTP_OK);
+      return response()->json([$numero], Response::HTTP_OK);
+    } catch (\Exception $e) {
+      return ResponseHelper::error($e->getMessage());
+    }
+  }
+
+  public function payment(Request $request, NumeroVirtualService $numeroVirtualService)
+  {
+    try {
+      //$numero = $numeroVirtualService->start($request);
+      Log::info('WEBHOOK ATUALIZADO COM SUCESSO');
+
+      return response()->json([['status' => 'ok']], Response::HTTP_OK);
     } catch (\Exception $e) {
       return ResponseHelper::error($e->getMessage());
     }
