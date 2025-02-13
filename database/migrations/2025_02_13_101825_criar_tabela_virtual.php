@@ -35,7 +35,7 @@ return new class extends Migration {
    */
   public function down(): void
   {
-    Schema::dropIfExists('virtual_transacaos');
     Schema::dropIfExists('virtual_users');
+    Schema::dropIfExists('virtual_transacaos');
   }
 };
