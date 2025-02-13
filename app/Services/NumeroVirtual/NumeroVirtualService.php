@@ -34,17 +34,17 @@ class NumeroVirtualService
     try {
       $update = json_decode(file_get_contents('php://input'), true);
       $valor_numero = 7.5;
-      Log::info($update);
 
       //Callback
       if (isset($update['callback_query'])) {
-        $username = $this->retornaUsername($update);
         Log::info('CALLBACK');
         Log::info($update);
+        Log::info('PEGOU USERNAME');
+        $username = $this->retornaUsername($update['callback_query']);
+        Log::info($username);
+
         $callback_data = $update['callback_query']['data'];
         $chat_id = $update['callback_query']['message']['chat']['id'];
-        Log::info('CHAT ID');
-        Log::info($chat_id);
 
         if ($callback_data === 'comprar_whatsapp') {
           $this->sendMessage($chat_id, 'Você escolheu comprar um número para WhatsApp!');
@@ -66,6 +66,7 @@ class NumeroVirtualService
       if (!isset($update['message'])) {
         return;
       }
+
       $username = $this->retornaUsername($update);
       $chat_id = $update['message']['chat']['id'];
       $text = strtolower($update['message']['text']);
@@ -103,9 +104,9 @@ class NumeroVirtualService
       } elseif ($text == '/saldo') {
         $user = $this->retornaSaldoByUsername($username);
         if (!$user) {
-          $this->sendMessage($chat_id, 'Seu saldo é: 0,00.');
+          $this->sendMessage($chat_id, 'Seu saldo é: R$ 0,00.');
         } else {
-          $this->sendMessage($chat_id, 'Seu saldo é: .' . $user->saldo);
+          $this->sendMessage($chat_id, 'Seu saldo é: R$' . str_replace('.', ',', $user->saldo . '.'));
         }
       } elseif ($text == 'confirmar pagamento') {
         if ($this->verificarPagamento($chat_id)) {
@@ -215,7 +216,7 @@ class NumeroVirtualService
     }
   }
 
-  private function responderCallbackQueryRecarregar($chat_id, $valor)
+  private function responderCallbackQueryRecarregar($username, $chat_id, $valor)
   {
     try {
       $valor = explode('_', $valor)[1] ?? null;
@@ -424,19 +425,28 @@ class NumeroVirtualService
       DB::beginTransaction();
 
       $user = $this->retornaUserByUsername($username);
-
+      Log::info('ENTROU');
       if (!$user) {
-        $user_db = VirtualUser::create([
+        Log::info('NAO TEM CRIADO');
+        $user = VirtualUser::create([
           'username' => $username,
           'chat_id' => $chat_id,
         ]);
+      } else {
+        $user->update([
+          'balance' => $user->balance + $balance,
+        ]);
       }
+      Log::info('JA TEM CRIADO');
 
       $transcacao_db = VirtualTransacao::create([
         'virtual_user_id' => $user->id,
         'qrcode' => $qrcode,
         'balance' => $balance,
       ]);
+
+      Log::info('CONCLUIU');
+      Log::info($transcacao_db);
 
       DB::commit();
     } catch (\Exception $e) {

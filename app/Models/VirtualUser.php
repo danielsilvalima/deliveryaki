@@ -11,7 +11,7 @@ class VirtualUser extends Model
 
   protected $guarded = [];
 
-  public function virtual_transacoes()
+  public function virtual_transacaos()
   {
     return $this->hasMany(VirtualTransacao::class, 'virtual_user_id');
   }

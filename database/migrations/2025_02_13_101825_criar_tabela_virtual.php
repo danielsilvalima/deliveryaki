@@ -20,7 +20,7 @@ return new class extends Migration {
       $table->decimal('balance', 10, 2)->default(0.0);
     });
 
-    Schema::create('virtual_transacoes', function (Blueprint $table) {
+    Schema::create('virtual_transacaos', function (Blueprint $table) {
       $table->id();
       $table->timestamps();
       $table->string('qrcode', 255)->nullable();
@@ -35,7 +35,7 @@ return new class extends Migration {
    */
   public function down(): void
   {
-    Schema::dropIfExists('virtual_transacoes');
+    Schema::dropIfExists('virtual_transacaos');
     Schema::dropIfExists('virtual_users');
   }
 };
