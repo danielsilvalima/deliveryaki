@@ -2,10 +2,14 @@
 
 namespace App\Services\NumeroVirtual;
 
+use App\Models\VirtualTransacao;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use App\Models\VirtualUser;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class NumeroVirtualService
 {
@@ -29,34 +33,44 @@ class NumeroVirtualService
   {
     try {
       $update = json_decode(file_get_contents('php://input'), true);
-      Log::info('COMECANDO');
-      //Log::info($update);
-      $this->gravaUsername($update);
+      $valor_numero = 7.5;
+      Log::info($update);
 
+      //Callback
       if (isset($update['callback_query'])) {
-        Log::info('Callback detectado!');
+        $username = $this->retornaUsername($update);
+        Log::info('CALLBACK');
+        Log::info($update);
         $callback_data = $update['callback_query']['data'];
         $chat_id = $update['callback_query']['message']['chat']['id'];
+        Log::info('CHAT ID');
+        Log::info($chat_id);
 
         if ($callback_data === 'comprar_whatsapp') {
           $this->sendMessage($chat_id, 'Você escolheu comprar um número para WhatsApp!');
+          $this->responderCallbackQueryComprar($update['callback_query']['id']);
+          $this->mostrarOpcoesValores($chat_id);
         } elseif ($callback_data === 'comprar_telegram') {
           $this->sendMessage($chat_id, 'Você escolheu comprar um número para Telegram!');
+          $this->responderCallbackQueryComprar($update['callback_query']['id']);
+          $this->mostrarOpcoesValores($chat_id);
         }
 
-        $this->responderCallbackQuery($update['callback_query']['id']);
+        if (Str::startsWith($callback_data, 'recarregar')) {
+          $this->responderCallbackQueryRecarregar($username, $chat_id, $callback_data);
+        }
+
         return;
       }
 
       if (!isset($update['message'])) {
         return;
       }
+      $username = $this->retornaUsername($update);
       $chat_id = $update['message']['chat']['id'];
       $text = strtolower($update['message']['text']);
-      Log::info($text);
 
       if (isset($update['callback_query'])) {
-        Log::info('ENTROU');
         $callback_data = $update['callback_query']['data'];
         $chat_id = $update['callback_query']['message']['chat']['id'];
 
@@ -72,12 +86,7 @@ class NumeroVirtualService
       }
       if ($text == '/start') {
         $keyboard = [
-          'keyboard' => [
-            [['text' => '📲 Comprar Número']],
-            [['text' => 'Adicionar Saldo']],
-            [['text' => '🔗 Link de Indicação']],
-            [['text' => '❓ Ajuda']],
-          ],
+          'keyboard' => [[['text' => '/servico']], [['text' => '/recarregar']], [['text' => '/saldo']]],
           'resize_keyboard' => true,
           'one_time_keyboard' => false,
         ];
@@ -87,15 +96,17 @@ class NumeroVirtualService
         $this->sendMessage($chat_id, "O número virtual para WhatsApp custa R$ 7,50. Digite 'comprar' para prosseguir.");
       } elseif ($text == '2') {
         $this->sendMessage($chat_id, "O número virtual para Telegram custa R$ 7,50. Digite 'comprar' para prosseguir.");
-      } elseif ($text == '/recarregar') {
+      } elseif ($text == '/servico') {
         $this->mostrarOpcoesNumeros($chat_id);
       } elseif ($text == '/recarregar') {
-        $pix_copia_e_cola = $this->gerarPixCopiaCola(7.5);
-        $this->sendMessage(
-          $chat_id,
-          "🔹 *Pagamento via PIX*\n\n" .
-            "📌 Copie o código abaixo e cole no seu app bancário para pagar:\n\n`$pix_copia_e_cola`"
-        );
+        $this->mostrarOpcoesValores($chat_id);
+      } elseif ($text == '/saldo') {
+        $user = $this->retornaSaldoByUsername($username);
+        if (!$user) {
+          $this->sendMessage($chat_id, 'Seu saldo é: 0,00.');
+        } else {
+          $this->sendMessage($chat_id, 'Seu saldo é: .' . $user->saldo);
+        }
       } elseif ($text == 'confirmar pagamento') {
         if ($this->verificarPagamento($chat_id)) {
           //$numero_virtual = $this->comprarNumeroVirtual();
@@ -136,7 +147,35 @@ class NumeroVirtualService
     }
   }
 
-  public function sendMessage($chat_id, $message, $keyboard = null)
+  public function mostrarOpcoesValores($chat_id)
+  {
+    try {
+      $keyboard = [
+        'inline_keyboard' => [
+          [['text' => 'R$ 7,50', 'callback_data' => 'recarregar_75.0']],
+          [['text' => 'R$ 14,00', 'callback_data' => 'recarregar_14.0']],
+          [['text' => 'R$ 22,50', 'callback_data' => 'recarregar_22.5']],
+          [['text' => 'R$ 30,00', 'callback_data' => 'recarregar_30.0']],
+          [['text' => 'R$ 50,00', 'callback_data' => 'recarregar_50.0']],
+          [['text' => 'R$ 100,00', 'callback_data' => 'recarregar_100.0']],
+        ],
+      ];
+
+      $dados = [
+        'chat_id' => $chat_id,
+        'text' => 'Escolha um número virtual:',
+        'reply_markup' => $keyboard,
+      ];
+
+      $url = $this->API_URL . 'sendMessage';
+      $response = Http::withHeaders(['Content-Type' => 'application/json'])->post($url, $dados);
+    } catch (Exception $e) {
+      Log::error($e->getMessage());
+      return [$e->getMessage()];
+    }
+  }
+
+  public function sendMessage($chat_id, $message, $keyboard = null, $parse_mode = null)
   {
     try {
       $data = [
@@ -148,6 +187,9 @@ class NumeroVirtualService
       if ($keyboard) {
         $data['reply_markup'] = $keyboard;
       }
+      if ($parse_mode) {
+        $data['parse_mode'] = 'HTML';
+      }
 
       $url = $this->API_URL . 'sendMessage';
       Http::post($url, $data);
@@ -157,7 +199,7 @@ class NumeroVirtualService
     }
   }
 
-  private function responderCallbackQuery($callbackQueryId)
+  private function responderCallbackQueryComprar($callbackQueryId)
   {
     try {
       $url = $this->API_URL . 'answerCallbackQuery';
@@ -173,10 +215,36 @@ class NumeroVirtualService
     }
   }
 
+  private function responderCallbackQueryRecarregar($chat_id, $valor)
+  {
+    try {
+      $valor = explode('_', $valor)[1] ?? null;
+
+      if (!$valor) {
+        Log::error('Formato inválido: ' . $valor);
+        return;
+      }
+
+      $pix_copia_e_cola = $this->gerarPixCopiaCola($valor);
+
+      $this->criarTransacao($username, $chat_id, $pix_copia_e_cola, $valor);
+
+      $this->sendMessage(
+        $chat_id,
+        "🔹 *Pagamento via PIX*\n\n" .
+          "📌 Copie o código abaixo e cole no seu app bancário para pagar:\n\n<pre>$pix_copia_e_cola</pre>",
+        null,
+        'HTML'
+      );
+    } catch (Exception $e) {
+      Log::error($e->getMessage());
+      return [$e->getMessage()];
+    }
+  }
+
   public function comprarNumeroVirtual($service)
   {
     try {
-      // Mapeia os serviços corretamente
       $serviceMap = [
         'comprar_whatsapp' => 'wa',
         'comprar_telegram' => 'tg',
@@ -189,15 +257,13 @@ class NumeroVirtualService
       $api_key = $this->TOKEN_SMS;
       $url = 'https://api.sms-activate.org/stubs/handler_api.php';
 
-      // Parâmetros da requisição
       $params = [
         'api_key' => $api_key,
         'action' => 'getNumber',
-        'service' => $serviceMap[$service], // 'wa' para WhatsApp, 'tg' para Telegram
-        'country' => 'BR', // Código do país (Brasil)
+        'service' => $serviceMap[$service],
+        'country' => 'BR',
       ];
 
-      // Requisição usando Http do Laravel
       $response = Http::get($url, $params)->body();
       Log::info('GERAR NUMERO');
       Log::info($response);
@@ -220,13 +286,11 @@ class NumeroVirtualService
   public function gerarPixCopiaCola($valor)
   {
     try {
-      // 🔹 Obter o token de acesso
       $access_token = $this->obterAccessToken();
       if (!$access_token) {
         throw new Exception('Falha ao obter token de acesso da Gerencianet.');
       }
 
-      // 🔹 Criar cobrança PIX com valor dinâmico
       $pix_data = [
         'calendario' => ['expiracao' => 3600], // Expira em 1 hora
         'valor' => ['original' => number_format($valor, 2, '.', '')],
@@ -242,7 +306,6 @@ class NumeroVirtualService
 
       $loc_id = $response['loc']['id'];
 
-      // 🔹 Obter o QR Code e o código Copia e Cola
       $qrcode_response = $this->chamarApiGerencianet(
         $this->URL_GN . "/v2/loc/{$loc_id}/qrcode",
         'GET',
@@ -308,25 +371,77 @@ class NumeroVirtualService
     return true;
   }
 
-  public function gravaUsername($message)
+  public function retornaUsername($message)
   {
     try {
-      if (isset($message['message']['from'])) {
-        $from = $message['message']['from'];
-        Log::info($from);
+      $username = null;
+      if (isset($message['message']['chat'])) {
+        $chat = $message['message']['chat'];
 
-        // Capturar 'username' dentro de 'from'
-        if (isset($from['username'])) {
-          $username = $from['username'];
-          Log::info('Username: ' . $username);
+        if (isset($chat['username'])) {
+          $username = $chat['username'];
         } else {
           Log::info('Username não encontrado.');
         }
       } else {
-        Log::info("Campo 'from' não encontrado.");
+        Log::info("Campo 'chat' não encontrado.");
       }
+
+      return $username;
     } catch (\Exception $e) {
       Log::error($e->getMessage());
+      return ['error' => $e->getMessage()];
+    }
+  }
+
+  public function retornaSaldoByUsername($username)
+  {
+    try {
+      $user = VirtualUser::where('username', '=', $username)->first();
+
+      return $user;
+    } catch (\Exception $e) {
+      Log::error($e->getMessage());
+      return ['error' => $e->getMessage()];
+    }
+  }
+
+  public function retornaUserByUsername($username)
+  {
+    try {
+      $user = VirtualUser::where('username', '=', $username)->first();
+
+      return $user;
+    } catch (\Exception $e) {
+      Log::error($e->getMessage());
+      return ['error' => $e->getMessage()];
+    }
+  }
+
+  public function criarTransacao($username, $chat_id, $qrcode, $balance)
+  {
+    try {
+      DB::beginTransaction();
+
+      $user = $this->retornaUserByUsername($username);
+
+      if (!$user) {
+        $user_db = VirtualUser::create([
+          'username' => $username,
+          'chat_id' => $chat_id,
+        ]);
+      }
+
+      $transcacao_db = VirtualTransacao::create([
+        'virtual_user_id' => $user->id,
+        'qrcode' => $qrcode,
+        'balance' => $balance,
+      ]);
+
+      DB::commit();
+    } catch (\Exception $e) {
+      Log::error($e->getMessage());
+      DB::rollBack();
       return ['error' => $e->getMessage()];
     }
   }
