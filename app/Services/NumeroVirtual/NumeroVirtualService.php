@@ -37,11 +37,8 @@ class NumeroVirtualService
 
       //Callback
       if (isset($update['callback_query'])) {
-        Log::info('CALLBACK');
-        Log::info($update);
-        Log::info('PEGOU USERNAME');
         $username = $this->retornaUsername($update['callback_query']);
-        Log::info($username);
+        Log::info($update);
 
         $callback_data = $update['callback_query']['data'];
         $chat_id = $update['callback_query']['message']['chat']['id'];
@@ -71,7 +68,7 @@ class NumeroVirtualService
       $chat_id = $update['message']['chat']['id'];
       $text = strtolower($update['message']['text']);
 
-      if (isset($update['callback_query'])) {
+      /*if (isset($update['callback_query'])) {
         $callback_data = $update['callback_query']['data'];
         $chat_id = $update['callback_query']['message']['chat']['id'];
 
@@ -83,8 +80,8 @@ class NumeroVirtualService
             $this->sendMessage($chat_id, "Você escolheu comprar um número para Telegram!");
             $numero_virtual = $this->comprarNumeroVirtual();
             $this->sendMessage($chat_id, "Pagamento confirmado! Seu número virtual é: $numero_virtual");
-        }*/
-      }
+        }
+      }*/
       if ($text == '/start') {
         $keyboard = [
           'keyboard' => [[['text' => '/servico']], [['text' => '/recarregar']], [['text' => '/saldo']]],
@@ -103,11 +100,11 @@ class NumeroVirtualService
         $this->mostrarOpcoesValores($chat_id);
       } elseif ($text == '/saldo') {
         $user = $this->retornaSaldoByUsername($username);
-        if (!$user) {
-          $this->sendMessage($chat_id, 'Seu saldo é: R$ 0,00.');
-        } else {
-          $this->sendMessage($chat_id, 'Seu saldo é: R$' . str_replace('.', ',', $user->saldo . '.'));
-        }
+        //if (!$user) {
+        $this->sendMessage($chat_id, 'Seu saldo é: R$ 0,00.');
+        /*} else {
+          $this->sendMessage($chat_id, 'Seu saldo é: R$' . str_replace('.', ',', $user->balance). '.');
+        }*/
       } elseif ($text == 'confirmar pagamento') {
         if ($this->verificarPagamento($chat_id)) {
           //$numero_virtual = $this->comprarNumeroVirtual();
@@ -153,7 +150,7 @@ class NumeroVirtualService
     try {
       $keyboard = [
         'inline_keyboard' => [
-          [['text' => 'R$ 7,50', 'callback_data' => 'recarregar_75.0']],
+          [['text' => 'R$ 7,50', 'callback_data' => 'recarregar_7.5']],
           [['text' => 'R$ 14,00', 'callback_data' => 'recarregar_14.0']],
           [['text' => 'R$ 22,50', 'callback_data' => 'recarregar_22.5']],
           [['text' => 'R$ 30,00', 'callback_data' => 'recarregar_30.0']],
@@ -227,7 +224,8 @@ class NumeroVirtualService
       }
 
       $pix_copia_e_cola = $this->gerarPixCopiaCola($valor);
-
+      Log::error('VALOR FORMATADO');
+      Log::error($valor);
       $this->criarTransacao($username, $chat_id, $pix_copia_e_cola, $valor);
 
       $this->sendMessage(
@@ -425,19 +423,16 @@ class NumeroVirtualService
       DB::beginTransaction();
 
       $user = $this->retornaUserByUsername($username);
-      Log::info('ENTROU');
       if (!$user) {
-        Log::info('NAO TEM CRIADO');
         $user = VirtualUser::create([
           'username' => $username,
           'chat_id' => $chat_id,
-        ]);
-      } else {
-        $user->update([
-          'balance' => $user->balance + $balance,
+          'balance' => 0,
         ]);
       }
-      Log::info('JA TEM CRIADO');
+
+      // Atualizar balance de forma segura usando `increment()`
+      $user->increment('balance', $balance);
 
       $transcacao_db = VirtualTransacao::create([
         'virtual_user_id' => $user->id,
@@ -445,10 +440,8 @@ class NumeroVirtualService
         'balance' => $balance,
       ]);
 
-      Log::info('CONCLUIU');
-      Log::info($transcacao_db);
-
       DB::commit();
+      return $transcacao_db;
     } catch (\Exception $e) {
       Log::error($e->getMessage());
       DB::rollBack();
