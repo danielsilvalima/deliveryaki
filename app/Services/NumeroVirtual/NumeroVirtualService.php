@@ -190,7 +190,7 @@ class NumeroVirtualService
       }
 
       $url = $this->API_URL . 'sendMessage';
-      Http::post($url, $data);
+      return Http::post($url, $data);
     } catch (Exception $e) {
       Log::error($e->getMessage());
       return [$e->getMessage()];
@@ -224,17 +224,17 @@ class NumeroVirtualService
       }
 
       $pix_copia_e_cola = $this->gerarPixCopiaCola($valor);
-      Log::error('VALOR FORMATADO');
-      Log::error($valor);
-      $this->criarTransacao($username, $chat_id, $pix_copia_e_cola, $valor);
 
-      $this->sendMessage(
+      $response = $this->sendMessage(
         $chat_id,
         "🔹 *Pagamento via PIX*\n\n" .
           "📌 Copie o código abaixo e cole no seu app bancário para pagar:\n\n<pre>$pix_copia_e_cola</pre>",
         null,
         'HTML'
       );
+      $responseArray = json_decode($response, true);
+      $message_id = $responseArray['result']['message_id'] ?? null;
+      $this->criarTransacao($username, $chat_id, $message_id, $pix_copia_e_cola, $valor);
     } catch (Exception $e) {
       Log::error($e->getMessage());
       return [$e->getMessage()];
@@ -417,7 +417,7 @@ class NumeroVirtualService
     }
   }
 
-  public function criarTransacao($username, $chat_id, $qrcode, $balance)
+  public function criarTransacao($username, $chat_id, $message_id, $qrcode, $balance)
   {
     try {
       DB::beginTransaction();
@@ -426,7 +426,6 @@ class NumeroVirtualService
       if (!$user) {
         $user = VirtualUser::create([
           'username' => $username,
-          'chat_id' => $chat_id,
           'balance' => 0,
         ]);
       }
@@ -438,6 +437,8 @@ class NumeroVirtualService
         'virtual_user_id' => $user->id,
         'qrcode' => $qrcode,
         'balance' => $balance,
+        'chat_id' => $chat_id,
+        'message_id' => $message_id,
       ]);
 
       DB::commit();
