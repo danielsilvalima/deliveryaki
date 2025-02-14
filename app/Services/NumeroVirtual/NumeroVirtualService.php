@@ -38,7 +38,6 @@ class NumeroVirtualService
       //Callback
       if (isset($update['callback_query'])) {
         $username = $this->retornaUsername($update['callback_query']);
-        Log::info($update);
 
         $callback_data = $update['callback_query']['data'];
         $chat_id = $update['callback_query']['message']['chat']['id'];
