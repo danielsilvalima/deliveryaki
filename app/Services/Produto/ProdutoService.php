@@ -14,16 +14,16 @@ class ProdutoService
   {
     $produto = Empresa::with([
       'categorias' => function ($query) {
-        $query->orderBy('descricao', 'ASC')->with([
-          'produtos' => function ($query) {
-            $query->orderBy('descricao', 'ASC');
-          },
-        ]);
+        $query->where('status', 'A') // Filtra categorias ativas
+          ->orderBy('descricao', 'ASC')
+          ->with([
+            'produtos' => function ($query) {
+              $query->where('status', 'A') // Filtra produtos ativos
+                ->orderBy('descricao', 'ASC');
+            },
+          ]);
       },
-      //'empresa_expedientes.horario_expedientes',
-    ])
-      ->where('id', $id)
-      ->first();
+    ])->where('id', $id)->first();
 
     return $produto;
   }
