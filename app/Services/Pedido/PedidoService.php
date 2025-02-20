@@ -27,7 +27,7 @@ class PedidoService
       throw new \Exception('O campo "tipo_pagamento" é obrigatório.');
     }
 
-    if (empty($entrega['valor_total']) || $entrega['valor_total'] <= 0) {
+    if (empty($entrega['vlr_total']) || $entrega['vlr_total'] <= 0) {
       throw new \Exception('O "valor_total" deve ser maior que zero.');
     }
 
