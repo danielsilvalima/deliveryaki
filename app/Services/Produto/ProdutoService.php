@@ -56,6 +56,7 @@ class ProdutoService
 
       return $produto;
     } catch (\Exception $e) {
+      DB::rollBack();
       return back()->with('error', 'NÃO FOI POSSÍVEL ATUALIZAR O PRODUTO. ' . $e->getMessage());
     }
   }
