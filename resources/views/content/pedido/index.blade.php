@@ -147,10 +147,17 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">CANCELAR</button>
-            <button type="submit" class="btn btn-primary">SALVAR ALTERAÇÕES</button>
+            <button id="submitButton" type="submit" class="btn btn-primary">SALVAR ALTERAÇÕES</button>
           </div>
         </div>
     </form>
+    <script>
+      document.getElementById('editPedidoForm').addEventListener('submit', function() {
+        var submitButton = document.getElementById('submitButton');
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-lg text-primary" role="status" aria-hidden="true"></span>';
+        submitButton.disabled = true;
+      });
+    </script>
   </div>
 </div>
 <script src="{{ asset('assets/js/modal-pedido.js') }}"></script>

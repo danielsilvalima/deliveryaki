@@ -21,17 +21,22 @@ class Cliente extends Model
   }
 
   public function empresa()
-    {
-        return $this->belongsTo(Empresa::class);
-    }
+  {
+    return $this->belongsTo(Empresa::class);
+  }
 
-    public function pedidos()
-    {
-        return $this->hasMany(Pedido::class);
-    }
+  public function pedidos()
+  {
+    return $this->hasMany(Pedido::class);
+  }
 
-    public function pedido_items()
-    {
-        return $this->hasMany(PedidoItem::class);
-    }
+  public function pedido_items()
+  {
+    return $this->hasMany(PedidoItem::class);
+  }
+
+  public function ceps()
+  {
+    return $this->belongsTo(Cep::class, 'cep_id');
+  }
 }

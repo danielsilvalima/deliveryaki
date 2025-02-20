@@ -43,95 +43,108 @@
               <div class="col-md-6">
                 <div class="form-floating form-floating-outline mb-3">
                   <input type="text" class="form-control" id="cnpj" name="cnpj" placeholder="CNPJ" maxlength="14"
-                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                    onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
                   <label for="cnpj">CNPJ</label>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-floating form-floating-outline mb-3">
                   <input type="text" class="form-control" id="celular" name="celular" required placeholder="WhatsApp" maxlength="16"
-                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                    onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
                   <label for="celular">WhatsApp</label>
                 </div>
               </div>
               <div class="col-md-12">
                 <div class="form-floating form-floating-outline mb-3">
                   <input type="text" class="form-control" id="razao_social" name="razao_social" placeholder="Razão Social"
-                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                    onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
                   <label for="razao_social">Razão Social</label>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-floating form-floating-outline mb-3">
                   <input type="number" class="form-control" id="cep" name="cep" maxlength="9" required placeholder="CEP"
-                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);"
-                  onblur="getCEP()">
+                    onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);"
+                    onblur="getCEP()">
                   <label for="cep">CEP</label>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-floating form-floating-outline mb-3">
                   <input type="text" class="form-control" id="numero" name="numero" required placeholder="Número"
-                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                    onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
                   <label for="numero">Número</label>
                 </div>
               </div>
               <div class="col-md-12">
                 <div class="form-floating form-floating-outline mb-3">
                   <input type="text" class="form-control" id="logradouro" readonly name="logradouro" placeholder="Logradouro"
-                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                    onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
                   <label for="logradouro">Logradouro</label>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-floating form-floating-outline mb-3">
                   <input type="text" class="form-control" id="complemento" readonly name="complemento" placeholder="Complemento"
-                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                    onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
                   <label for="complemento">Complemento</label>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-floating form-floating-outline mb-3">
                   <input type="text" class="form-control" id="bairro" readonly name="bairro" placeholder="Bairro"
-                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                    onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
                   <label for="bairro">Bairro</label>
                 </div>
               </div>
               <div class="col-md-9">
                 <div class="form-floating form-floating-outline mb-3">
                   <input type="text" class="form-control" id="cidade" readonly name="cidade" placeholder="Cidade"
-                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                    onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
                   <label for="cidade">Cidade</label>
                 </div>
-              </div><div class="col-md-3">
+              </div>
+              <div class="col-md-3">
                 <div class="form-floating form-floating-outline mb-3">
                   <input type="text" class="form-control" id="uf" readonly name="uf" placeholder="UF"
-                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                    onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
                   <label for="uf">UF</label>
                 </div>
               </div>
               <div class="col-md-12">
                 <div class="form-floating form-floating-outline mb-3">
                   <input type="text" class="form-control" id="email" name="email" placeholder="E-mail"
-                  onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                    onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
                   <label for="email">E-mail</label>
                 </div>
               </div>
-                <div class="mb-3 form-password-toggle">
-                  <div class="input-group input-group-merge">
-                    <div class="form-floating form-floating-outline">
-                      <input type="password" id="password" class="form-control" name="password" placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" aria-describedby="password" />
-                      <label for="password">Password</label>
-                    </div>
-                    <span class="input-group-text cursor-pointer"><i class="mdi mdi-eye-off-outline"></i></span>
+              <div class="mb-3 form-password-toggle">
+                <div class="input-group input-group-merge">
+                  <div class="form-floating form-floating-outline">
+                    <input type="password" id="password" class="form-control" name="password" placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" aria-describedby="password" />
+                    <label for="password">Password</label>
                   </div>
+                  <span class="input-group-text cursor-pointer"><i class="mdi mdi-eye-off-outline"></i></span>
                 </div>
               </div>
+            </div>
 
-            <button class="btn btn-primary d-grid w-100">
-              Inscrever-se
+            <button type="submit" id="submitButton" class="btn btn-primary d-grid w-100" style="width: 120px;">
+              <span id="buttonText">Inscrever-se</span>
+              <span id="spinner" class="spinner-border spinner-border-sm text-light" role="status" aria-hidden="true" style="display: none;"></span>
             </button>
           </form>
+          <script>
+            document.getElementById('formAuthentication').addEventListener('submit', function() {
+              var submitButton = document.getElementById('submitButton');
+              var buttonText = document.getElementById('buttonText');
+              var spinner = document.getElementById('spinner');
+
+              buttonText.style.display = 'none'; // Esconde o texto
+              spinner.style.display = 'inline-block'; // Mostra o spinner
+              submitButton.disabled = true;
+            });
+          </script>
 
           <p class="text-center">
             <span>Já tem uma conta?</span>

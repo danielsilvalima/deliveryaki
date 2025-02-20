@@ -61,16 +61,14 @@ Route::get('/', [LoginBasic::class, 'index'])->name('auth-login-basic');
 Route::post('/cep', [RegisterBasic::class, 'getCEP'])->name('auth-register-basic.getCEP');
 //Route::get('/login', [LoginBasic::class, 'index'])->name('auth-login-basic');
 
-
 //API FRONT
 Route::middleware('api.key')->group(function () {
   Route::get('/api/cardapio/{id}', [CardapioController::class, 'get'])->name('cardapio.get');
   Route::post('/api/pedido/{id}', [PedidoController::class, 'post'])->name('pedido.post');
-  Route::post('/api/cliente/{id}', [ClienteController::class, 'get'])->name('cliente.get');
+  Route::get('/api/cliente/{id}', [ClienteController::class, 'get'])->name('cliente.get');
 
   Route::get('/api/cep', [CepController::class, 'get'])->name('cep.get');
 });
-
 
 //Route::get('/api/pedido', [PedidoController::class, 'post'])->name('pedido.post');
 
@@ -89,10 +87,12 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::put('/empresa/{id}', [EmpresaController::class, 'edit'])->name('empresa.edit');
   Route::delete('/empresa/{id}/delete', [EmpresaController::class, 'modal'])->name('empresa.modal');
   Route::delete('/empresa/{id}', [EmpresaController::class, 'delete'])->name('empresa.delete');
+  Route::delete('/empresa/{id}/remover-logo', [EmpresaController::class, 'deleteLogo'])->name('empresa.deleteLogo');
 
   //EmpresaExpediente
-  Route::delete('/empresa-expediente/{id}', [EmpresaExpedienteController::class, 'destroy'])->name('empresaexpediente.destroy');
-
+  Route::delete('/empresa-expediente/{id}', [EmpresaExpedienteController::class, 'destroy'])->name(
+    'empresaexpediente.destroy'
+  );
 
   //Produto
   Route::get('/produto', [ProdutoController::class, 'index'])->name('produto.index');
@@ -102,6 +102,7 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::put('/produto/{id}', [ProdutoController::class, 'edit'])->name('produto.edit');
   Route::delete('/produto/{id}/delete', [ProdutoController::class, 'modal'])->name('produto.modal');
   Route::delete('/produto/{id}', [ProdutoController::class, 'delete'])->name('produto.delete');
+  Route::delete('/produto/{id}/remover-logo', [ProdutoController::class, 'deleteLogo'])->name('produto.deleteLogo');
 
   //Cliente
   Route::get('/cliente', [ClienteController::class, 'index'])->name('cliente.index');
@@ -121,19 +122,14 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::delete('/categoria/{id}/delete', [CategoriaController::class, 'modal'])->name('categoria.modal');
   Route::delete('/categoria/{id}', [CategoriaController::class, 'delete'])->name('categoria.delete');
 
-
   //Pedido
   Route::get('/pedido', [PedidoController::class, 'index'])->name('pedido.index');
   Route::get('/pedido/{id}', [PedidoController::class, 'show'])->name('pedido.show');
   Route::put('/pedido/{id}', [PedidoController::class, 'update'])->name('pedido.update');
 
-
- //Usuário
- Route::get('/usuario/{id}', [UsuarioController::class, 'show'])->name('usuario.show');
+  //Usuário
+  Route::get('/usuario/{id}', [UsuarioController::class, 'show'])->name('usuario.show');
 });
-
-
-
 
 // layout
 Route::get('/layouts/without-menu', [WithoutMenu::class, 'index'])->name('layouts-without-menu');

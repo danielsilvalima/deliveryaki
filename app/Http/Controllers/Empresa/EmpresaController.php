@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\HashGenerator;
 use App\Services\EmpresaExpediente\EmpresaExpedienteService;
+use App\Services\Empresa\EmpresaService;
 use App\Services\HorarioExpediente\HorarioExpedienteService;
 use App\Helpers\ResponseHelper;
 use App\Models\EmpresaExpediente;
@@ -17,21 +18,25 @@ class EmpresaController extends Controller
 {
   public function index(Empresa $empresa)
   {
-    $empresas = Empresa::select('*')->where('id', Auth::user()->empresa_id)->get();
+    $empresas = Empresa::select('*')
+      ->where('id', Auth::user()->empresa_id)
+      ->get();
     return view('content.empresa.index', [
       'empresas' => $empresas,
-      'email' => Auth::user()->email
+      'email' => Auth::user()->email,
     ]);
   }
 
   public function create()
   {
-    try{
+    try {
       return view('content.empresa.create')->with([
-          'email' => Auth::user()->email,
+        'email' => Auth::user()->email,
       ]);
     } catch (\Exception $e) {
-      return redirect()->route('empresa.index')->with('error', 'NÃO FOI POSSÍVEL CADASTRAR A EMPRESA. '.$e);
+      return redirect()
+        ->route('empresa.index')
+        ->with('error', 'NÃO FOI POSSÍVEL CADASTRAR A EMPRESA. ' . $e);
     }
   }
 
@@ -39,65 +44,59 @@ class EmpresaController extends Controller
   {
     $data = $request->post();
 
+    $request->validate([
+      'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // Máximo 5MB
+    ]);
+
     do {
       $data['hash'] = HashGenerator::generateUniqueHash8Caracter();
     } while ($empresa->where('hash', $data['hash'])->exists());
 
-    $empresa->create($data);
+    if ($request->hasFile('logo')) {
+      $directory = "public/logo/{$empresa->cnpj}";
+      $file = $request->file('logo');
+      $filename = uniqid() . '_' . $file->getClientOriginalName(); // Gera nome único
+      $filePath = $file->storeAs($directory, $filename); // Salva em storage/app/public/logos
+      $data['path'] = $filePath;
+    }
 
-    return redirect()->route('empresa.index')->with('success', 'EMPRESA CADASTRADO COM SUCESSO');
+    Empresa::create($data);
+
+    return redirect()
+      ->route('empresa.index')
+      ->with('success', 'EMPRESA CADASTRADO COM SUCESSO');
   }
 
-  public function edit(Request $request, string $id, Empresa $empresa)
+  public function edit(Request $request, string $id, Empresa $empresa, EmpresaService $empresaService)
   {
-    DB::beginTransaction();
-    try{
-      if (!$empresa = $empresa->find($id)) {
+    try {
+      $request->validate([
+        'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // Máximo 5MB
+      ]);
+
+      if (!($empresa = $empresa->find($id))) {
         return back()->with('error', 'EMPRESA NÃO FOI LOCALIZADA');
       }
 
-      $empresa->update($request->only([
-        'cnpj', 'razao_social', 'telefone', 'celular', 'email', 'status', 'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf', 'vlr_km', 'tipo_taxa', 'inicio_distancia'
-      ]));
+      $empresa = $empresaService->update($request, $empresa);
 
-      $expedientes = json_decode($request->input('expedientes'), true);
-
-      if (!empty($expedientes)) {
-        // Exclui os expedientes antigos da tabela
-        EmpresaExpediente::where('empresa_id', $empresa->id)->delete();
-
-        // Cria os novos expedientes na tabela
-        foreach ($expedientes as $expediente) {
-            EmpresaExpediente::create([
-                'empresa_id' => $empresa->id,
-                'horario_expediente_id' => $expediente['horario_expediente_id'],
-                'hora_abertura' => $expediente['hora_abertura'],
-                'hora_fechamento' => $expediente['hora_fechamento'],
-                'intervalo_inicio' => $expediente['intervalo_inicio'],
-                'intervalo_fim' => $expediente['intervalo_fim'],
-            ]);
-        }
-      } else {
-          // Se não houver novos expedientes, exclui os antigos
-          EmpresaExpediente::where('empresa_id', $empresa->id)->delete();
-      }
-
-      DB::commit();
-
-      return redirect()->route('empresa.index')->with('success', 'EMPRESA ATUALIZADO COM SUCESSO');
+      return redirect()
+        ->route('empresa.index')
+        ->with('success', 'EMPRESA ATUALIZADO COM SUCESSO');
     } catch (\Exception $e) {
-      DB::rollBack();
       //throw new \Exception('ERRO AO EDITAR A EMPRESA ' . $e->getMessage());
-      return back()->with('error', 'EMPRESA NÃO FOI ATUALIZADA. '.$e);
+      return back()->with('error', 'EMPRESA NÃO FOI ATUALIZADA. ' . $e);
     }
   }
 
-  public function show(Empresa $empresa, string|int $id, HorarioExpedienteService $horarioExpedienteService, EmpresaExpedienteService $empresaExpedienteService)
-  {
+  public function show(
+    Empresa $empresa,
+    string|int $id,
+    HorarioExpedienteService $horarioExpedienteService,
+    EmpresaExpedienteService $empresaExpedienteService
+  ) {
     //if (!$empresa = $empresa->where('id', $id)->where('id', Auth::user()->empresa_id)->first()) {
-    if(!$empresa = Empresa::with([
-      'empresa_expedientes.horario_expedientes'
-      ])->findOrFail($id)){
+    if (!($empresa = Empresa::with(['empresa_expedientes.horario_expedientes'])->findOrFail($id))) {
       return back()->with('error', ' NÃO FOI POSSÍVEL BUSCAR A EMPRESA');
     }
 
@@ -105,19 +104,35 @@ class EmpresaController extends Controller
 
     //$empresaExpedientes = $empresaExpedienteService->findAllByEmpresaID(Auth::user()->empresa_id);
 
-    return view('content.empresa.show', compact(('empresa')))->with([
+    return view('content.empresa.show', compact('empresa'))->with([
       'email' => Auth::user()->email,
       'horarioExpedientes' => $horarioExpedientes,
-      'empresaExpedientes' => $empresa->empresa_expedientes
+      'empresaExpedientes' => $empresa->empresa_expedientes,
     ]);
   }
 
   public function modal(string $id, Empresa $empresa)
   {
-    if (!$empresa = $empresa->where('id', $id)->where('id', Auth::user()->empresa_id)) {
+    if (!($empresa = $empresa->where('id', $id)->where('id', Auth::user()->empresa_id))) {
       return back()->with('error', ' NÃO FOI POSSÍVEL BUSCAR A EMPRESA');
     }
 
-    return redirect()->route('empresa.index')->with(['empresa' => $empresa]);
+    return redirect()
+      ->route('empresa.index')
+      ->with(['empresa' => $empresa]);
+  }
+
+  public function deleteLogo(string $id, Empresa $empresa, EmpresaService $empresaService)
+  {
+    $empresa = Empresa::findOrFail($id);
+
+    if ($empresa->path) {
+      $empresaService->deleteOldFile($empresa->id);
+      $empresa->path = null;
+      $empresa->save();
+      return response()->json(['success' => true, 'message' => 'LOGO REMOVIDO COM SUCESSO, NÃO É NECESSÁRIO SALVAR O CADASTRO']);
+    } else {
+      return response()->json(['success' => true, 'message' => 'NÃO HÁ LOGO PARA SER REMOVIDO']);
+    }
   }
 }

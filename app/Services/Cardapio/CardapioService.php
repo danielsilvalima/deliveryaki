@@ -32,20 +32,20 @@ class CardapioService
           'id' => $product['id'],
           'descricao' => $product['descricao'],
           'apresentacao' => $product['apresentacao'],
-          'valor' => isset($product['vlr_unitario']) ? number_format($product['vlr_unitario'], 2, ',', '.') : null,
+          'valor' => isset($product['vlr_unitario']) ? number_format($product['vlr_unitario'], 2) : null,
         ];
       }
     }
 
     // Constrói a estrutura final do JSON
     $jsonOutput = [
-      "categorias" => []
+      'categorias' => [],
     ];
 
     foreach ($groupedData as $category => $items) {
-      $jsonOutput["categorias"][] = [
-        "nome" => $category,
-        "itens" => $items
+      $jsonOutput['categorias'][] = [
+        'nome' => $category,
+        'itens' => $items,
       ];
     }
 

@@ -35,7 +35,7 @@
       <small class="text-muted float-end"></small>
     </div>
     <div class="card-body">
-      <form action="{{ route('empresa.store') }}" method="POST">
+      <form id="createEmpresaForm" action="{{ route('empresa.store') }}" method="POST">
         @csrf()
 
         <div class="input-group input-group-merge mb-4">
@@ -122,9 +122,16 @@
           </select>
         </div>
 
-        <button type="submit" class="btn btn-primary">SALVAR</button>
+        <button id="submitButton" type="submit" class="btn btn-primary">SALVAR</button>
         <a href="{{ route('empresa.index') }}" class="btn btn-secondary">CANCELAR</a>
       </form>
+      <script>
+      document.getElementById('createEmpresaForm').addEventListener('submit', function() {
+        var submitButton = document.getElementById('submitButton');
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-lg text-primary" role="status" aria-hidden="true"></span>';
+        submitButton.disabled = true;
+      });
+    </script>
     </div>
   </div>
 </div>

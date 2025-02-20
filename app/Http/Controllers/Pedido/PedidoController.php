@@ -17,10 +17,18 @@ class PedidoController extends Controller
 {
   public function index(Pedido $pedido, PedidoItemService $pedidoItemService)
   {
-    $pedidos = Pedido::select('pedidos.*', 'clientes.nome_completo', 'ceps.logradouro', 'clientes.numero', 'ceps.bairro')->where('pedidos.empresa_id', Auth::user()->empresa_id)
-    ->join('clientes', 'pedidos.cliente_id', '=', 'clientes.id')
-    ->leftJoin('ceps', 'clientes.cep_id', '=', 'ceps.id')
-    ->orderBy('id', 'ASC')->get();
+    $pedidos = Pedido::select(
+      'pedidos.*',
+      'clientes.nome_completo',
+      'ceps.logradouro',
+      'clientes.numero',
+      'ceps.bairro'
+    )
+      ->where('pedidos.empresa_id', Auth::user()->empresa_id)
+      ->join('clientes', 'pedidos.cliente_id', '=', 'clientes.id')
+      ->leftJoin('ceps', 'clientes.cep_id', '=', 'ceps.id')
+      ->orderBy('id', 'ASC')
+      ->get();
 
     foreach ($pedidos as $pedido) {
       $itens = $pedidoItemService->findByIDPedido($pedido->id);
@@ -30,27 +38,32 @@ class PedidoController extends Controller
     }
     return view('content.pedido.index', [
       'pedidos' => $pedidos,
-      'email' => Auth::user()->email
+      'email' => Auth::user()->email,
     ]);
   }
 
   public function show(Pedido $pedido, string|int $id)
-    {
-        if (!$pedido = Pedido::select('pedidos.*', 'clientes.nome_completo as nome_completo')->where('produtos.id', $id)->where('produtos.empresa_id', Auth::user()->empresa_id)
-            ->join('clientes', 'pedidos.cliente_id', '=', 'clientes.id')->first()) {
-            return back()->with('error', 'NÃO FOI POSSÍVEL LOCALIZAR O PEDIDO');
-        }
-
-        return view('content.pedido.show')->with([
-            'email' => Auth::user()->email,
-            'pedido' => $pedido
-        ]);
+  {
+    if (
+      !($pedido = Pedido::select('pedidos.*', 'clientes.nome_completo as nome_completo')
+        ->where('produtos.id', $id)
+        ->where('produtos.empresa_id', Auth::user()->empresa_id)
+        ->join('clientes', 'pedidos.cliente_id', '=', 'clientes.id')
+        ->first())
+    ) {
+      return back()->with('error', 'NÃO FOI POSSÍVEL LOCALIZAR O PEDIDO');
     }
+
+    return view('content.pedido.show')->with([
+      'email' => Auth::user()->email,
+      'pedido' => $pedido,
+    ]);
+  }
 
   public function post(Request $request, string $id, PedidoService $pedidoService)
   {
     try {
-      if(!$empresa = Empresa::where('hash', $id)->first()){
+      if (!($empresa = Empresa::where('hash', $id)->first())) {
         return ResponseHelper::notFound('EMPRESA NÃO ENCONTRADA');
       }
 
@@ -59,11 +72,7 @@ class PedidoController extends Controller
       $entrega = $request->entrega;
       $entrega['empresa_id'] = $empresa->id;
 
-      $pedido = $pedidoService->createPedido(
-        $cliente,
-        $entrega,
-        $request->pedido
-      );
+      $pedido = $pedidoService->createPedido($cliente, $entrega, $request->pedido);
 
       return ResponseHelper::success('PEDIDO GERADO COM SUCESSO');
     } catch (\Exception $e) {
@@ -75,30 +84,39 @@ class PedidoController extends Controller
   {
     DB::beginTransaction();
     try {
-        $pedido = Pedido::findOrFail($id);
+      $pedido = Pedido::findOrFail($id);
 
-        $resultado = ['success' => true, 'message' => ''];
+      $resultado = ['success' => true, 'message' => ''];
 
-        $pedido->status = $request->input('status');
-        $pedido->save();
+      $pedido->status = $request->input('status');
+      $pedido->save();
 
-        if ($request->input('status') === 'S') {
-          $token = optional($pedido->pedido_notificacaos->first())->token_notificacao;
+      if ($request->input('status') === 'S') {
+        $token = optional($pedido->pedido_notificacaos->first())->token_notificacao;
 
-          $resultado = $fcmService->enviaPushNotification($pedido, $token);
-        }
+        $resultado = $fcmService->enviaPushNotificationDelivery($pedido, $token);
+      }
 
-        DB::commit();
+      if ($request->input('status') === 'C') {
+        $token = optional($pedido->pedido_notificacaos->first())->token_notificacao;
 
-        $mensagem = $resultado['success']
-            ? 'PEDIDO ATUALIZADO COM SUCESSO. ' . $resultado['message']
-            : 'PEDIDO ATUALIZADO COM SUCESSO, MAS A NOTIFICAÇÃO FALHOU: ' . $resultado['message'];
+        $resultado = $fcmService->enviaPushNotificationCanceled($pedido, $token);
+      }
 
-        return redirect()->back()->with('success', $mensagem);
+      DB::commit();
+
+      $mensagem = $resultado['success']
+        ? 'PEDIDO ATUALIZADO COM SUCESSO. ' . $resultado['message']
+        : 'PEDIDO ATUALIZADO COM SUCESSO, MAS A NOTIFICAÇÃO FALHOU: ' . $resultado['message'];
+
+      return redirect()
+        ->back()
+        ->with('success', $mensagem);
     } catch (\Exception $e) {
       DB::rollBack();
-        return redirect()->back()->with('error', 'PEDIDO NÃO FOI ATUALIZADO. ' . $e->getMessage());
+      return redirect()
+        ->back()
+        ->with('error', 'PEDIDO NÃO FOI ATUALIZADO. ' . $e->getMessage());
     }
   }
-
 }

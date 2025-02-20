@@ -41,14 +41,14 @@
             @csrf
             <div class="form-floating form-floating-outline mb-3">
               <input type="text" class="form-control" id="email" name="email" placeholder="Digite seu e-mail" autofocus
-              onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
               <label for="email">E-mail</label>
             </div>
             <div class="mb-3">
               <div class="form-password-toggle">
                 <div class="input-group input-group-merge">
                   <div class="form-floating form-floating-outline">
-                    <input type="password" id="password" class="form-control" name="password" placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" aria-describedby="password"/>
+                    <input type="password" id="password" class="form-control" name="password" placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" aria-describedby="password" />
                     <label for="password">Senha</label>
                   </div>
                   <span class="input-group-text cursor-pointer"><i class="mdi mdi-eye-off-outline"></i></span>
@@ -62,15 +62,30 @@
               </a>-->
             </div>
             <div class="mb-3">
-              <button class="btn btn-primary d-grid w-100" type="submit">Entrar</button>
+
+              <button type="submit" id="submitButton" class="btn btn-primary d-grid w-100" style="width: 120px;">
+                <span id="buttonText">ENTRAR</span>
+                <span id="spinner" class="spinner-border spinner-border-sm text-light" role="status" aria-hidden="true" style="display: none;"></span>
+              </button>
             </div>
           </form>
+          <script>
+            document.getElementById('formAuthentication').addEventListener('submit', function() {
+              var submitButton = document.getElementById('submitButton');
+              var buttonText = document.getElementById('buttonText');
+              var spinner = document.getElementById('spinner');
+
+              buttonText.style.display = 'none'; // Esconde o texto
+              spinner.style.display = 'inline-block'; // Mostra o spinner
+              submitButton.disabled = true;
+            });
+          </script>
 
           <p class="text-center">
-            <!--<span>Novo em nossa plataforma?</span>
+            <span>Novo em nossa plataforma?</span>
             <a href="{{url('auth/register-basic')}}">
               <span>Crie sua conta</span>
-            </a>-->
+            </a>
           </p>
         </div>
       </div>

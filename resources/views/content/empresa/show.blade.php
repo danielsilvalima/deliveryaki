@@ -5,27 +5,27 @@
 @section('content')
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
-    @if(session('success'))
-        <div class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
-            <div class="d-flex">
-                <div class="toast-body">
-                    {{ session('success') }}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>
-    @endif
+  @if(session('success'))
+  <div class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+    <div class="d-flex">
+      <div class="toast-body">
+        {{ session('success') }}
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+  @endif
 
-    @if(session('error'))
-        <div class="toast align-items-center text-bg-danger border-0 show" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
-            <div class="d-flex">
-                <div class="toast-body">
-                    {{ session('error') }}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>
-    @endif
+  @if(session('error'))
+  <div class="toast align-items-center text-bg-danger border-0 show" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+    <div class="d-flex">
+      <div class="toast-body">
+        {{ session('error') }}
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+  @endif
 </div>
 
 <div class="col-xl">
@@ -41,10 +41,12 @@
         </li>
         <li class="nav-item"><button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-tab-expediente" aria-controls="navs-tab-expediente" aria-selected="false">Expediente</button>
         </li>
+        <li class="nav-item"><button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-tab-parametros" aria-controls="navs-tab-parametros" aria-selected="false">Parâmetros</button>
+        </li>
       </ul>
     </div>
     <div class="card-body">
-      <form id="form_empresa"  method="POST"><!--action="{{ route('empresa.edit', $empresa->id) }}"-->
+      <form id="form_empresa" action="{{ route('empresa.edit', $empresa->id) }}" method="POST" enctype="multipart/form-data"><!--action="{{ route('empresa.edit', $empresa->id) }}"-->
         @csrf()
         @method('PUT')
         <div class="tab-content p-0">
@@ -81,7 +83,7 @@
               <div class="col-md-2">
                 <div class="form-floating form-floating-outline mb-3">
                   <input type="number" id="cep" name="cep" value="{{ $empresa->cep }}" class="form-control phone-mask" placeholder="CEP" required aria-label="CEP" aria-describedby="basic-icon-default-phone2"
-                  onblur="getCEP()" />
+                    onblur="getCEP()" />
                   <label for="cep">CEP</label>
                 </div>
               </div>
@@ -109,7 +111,7 @@
 
               <div class="col-md-6">
                 <div class="form-floating form-floating-outline mb-3">
-                  <input type="text" id="complemento" name="complemento" readonly value="{{ $empresa->complemento }}" class="form-control phone-mask" placeholder="COMPLEMENTO"  aria-label="COMPLEMENTO" aria-describedby="basic-icon-default-phone2" />
+                  <input type="text" id="complemento" name="complemento" readonly value="{{ $empresa->complemento }}" class="form-control phone-mask" placeholder="COMPLEMENTO" aria-label="COMPLEMENTO" aria-describedby="basic-icon-default-phone2" />
                   <label for="complemento">COMPLEMENTO</label>
                 </div>
               </div>
@@ -151,7 +153,7 @@
               <div class="col-md-2">
                 <div class="form-floating form-floating-outline mb-3">
                   <input type="number" id="inicio_distancia" name="inicio_distancia" value="{{ $empresa->inicio_distancia }}"
-                  class="form-control phone-mask " placeholder="INÍCIO DISTÂNCIA" required aria-label="INÍCIO DISTÂNCIA" aria-describedby="basic-icon-default-phone2" />
+                    class="form-control phone-mask " placeholder="INÍCIO DISTÂNCIA" required aria-label="INÍCIO DISTÂNCIA" aria-describedby="basic-icon-default-phone2" />
                   <label for="inicio_distancia">INÍCIO DISTÂNCIA (KM)</label>
                 </div>
               </div>
@@ -165,19 +167,22 @@
 
               <div class="col-md-12">
                 <div class="form-floating form-floating-outline mb-3">
-                <input type="text" disabled id="hash" name="hash" value="{{ config('app.url_pedido') }}{{ $empresa->hash }}" class="form-control phone-mask" placeholder="LINK" required aria-label="LINK" aria-describedby="basic-icon-default-phone2" />
-                <label for="hash">LINK</label>
+                  <input type="text" disabled id="hash" name="hash" value="{{ config('app.url_pedido') }}{{ $empresa->hash }}" class="form-control phone-mask" placeholder="LINK" required aria-label="LINK" aria-describedby="basic-icon-default-phone2" />
+                  <label for="hash">LINK PARA CLIENTE</label>
                 </div>
               </div>
             </div>
-            <button type="submit" class="btn btn-primary">SALVAR</button>
+            <button type="submit" id="submitButton" class="btn btn-primary" style="width: 120px;">
+              <span id="buttonText">SALVAR</span>
+              <span id="spinner" class="spinner-border spinner-border-sm text-light" role="status" aria-hidden="true" style="display: none;"></span>
+            </button>
             <a href="{{ route('empresa.index') }}" class="btn btn-secondary">CANCELAR</a>
           </div>
           <div class="tab-pane fade show" id="navs-tab-expediente" role="tabpanel">
             <div class="row">
               <div class="col-md-12">
                 <div class="form-floating form-floating-outline mb-3">
-                  <select class="form-select" id="horario_expediente_id" name="horario_expediente_id" aria-label="DIAS DA SEMANA" >
+                  <select class="form-select" id="horario_expediente_id" name="horario_expediente_id" aria-label="DIAS DA SEMANA">
                     <option selected value="">SELECIONAR</option>
                     @foreach($horarioExpedientes as $horarioExpediente)
                     <option value="{{ $horarioExpediente->id }}">{{ $horarioExpediente->descricao }}</option>
@@ -190,7 +195,7 @@
               <div class="col-md-3">
                 <div class="form-floating form-floating-outline mb-3">
                   <input type="time" id="hora_abertura" name="hora_abertura" class="form-control" placeholder="ABERTURA" aria-label="ABERTURA"
-                    aria-describedby="basic-icon-default-phone2"/>
+                    aria-describedby="basic-icon-default-phone2" />
                   <label for="hora_abertura">ABERTURA</label>
                 </div>
               </div>
@@ -198,7 +203,7 @@
               <div class="col-md-3">
                 <div class="form-floating form-floating-outline mb-3">
                   <input type="time" id="intervalo_inicio" name="intervalo_inicio" class="form-control" placeholder="INÍCIO INTERVALO" aria-label="INÍCIO INTERVALO"
-                    aria-describedby="basic-icon-default-phone2"/>
+                    aria-describedby="basic-icon-default-phone2" />
                   <label for="intervalo_inicio">INÍCIO INTERVALO</label>
                 </div>
               </div>
@@ -206,7 +211,7 @@
               <div class="col-md-2">
                 <div class="form-floating form-floating-outline mb-3">
                   <input type="time" id="intervalo_fim" name="intervalo_fim" class="form-control" placeholder="TÉRMINO INTERVALOR" aria-label="TÉRMINO INTERVALOR"
-                    aria-describedby="basic-icon-default-phone2"/>
+                    aria-describedby="basic-icon-default-phone2" />
                   <label for="intervalo_fim">TÉRMINO INTERVALOR</label>
                 </div>
               </div>
@@ -214,7 +219,7 @@
               <div class="col-md-2">
                 <div class="form-floating form-floating-outline mb-3">
                   <input type="time" id="hora_fechamento" name="hora_fechamento" class="form-control" placeholder="FECHAMENTO" aria-label="FECHAMENTO"
-                    aria-describedby="basic-icon-default-phone2"/>
+                    aria-describedby="basic-icon-default-phone2" />
                   <label for="hora_fechamento">FECHAMENTO</label>
                 </div>
               </div>
@@ -251,8 +256,111 @@
               </div>
             </div>
           </div>
+          <div class="tab-pane fade show" id="navs-tab-parametros" role="tabpanel">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="card-body">
+                  <div class="d-flex align-items-start align-items-sm-center gap-4">
+                    <img src="{{ asset('storage/' . $empresa->path) }}" id="uploadedAvatar" style="max-width: 200px; max-height: 110px; object-fit: cover;" />
+                    <div class="button-wrapper">
+                      <label for="logo" class="btn btn-primary me-2 mb-3" tabindex="0">
+                        <span class="d-none d-sm-block">Upload</span>
+                        <i class="mdi mdi-tray-arrow-up d-block d-sm-none"></i>
+                        <input type="file" id="logo" name="logo" class="account-file-input" hidden accept="image/png, image/jpeg" />
+                      </label>
+                      <button type="button" id="btn-remover-logo" class="btn btn-outline-danger account-image-reset mb-3">
+                        <i class="mdi mdi-reload d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block">Limpar</span>
+                      </button>
+
+                      <div class="text-muted small">JPG ou PNG permitidos. Tamanho máximo de 5MB</div>
+                    </div>
+                  </div>
+                </div>
+                <script>
+                  document.addEventListener("DOMContentLoaded", function() {
+                    const fileInput = document.getElementById("logo");
+                    const imagePreview = document.getElementById("uploadedAvatar");
+                    const resetButton = document.querySelector(".account-image-reset");
+
+                    // Quando um novo arquivo for selecionado
+                    fileInput.addEventListener("change", function(event) {
+                      const file = event.target.files[0];
+
+                      if (file) {
+                        const reader = new FileReader();
+
+                        reader.onload = function(e) {
+                          imagePreview.src = e.target.result; // Atualiza a imagem com a prévia
+                        };
+
+                        reader.readAsDataURL(file);
+                      }
+                    });
+
+                    // Botão de limpar imagem
+                    resetButton.addEventListener("click", function() {
+                      fileInput.value = ""; // Reseta o campo de upload
+                      imagePreview.src = "{{ asset('storage/logo/' . $empresa->path) }}"; // Restaura a imagem original
+                    });
+                  });
+                </script>
+                <script>
+                  function showToast(message, type) {
+                    let toastContainer = document.querySelector('.toast-container');
+
+                    let toastHtml = `
+                        <div class="toast align-items-center text-bg-${type} border-0 show" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+                            <div class="d-flex">
+                                <div class="toast-body">
+                                    ${message}
+                                </div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                        </div>
+                    `;
+
+                    toastContainer.innerHTML = toastHtml;
+                    let toastElement = toastContainer.querySelector('.toast');
+                    let bsToast = new bootstrap.Toast(toastElement);
+                    bsToast.show();
+                  }
+                  document.getElementById('btn-remover-logo').addEventListener('click', function() {
+                    fetch(`/empresa/{{ $empresa->id }}/remover-logo`, {
+                        method: 'DELETE',
+                        headers: {
+                          'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                          'Content-Type': 'application/json',
+                        }
+                      })
+                      .then(response => response.json())
+                      .then(data => {
+                        if (data.success) {
+                          showToast(data.message, 'success');
+                          document.getElementById('logo-preview').src = "{{ asset('storage/default-logo.png') }}"; // Caminho da imagem padrão
+                        } else {
+                          showToast(data.message, 'danger');
+                        }
+                      })
+                      .catch(error => console.error('Erro:', error));
+                  });
+                </script>
+              </div>
+            </div>
+          </div>
         </div>
       </form>
+      <script>
+        document.getElementById('form_empresa').addEventListener('submit', function() {
+          var submitButton = document.getElementById('submitButton');
+          var buttonText = document.getElementById('buttonText');
+          var spinner = document.getElementById('spinner');
+
+          buttonText.style.display = 'none'; // Esconde o texto
+          spinner.style.display = 'inline-block'; // Mostra o spinner
+          submitButton.disabled = true;
+        });
+      </script>
     </div>
   </div>
 </div>

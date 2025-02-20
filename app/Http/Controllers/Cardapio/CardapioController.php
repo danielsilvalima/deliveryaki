@@ -12,36 +12,36 @@ use App\Helpers\ResponseHelper;
 
 class CardapioController extends Controller
 {
-  private $header = array(
+  private $header = [
     //'Content-Type' => 'text/html; charset=UTF-8',
     'Content-Type' => 'application/json; charset=UTF-8',
-    'charset' => 'utf-8'
-  );
+    'charset' => 'utf-8',
+  ];
   private $options = JSON_UNESCAPED_UNICODE;
 
-  public function get(Request $request, string $id, EmpresaService $empresaService, ProdutoService $produtoService, CardapioService $cardapioService)
-  {
-    try{
-      if(!$empresa = $empresaService->findByHash($id)){
+  public function get(
+    Request $request,
+    string $id,
+    EmpresaService $empresaService,
+    ProdutoService $produtoService,
+    CardapioService $cardapioService
+  ) {
+    try {
+      if (!($empresa = $empresaService->findByHash($id))) {
         return ResponseHelper::notFound('EMPRESA NÃO ENCONTRADA');
       }
-      $cardapio = $produtoService->findAllProductActiveByEmpresaID($empresa->id);
 
-      $cardapio = $cardapioService->groupByCategory($cardapio);
+      $empresa = $produtoService->findAllProductActiveByEmpresaID($empresa->id);
 
-      $horario_expediente = $empresaService->verificaExpedienteByHash($id);
+      //$cardapio = $cardapioService->groupByCategory($cardapio);
 
-      $cardapio['horario_expediente'] = $horario_expediente;
+      $horario_expediente = $empresaService->verificaExpedienteByHash($empresa->hash);
 
-      return response()->json(
-        [$cardapio],
-        Response::HTTP_OK,
-        $this->header,
-        $this->options
-      );
+      $empresa['horario_expediente'] = $horario_expediente;
+
+      return response()->json($empresa, Response::HTTP_OK, $this->header, $this->options);
     } catch (\Exception $e) {
       return ResponseHelper::error($e->getMessage());
     }
   }
-
 }
