@@ -23,7 +23,7 @@ class CepController extends Controller
 
   public function get(Request $request, CepService $cepService, ViaCepService $viaCepService, HereService $hereService, EmpresaService $empresaService)
   {
-    try{
+    try {
       $request->validate([
         'empresa_id' => 'required',
         'numero' => 'required|string',
@@ -40,19 +40,19 @@ class CepController extends Controller
 
       $cep = $cepService->findByCEP($numero_cep);
 
-      if(!$cep){
+      if (!$cep) {
         $cep = $viaCepService->findViaCep($numero_cep);
       }
 
-      if($cep){
+      if ($cep) {
         $clienteLatLng = $hereService->findLatLng($cep['logradouro'], $numero, $cep['bairro'], $cep['cidade'], $cep['uf']);
 
         $empresa = $empresaService->findByHash($empresa_hash);
-        if(!$empresa){
+        if (!$empresa) {
           return ResponseHelper::error('EMPRESA NÃO ENCONTRADA');
         }
 
-        if(!$empresa->lat || !$empresa->lng){
+        if (!$empresa->lat || !$empresa->lng) {
           $empresaLatLng = $hereService->findLatLng($empresa->logradouro, $empresa->numero, $empresa->bairro, $empresa->cidade, $empresa->uf);
           if (!$empresaLatLng) {
             return ResponseHelper::error('NÃO FOI POSSÍVEL ENCONTRAR AS COORDENADAS DA EMPRESA');
@@ -62,7 +62,7 @@ class CepController extends Controller
             'lat' => $empresaLatLng['latitude'],
             'lng' => $empresaLatLng['longitude'],
           ]);
-        }else {
+        } else {
           $empresaLatLng = ['latitude' => $empresa->lat, 'longitude' => $empresa->lng];
         }
 
@@ -73,35 +73,34 @@ class CepController extends Controller
 
         $distancia_km = $distancia['distancia'] / 1000; // Converte a distância para km
         $vlr_km = $empresa->vlr_km ?? 0;              // Valor por km, padrão 0
-        $valor_taxa = 0;
+        $vlr_taxa = 0;
 
         // Verifica se o tipo de taxa é baseado em distância ('D') ou fixa ('F')
         if ($empresa->tipo_taxa === 'D') {
           // Taxa com base na distância
           if ($empresa->inicio_distancia !== null && $distancia_km > $empresa->inicio_distancia) {
-              // Aplica a fórmula apenas se a distância ultrapassar o limite inicial
-              $valor_taxa = round($distancia_km * $vlr_km, 2);
+            // Aplica a fórmula apenas se a distância ultrapassar o limite inicial
+            $vlr_taxa = round($distancia_km * $vlr_km, 2);
           } elseif ($empresa->inicio_distancia === null) {
-              // Sem limite inicial, calcula diretamente
-              $valor_taxa = round($distancia_km * $vlr_km, 2);
+            // Sem limite inicial, calcula diretamente
+            $vlr_taxa = round($distancia_km * $vlr_km, 2);
           }
         } elseif ($empresa->tipo_taxa === 'F') {
           // Taxa fixa
           if ($empresa->inicio_distancia !== null && $distancia_km > $empresa->inicio_distancia) {
-              // Aplica a taxa fixa apenas se a distância ultrapassar o limite inicial
-              $valor_taxa = $vlr_km;
+            // Aplica a taxa fixa apenas se a distância ultrapassar o limite inicial
+            $vlr_taxa = $vlr_km;
           } elseif ($empresa->inicio_distancia === null) {
-              // Sem limite inicial, usa a taxa fixa diretamente
-              $valor_taxa = $vlr_km;
+            // Sem limite inicial, usa a taxa fixa diretamente
+            $vlr_taxa = $vlr_km;
           }
         }
-
       }
 
       return response()->json(
         [
           'distancia_km' => $distancia_km,
-          'valor_taxa' => $valor_taxa,
+          'vlr_taxa' => $vlr_taxa,
           'cep' => $cep['cep'],
           'logradouro' => $cep['logradouro'],
           'bairro' => $cep['bairro'],

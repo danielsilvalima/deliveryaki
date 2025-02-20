@@ -28,7 +28,7 @@ class PedidoService
     }
 
     if (empty($entrega['vlr_total']) || $entrega['vlr_total'] <= 0) {
-      throw new \Exception('O "valor_total" deve ser maior que zero.');
+      throw new \Exception('O "vlr_total" deve ser maior que zero.');
     }
 
     if (empty($itens)) {
@@ -93,8 +93,8 @@ class PedidoService
         'status' => 'A',
         'tipo_pagamento' => strtoupper($entregaData['tipo_pagamento']),
         'tipo_entrega' => strtoupper($entregaData['tipo_entrega']),
-        'vlr_taxa' => floatval($entregaData['valor_taxa']),
-        'vlr_total' => floatval($entregaData['valor_total']),
+        'vlr_taxa' => floatval($entregaData['vlr_taxa']),
+        'vlr_total' => floatval($entregaData['vlr_total']),
         //'deliver_at' => $entregaData['horario_entrega'],
         'cliente_id' => $cliente->id,
         'empresa_id' => $entregaData['empresa_id'],
@@ -114,8 +114,8 @@ class PedidoService
         return [
           'produto_id' => $itemData['id'],
           'qtd' => intval($itemData['qtd']),
-          'vlr_unitario' => floatval($itemData['valor_unitario']),
-          'vlr_total' => floatval($itemData['valor_total']),
+          'vlr_unitario' => floatval($itemData['vlr_unitario']),
+          'vlr_total' => floatval($itemData['vlr_total']),
           'pedido_id' => $pedido->id,
           'cliente_id' => $cliente->id,
           'empresa_id' => $entregaData['empresa_id'],
