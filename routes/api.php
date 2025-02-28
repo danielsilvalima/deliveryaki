@@ -61,4 +61,4 @@ Route::middleware('api.keyagenda')->group(function () {
   Route::delete('/agenda/empresa/cliente/agenda', [AgendaClienteController::class, 'destroy'])->name('agenda.destroy');
 });
 Route::post('/numerovirtual', [NumeroVirtualController::class, 'store'])->name('numero.store');
-Route::post('/numerovirtual/pagamento', [NumeroVirtualController::class, 'payment'])->name('numero.payment');
+Route::post('/numerovirtual/2', [NumeroVirtualController::class, 'store2'])->name('numero.store2');

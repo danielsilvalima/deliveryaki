@@ -9,55 +9,77 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\ResponseHelper;
 use App\Services\Pedido\PedidoService;
-use App\Services\PedidoItem\PedidoItemService;
+use App\Services\Produto\ProdutoService;
 use App\Services\Fcm\FcmService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 
 class PedidoController extends Controller
 {
-  public function index(Pedido $pedido, PedidoItemService $pedidoItemService)
+  public function index(Pedido $pedido, PedidoService $pedidoService)
   {
-    $pedidos = Pedido::select(
-      'pedidos.*',
-      'clientes.nome_completo',
-      'ceps.logradouro',
-      'clientes.numero',
-      'ceps.bairro'
-    )
-      ->where('pedidos.empresa_id', Auth::user()->empresa_id)
-      ->join('clientes', 'pedidos.cliente_id', '=', 'clientes.id')
-      ->leftJoin('ceps', 'clientes.cep_id', '=', 'ceps.id')
-      ->orderBy('id', 'ASC')
-      ->get();
+    $data_inicio = Carbon::now()->startOfMonth()->toDateString(); // Primeiro dia do mês
+    $data_fim = Carbon::now()->toDateString(); // Data atual
 
-    foreach ($pedidos as $pedido) {
-      $itens = $pedidoItemService->findByIDPedido($pedido->id);
 
-      // Adiciona os itens ao pedido
-      $pedido->itens = $itens;
-    }
+    $pedidos = $pedidoService->buscaPedidosPorData($data_fim, $data_fim);
+
     return view('content.pedido.index', [
       'pedidos' => $pedidos,
       'email' => Auth::user()->email,
+      'data_inicio' => $data_fim,
+      'data_fim' => $data_fim,
+      'tipo_entrega' => 'E',
+      'status' => 'A'
     ]);
   }
 
-  public function show(Pedido $pedido, string|int $id)
+  public function postPedido(Request $request, PedidoService $pedidoService)
   {
-    if (
-      !($pedido = Pedido::select('pedidos.*', 'clientes.nome_completo as nome_completo')
-        ->where('produtos.id', $id)
-        ->where('produtos.empresa_id', Auth::user()->empresa_id)
-        ->join('clientes', 'pedidos.cliente_id', '=', 'clientes.id')
-        ->first())
-    ) {
-      return back()->with('error', 'NÃO FOI POSSÍVEL LOCALIZAR O PEDIDO');
-    }
+    try {
+      if ($request->data_inicio === null || $request->data_fim === null) {
+        return back()->with('error', 'PREENCHA O CAMPO DE DATA INICIAL E FINAL');
+      }
 
-    return view('content.pedido.show')->with([
-      'email' => Auth::user()->email,
-      'pedido' => $pedido,
-    ]);
+      $pedidos = $pedidoService->buscaPedidosPorData($request->data_inicio, $request->data_fim, $request->tipo_entrega, $request->status);
+
+      return view('content.pedido.index', [
+        'pedidos' => $pedidos,
+        'email' => Auth::user()->email,
+        'data_inicio' => $request->data_inicio,
+        'data_fim' => $request->data_fim,
+        'tipo_entrega' => $request->tipo_entrega,
+        'status' => $request->status
+      ]);
+    } catch (\Exception $e) {
+      return back()->with('error', 'NÃO FOI POSSÍVEL PESQUISAR. ' . $e->getMessage());
+    }
+  }
+
+  public function show(string|int $id, PedidoService $pedidoService, ProdutoService $produtoService)
+  {
+    try {
+
+      if ($id === null) {
+        return back()->with('error', 'ID É OBRIGATÓRIO');
+      }
+
+      $pedido = $pedidoService->buscaPedidosPorID($id);
+
+      if (!$pedido) {
+        return back()->with('error', 'O PEDIDO NÃO FOI LOCALIZADO');
+      }
+
+      $produtos = $produtoService->findAllProductActiveByEmpresaID($pedido->empresa_id);
+
+      return view('content.pedido.show')->with([
+        'email' => Auth::user()->email,
+        'pedido' => $pedido,
+        'produtos' => $produtos->produtos
+      ]);
+    } catch (\Exception $e) {
+      return back()->with('error', 'NÃO FOI POSSÍVEL ATUALIZAR O PEDIDO. ' . $e->getMessage());
+    }
   }
 
   public function post(Request $request, string $id, PedidoService $pedidoService)
@@ -80,7 +102,7 @@ class PedidoController extends Controller
     }
   }
 
-  public function update(Request $request, $id, FcmService $fcmService)
+  public function updateStatus(Request $request, $id, FcmService $fcmService)
   {
     DB::beginTransaction();
     try {

@@ -32,13 +32,12 @@ class NumeroVirtualController extends Controller
     }
   }
 
-  public function payment(Request $request, NumeroVirtualService $numeroVirtualService)
+  public function store2(Request $request, NumeroVirtualService $numeroVirtualService)
   {
     try {
-      //$numero = $numeroVirtualService->start($request);
-      Log::info('WEBHOOK ATUALIZADO COM SUCESSO');
+      $numero = $numeroVirtualService->start($request);
 
-      return response()->json([['status' => 'ok']], Response::HTTP_OK);
+      return response()->json([$numero], Response::HTTP_OK);
     } catch (\Exception $e) {
       return ResponseHelper::error($e->getMessage());
     }

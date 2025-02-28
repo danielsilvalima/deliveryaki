@@ -3,9 +3,9 @@
   <!-- ! Hide app brand if navbar-full -->
   <div class="app-brand demo">
     <a href="{{url('/home')}}" class="app-brand-link">
-      <span class="app-brand-logo demo me-1">
+      <!--<span class="app-brand-logo demo me-1">
         @include('_partials.macros',["height"=>20])
-      </span>
+      </span>-->
       <span class="app-brand-text demo menu-text fw-semibold ms-2">{{config('variables.templateName')}}</span>
     </a>
 
@@ -31,27 +31,27 @@
 
     {{-- active menu method --}}
     @php
-      $activeClass = null;
-      $currentRouteName =  Route::currentRouteName();
+    $activeClass = null;
+    $currentRouteName = Route::currentRouteName();
 
-      if ($currentRouteName === $menu->slug) {
-          $activeClass = 'active';
-      }
-      elseif (isset($menu->submenu)) {
-        if (gettype($menu->slug) === 'array') {
-          foreach($menu->slug as $slug){
-            if (str_contains($currentRouteName,$slug) and strpos($currentRouteName,$slug) === 0) {
-              $activeClass = 'active open';
-            }
-          }
-        }
-        else{
-          if (str_contains($currentRouteName,$menu->slug) and strpos($currentRouteName,$menu->slug) === 0) {
-            $activeClass = 'active open';
-          }
-        }
+    if ($currentRouteName === $menu->slug) {
+    $activeClass = 'active';
+    }
+    elseif (isset($menu->submenu)) {
+    if (gettype($menu->slug) === 'array') {
+    foreach($menu->slug as $slug){
+    if (str_contains($currentRouteName,$slug) and strpos($currentRouteName,$slug) === 0) {
+    $activeClass = 'active open';
+    }
+    }
+    }
+    else{
+    if (str_contains($currentRouteName,$menu->slug) and strpos($currentRouteName,$menu->slug) === 0) {
+    $activeClass = 'active open';
+    }
+    }
 
-      }
+    }
     @endphp
 
     {{-- main menu --}}

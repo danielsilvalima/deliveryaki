@@ -18,12 +18,12 @@
 <div class="row gy-4">
   <div class="col-md-12 col-lg-12">
     <div class="card">
-    <div class="card-body">
-      <form id="form" action="{{ route('dashboard-analytics.post') }}"  method="POST">
+      <div class="card-body">
+        <form id="form" action="{{ route('dashboard-analytics.post') }}" method="POST">
           @csrf()
           <div class="row g-2">
             <div class="col-md-3">
-              <input class="form-control" type="date" id="data_inicio" name="data_inicio" value="{{ $data_inicio ?? '' }}" required placeholder="DATA IINICIAL" />
+              <input class="form-control" type="date" id="data_inicio" name="data_inicio" value="{{ $data_inicio ?? '' }}" required placeholder="DATA INICIAL" />
             </div>
 
             <div class="col-md-3">
@@ -31,11 +31,25 @@
             </div>
 
             <div class="col-md-3">
-              <button class="btn btn-outline-primary w-100" type="submit" id="button-addon2">PESQUISAR</button>
+              <button type="submit" id="submitButton" class="btn btn-outline-primary w-100" style="width: 120px;">
+                <span id="buttonText">PESQUISAR</span>
+                <span id="spinner" class="spinner-border spinner-border-sm text-light" role="status" aria-hidden="true" style="display: none;"></span>
+              </button>
             </div>
           </div>
-      </form>
-    </div>
+        </form>
+        <script>
+          document.getElementById('form').addEventListener('submit', function() {
+            var submitButton = document.getElementById('submitButton');
+            var buttonText = document.getElementById('buttonText');
+            var spinner = document.getElementById('spinner');
+
+            buttonText.style.display = 'none'; // Esconde o texto
+            spinner.style.display = 'inline-block'; // Mostra o spinner
+            submitButton.disabled = true;
+          });
+        </script>
+      </div>
     </div>
   </div>
   <!-- Congratulations card -->
@@ -112,7 +126,7 @@
               <div class="ms-3">
                 <div class="small mb-1">Tipo Entrega</div>
                 @foreach ($indicadores['tipo_entrega_mais_utilizado'] as $entrega)
-                    <h5 class="mb-0">{{ $entrega->tipo_entrega }}: {{ $entrega->quantidade }}</h5>
+                <h5 class="mb-0">{{ $entrega->tipo_entrega }}: {{ $entrega->quantidade }}</h5>
                 @endforeach
 
               </div>
@@ -128,7 +142,7 @@
               <div class="ms-3">
                 <div class="small mb-1">Tipo Pagamento</div>
                 @foreach ($indicadores['tipo_pagamento_mais_utilizado'] as $pagamento)
-                    <h5 class="mb-0">{{ $pagamento->tipo_pagamento }}: {{ $pagamento->quantidade }}</h5>
+                <h5 class="mb-0">{{ $pagamento->tipo_pagamento }}: {{ $pagamento->quantidade }}</h5>
                 @endforeach
               </div>
             </div>
@@ -140,7 +154,7 @@
   <!--/ Transactions -->
 
   <!-- Weekly Overview Chart -->
-  <div class="col-xl-12 col-md-6">
+  <!--<div class="col-xl-12 col-md-6">
     <div class="card">
       <div class="card-header">
         <div class="d-flex justify-content-between">
@@ -167,7 +181,7 @@
           <!--<div class="d-grid mt-3 mt-md-4">
             <button class="btn btn-primary" type="button">Details</button>
           </div>-->
-        </div>
+  <!--      </div>
       </div>
     </div>
   </div>
@@ -274,7 +288,7 @@
         </div>
       </div>
       <!--/ Total Profit line chart -->
-      <!-- Total Profit Weekly Project -->
+  <!-- Total Profit Weekly Project -->
   <!--    <div class="col-sm-6">
         <div class="card h-100">
           <div class="card-header d-flex align-items-center justify-content-between">
@@ -305,7 +319,7 @@
         </div>
       </div>
       <!--/ Total Profit Weekly Project -->
-      <!-- New Yearly Project -->
+  <!-- New Yearly Project -->
   <!--    <div class="col-sm-6">
         <div class="card h-100">
           <div class="card-header d-flex align-items-center justify-content-between">
@@ -336,7 +350,7 @@
         </div>
       </div>
       <!--/ New Yearly Project -->
-      <!-- Sessions chart -->
+  <!-- Sessions chart -->
   <!--    <div class="col-sm-6">
         <div class="card h-100">
           <div class="card-header pb-0">
@@ -620,7 +634,7 @@
   <!-- Deposit / Withdraw -->
 
   <!-- Data Tables -->
-  <div class="col-12">
+  <!--<div class="col-12">
     <div class="card">
       <div class="table-responsive">
         <table class="table">

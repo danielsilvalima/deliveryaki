@@ -25,7 +25,7 @@ class RegisterBasic extends Controller
   {
     $validator = Validator::make($request->all(), [
       'email' => 'required|email|unique:users',
-      'cnpj' => 'required|string|min:11|max:14|unique:empresas',
+      'cnpj' => 'required|string|min:11|max:18|unique:empresas',
       'razao_social' => 'required|string|unique:empresas',
       'password' => 'required|min:3|max:50',
     ], [
@@ -84,22 +84,22 @@ class RegisterBasic extends Controller
 
     // Valide o CEP
     if (!preg_match('/^[0-9]{8}$/', $cep)) {
-        return response()->json(['success' => false, 'message' => 'CEP inválido.'], 400);
+      return response()->json(['success' => false, 'message' => 'CEP inválido.'], 400);
     }
 
-    try{
+    try {
       $dados = $viaCepService->findViaCep($cep);
 
       // Retorne os dados para o frontend
       return response()->json([
-          'success' => true,
-          'logradouro' => $dados['logradouro'],
-          'complemento' => $dados['complemento'],
-          'bairro' => $dados['bairro'],
-          'cidade' => $dados['cidade'],
-          'uf' => $dados['uf']
+        'success' => true,
+        'logradouro' => $dados['logradouro'],
+        'complemento' => $dados['complemento'],
+        'bairro' => $dados['bairro'],
+        'cidade' => $dados['cidade'],
+        'uf' => $dados['uf']
       ]);
-    }catch (\Exception $e) {
+    } catch (\Exception $e) {
       return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
     }
   }

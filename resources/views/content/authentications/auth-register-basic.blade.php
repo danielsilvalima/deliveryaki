@@ -42,15 +42,15 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="form-floating form-floating-outline mb-3">
-                  <input type="text" class="form-control" id="cnpj" name="cnpj" placeholder="CNPJ" maxlength="14"
-                    onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                  <input type="text" class="form-control" id="cnpj" name="cnpj" placeholder="CNPJ" maxlength="18"
+                    oninput="formatarCpfCnpj(this)">
                   <label for="cnpj">CNPJ</label>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-floating form-floating-outline mb-3">
                   <input type="text" class="form-control" id="celular" name="celular" required placeholder="WhatsApp" maxlength="16"
-                    onkeyup="var start = this.selectionStart;var end = this.selectionEnd;this.value = this.value.toUpperCase();this.setSelectionRange(start, end);">
+                    oninput="formatarCelular(this)">
                   <label for="celular">WhatsApp</label>
                 </div>
               </div>
@@ -145,6 +145,58 @@
               submitButton.disabled = true;
             });
           </script>
+          <script>
+            function formatarCelular(campo) {
+              let valor = campo.value.replace(/\D/g, ''); // Remove tudo que não for número
+
+              if (valor.length > 11) {
+                valor = valor.substring(0, 11); // Limita a 11 caracteres (DDD + 9 dígitos)
+              }
+
+              let formatado = valor;
+
+              if (valor.length > 10) {
+                // Formato para celulares com 9 dígitos
+                formatado = `(${valor.slice(0, 2)}) ${valor.slice(2, 3)}.${valor.slice(3, 7)}-${valor.slice(7)}`;
+              } else if (valor.length > 6) {
+                // Formato para celulares sem o 9 na frente
+                formatado = `(${valor.slice(0, 2)}) ${valor.slice(2, 6)}-${valor.slice(6)}`;
+              } else if (valor.length > 2) {
+                // Apenas DDD
+                formatado = `(${valor.slice(0, 2)}) ${valor.slice(2)}`;
+              } else if (valor.length > 0) {
+                formatado = `(${valor}`;
+              }
+
+              campo.value = formatado;
+            }
+          </script>
+          <script>
+            function formatarCpfCnpj(campo) {
+              let valor = campo.value.replace(/\D/g, ''); // Remove tudo que não for número
+
+              if (valor.length > 14) {
+                valor = valor.substring(0, 14); // Limita a 14 caracteres (CNPJ máximo)
+              }
+
+              let formatado = valor;
+
+              if (valor.length > 11) {
+                // CNPJ: 00.000.000/0000-00
+                formatado = `${valor.slice(0, 2)}.${valor.slice(2, 5)}.${valor.slice(5, 8)}/${valor.slice(8, 12)}-${valor.slice(12)}`;
+              } else if (valor.length > 9) {
+                // CPF: 000.000.000-00
+                formatado = `${valor.slice(0, 3)}.${valor.slice(3, 6)}.${valor.slice(6, 9)}-${valor.slice(9)}`;
+              } else if (valor.length > 6) {
+                formatado = `${valor.slice(0, 3)}.${valor.slice(3, 6)}.${valor.slice(6)}`;
+              } else if (valor.length > 3) {
+                formatado = `${valor.slice(0, 3)}.${valor.slice(3)}`;
+              }
+
+              campo.value = formatado;
+            }
+          </script>
+
 
           <p class="text-center">
             <span>Já tem uma conta?</span>

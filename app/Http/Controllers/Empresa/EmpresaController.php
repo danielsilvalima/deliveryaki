@@ -13,6 +13,7 @@ use App\Services\HorarioExpediente\HorarioExpedienteService;
 use App\Helpers\ResponseHelper;
 use App\Models\EmpresaExpediente;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 
 class EmpresaController extends Controller
 {
@@ -40,7 +41,7 @@ class EmpresaController extends Controller
     }
   }
 
-  public function store(Request $request, Empresa $empresa)
+  public function store(Request $request, Empresa $empresa, EmpresaService $empresaService)
   {
     $data = $request->post();
 
@@ -48,9 +49,15 @@ class EmpresaController extends Controller
       'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // Máximo 5MB
     ]);
 
+    $expiration = Carbon::now()->addDays(30);
+
     do {
       $data['hash'] = HashGenerator::generateUniqueHash8Caracter();
     } while ($empresa->where('hash', $data['hash'])->exists());
+
+    $data['expiration_at'] = $expiration;
+    $data['celular'] = $empresaService->removeCaracteres($data['celular']);
+    $data['cnpj'] = $empresaService->removeCaracteres($data['cnpj']);
 
     if ($request->hasFile('logo')) {
       $directory = "public/logo/{$empresa->cnpj}";

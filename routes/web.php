@@ -124,8 +124,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
   //Pedido
   Route::get('/pedido', [PedidoController::class, 'index'])->name('pedido.index');
+  Route::post('/pedido', [PedidoController::class, 'postPedido'])->name('pedido.postPedido');
   Route::get('/pedido/{id}', [PedidoController::class, 'show'])->name('pedido.show');
-  Route::put('/pedido/{id}', [PedidoController::class, 'update'])->name('pedido.update');
+  Route::put('/pedido/{id}', [PedidoController::class, 'updateStatus'])->name('pedido.updateStatus');
+  Route::put('/pedido/update/{id}', [PedidoController::class, 'update'])->name('pedido.update');
 
   //Usuário
   Route::get('/usuario/{id}', [UsuarioController::class, 'show'])->name('usuario.show');

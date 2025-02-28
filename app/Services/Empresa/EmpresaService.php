@@ -152,4 +152,9 @@ class EmpresaService
       }
     }
   }
+
+  public function removeCaracteres($valor)
+  {
+    return preg_replace('/\D/', '', $valor);
+  }
 }

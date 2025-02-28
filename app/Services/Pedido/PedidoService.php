@@ -7,6 +7,7 @@ use App\Models\Pedido;
 use App\Models\Cep;
 use App\Models\PedidoNotificacao;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class PedidoService
 {
@@ -131,6 +132,53 @@ class PedidoService
     } catch (\Exception $e) {
       DB::rollBack();
       throw new \Exception('ERRO AO CRIAR O PEDIDO: ' . $e->getMessage());
+    }
+  }
+
+  public function buscaPedidosPorData($data_inicio = null, $data_fim = null, $tipo_entrega = 'E', $status = 'A')
+  {
+    try {
+
+      $query = Pedido::with([
+        'cliente', // Relacionamento com clientes
+        'cliente.ceps', // Relacionamento com ceps
+        'pedido_items' // Relacionamento com pedido_items
+      ])
+        ->where('empresa_id', Auth::user()->empresa_id)
+        ->where('tipo_entrega', $tipo_entrega)
+        ->where('status', $status)
+        ->orderBy('id', 'ASC');
+
+      // Se as datas forem preenchidas, aplica o filtro
+      if (!empty($data_inicio) && !empty($data_fim)) {
+        $query->whereBetween('created_at', [$data_inicio . ' 00:00:00', $data_fim . ' 23:59:59']);
+      }
+
+      $pedidos = $query->get();
+
+      return $pedidos;
+    } catch (\Exception $e) {
+
+      return back()->with('error', 'ERRO AO BUSCAR OS PEDIDOS. ' . $e->getMessage());
+    }
+  }
+
+  public function buscaPedidosPorID($id)
+  {
+    try {
+
+      $pedidos = Pedido::with([
+        'cliente', // Relacionamento com clientes
+        'cliente.ceps', // Relacionamento com ceps
+        'pedido_items.produto' // Relacionamento com pedido_items
+      ])
+        ->where('empresa_id', Auth::user()->empresa_id)
+        ->where('id', $id)->first();
+
+      return $pedidos;
+    } catch (\Exception $e) {
+
+      return back()->with('error', 'ERRO AO BUSCAR OS PEDIDOS. ' . $e->getMessage());
     }
   }
 }

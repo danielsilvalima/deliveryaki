@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class ProdutoService
 {
-  public function findAllProductActiveByEmpresaID($id)
+  public function findAllProductCategoryActiveByEmpresaID($id)
   {
     $produto = Empresa::with([
       'categorias' => function ($query) {
@@ -22,6 +22,18 @@ class ProdutoService
                 ->orderBy('descricao', 'ASC');
             },
           ]);
+      },
+    ])->where('id', $id)->first();
+
+    return $produto;
+  }
+
+  public function findAllProductActiveByEmpresaID($id)
+  {
+    $produto = Empresa::with([
+      'produtos' => function ($query) {
+        $query->where('status', 'A')
+          ->orderBy('descricao', 'ASC');
       },
     ])->where('id', $id)->first();
 

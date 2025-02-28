@@ -31,7 +31,7 @@ class CardapioController extends Controller
         return ResponseHelper::notFound('EMPRESA NÃO ENCONTRADA');
       }
 
-      $empresa = $produtoService->findAllProductActiveByEmpresaID($empresa->id);
+      $empresa = $produtoService->findAllProductCategoryActiveByEmpresaID($empresa->id);
 
       //$cardapio = $cardapioService->groupByCategory($cardapio);
 

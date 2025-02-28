@@ -67,7 +67,8 @@ function openEditModal(pedidoId, itens, status, tipoEntrega, tipoPagamento) {
 
   // Atualizar a rota do formulário com o ID do pedido
   const form = document.getElementById('editPedidoForm');
-  form.action = `/pedido/${pedidoId}`;
+  const route = form.dataset.route.replace('__ID__', pedidoId);
+  form.action = route;
 
   // Exibir o modal
   const modal = new bootstrap.Modal(document.getElementById('basicModal'));
