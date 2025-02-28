@@ -24,7 +24,7 @@ class NumeroVirtualController extends Controller
         return ResponseHelper::error('A "DATA" É OBRIGATÓRIO', Response::HTTP_BAD_REQUEST);
       }*/
 
-      $numero = $numeroVirtualService->start($request);
+      $numero = $numeroVirtualService->start1($request);
 
       return response()->json([$numero], Response::HTTP_OK);
     } catch (\Exception $e) {
@@ -35,7 +35,7 @@ class NumeroVirtualController extends Controller
   public function store2(Request $request, NumeroVirtualService $numeroVirtualService)
   {
     try {
-      $numero = $numeroVirtualService->start($request);
+      $numero = $numeroVirtualService->start2($request);
 
       return response()->json([$numero], Response::HTTP_OK);
     } catch (\Exception $e) {

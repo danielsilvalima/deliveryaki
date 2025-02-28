@@ -43,7 +43,8 @@ return [
 
   'email_adress' => env('MAIL_FROM_ADDRESS', ''),
 
-  'telegram_bot' => env('TELEGRAM_BOT', ''),
+  'telegram_bot1' => env('TELEGRAM_BOT1', ''),
+  'telegram_bot2' => env('TELEGRAM_BOT2', ''),
   'telegram_sms' => env('TELEGRAM_SMS', ''),
   'telegram_gn_id' => env('TELEGRAM_GN_ID', ''),
   'telegram_gn_sec' => env('TELEGRAM_GN_SEC', ''),

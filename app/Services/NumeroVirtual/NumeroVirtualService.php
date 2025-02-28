@@ -13,23 +13,27 @@ use Illuminate\Support\Facades\DB;
 
 class NumeroVirtualService
 {
-  private $TOKEN;
-  private $API_URL;
+  private $TOKEN1;
+  private $TOKEN2;
+  private $API_URL1;
+  private $API_URL2;
   private $TOKEN_SMS;
   private $TOKEN_GN_ID;
   private $TOKEN_GN_SEC;
   private $URL_GN;
   public function __construct()
   {
-    $this->TOKEN = config('app.telegram_bot');
-    $this->API_URL = "https://api.telegram.org/$this->TOKEN/";
+    $this->TOKEN1 = config('app.telegram_bot1');
+    $this->TOKEN2 = config('app.telegram_bot2');
+    $this->API_URL1 = "https://api.telegram.org/$this->TOKEN1/";
+    $this->API_URL2 = "https://api.telegram.org/$this->TOKEN2/";
     $this->TOKEN_SMS = config('app.telegram_sms');
     $this->TOKEN_GN_ID = config('app.telegram_gn_id');
     $this->TOKEN_GN_SEC = config('app.telegram_gn_sec');
     $this->URL_GN = 'https://pix.api.efipay.com.br';
   }
 
-  public function start(Request $request)
+  public function start1(Request $request)
   {
     try {
       $update = json_decode(file_get_contents('php://input'), true);
@@ -43,17 +47,17 @@ class NumeroVirtualService
         $chat_id = $update['callback_query']['message']['chat']['id'];
 
         if ($callback_data === 'comprar_whatsapp') {
-          $this->sendMessage($chat_id, 'Você escolheu comprar um número para WhatsApp!');
-          $this->responderCallbackQueryComprar($update['callback_query']['id']);
-          $this->mostrarOpcoesValores($chat_id);
+          $this->sendMessage($chat_id, 'Você escolheu comprar um número para WhatsApp!', null, null, 1);
+          $this->responderCallbackQueryComprar($update['callback_query']['id'], 1);
+          $this->mostrarOpcoesValores($chat_id, 1);
         } elseif ($callback_data === 'comprar_telegram') {
-          $this->sendMessage($chat_id, 'Você escolheu comprar um número para Telegram!');
-          $this->responderCallbackQueryComprar($update['callback_query']['id']);
-          $this->mostrarOpcoesValores($chat_id);
+          $this->sendMessage($chat_id, 'Você escolheu comprar um número para Telegram!', null, null, 1);
+          $this->responderCallbackQueryComprar($update['callback_query']['id'], 1);
+          $this->mostrarOpcoesValores($chat_id, 1);
         }
 
         if (Str::startsWith($callback_data, 'recarregar')) {
-          $this->responderCallbackQueryRecarregar($username, $chat_id, $callback_data);
+          $this->responderCallbackQueryRecarregar($username, $chat_id, $callback_data, 1);
         }
 
         return;
@@ -88,19 +92,19 @@ class NumeroVirtualService
           'one_time_keyboard' => false,
         ];
 
-        $this->sendMessage($chat_id, 'Bem-vindo! Escolha uma opção abaixo:', $keyboard);
+        $this->sendMessage($chat_id, 'Bem-vindo! Escolha uma opção abaixo:', $keyboard, null, null, 1);
       } elseif ($text == '1') {
-        $this->sendMessage($chat_id, "O número virtual para WhatsApp custa R$ 7,50. Digite 'comprar' para prosseguir.");
+        $this->sendMessage($chat_id, "O número virtual para WhatsApp custa R$ 7,50. Digite 'comprar' para prosseguir.", null, null, 1);
       } elseif ($text == '2') {
-        $this->sendMessage($chat_id, "O número virtual para Telegram custa R$ 7,50. Digite 'comprar' para prosseguir.");
+        $this->sendMessage($chat_id, "O número virtual para Telegram custa R$ 7,50. Digite 'comprar' para prosseguir.", null, null, 1);
       } elseif ($text == '/servico') {
-        $this->mostrarOpcoesNumeros($chat_id);
+        $this->mostrarOpcoesNumeros($chat_id, 1);
       } elseif ($text == '/recarregar') {
-        $this->mostrarOpcoesValores($chat_id);
+        $this->mostrarOpcoesValores($chat_id, 1);
       } elseif ($text == '/saldo') {
         $user = $this->retornaSaldoByUsername($username);
         //if (!$user) {
-        $this->sendMessage($chat_id, 'Seu saldo é: R$ 0,00.');
+        $this->sendMessage($chat_id, 'Seu saldo é: R$ 0,00.', null, null, 1);
         /*} else {
           $this->sendMessage($chat_id, 'Seu saldo é: R$' . str_replace('.', ',', $user->balance). '.');
         }*/
@@ -109,10 +113,10 @@ class NumeroVirtualService
           //$numero_virtual = $this->comprarNumeroVirtual();
           //$this->sendMessage($chat_id, "Pagamento confirmado! Seu número virtual é: $numero_virtual");
         } else {
-          $this->sendMessage($chat_id, 'Ainda não identificamos o pagamento. Tente novamente mais tarde.');
+          $this->sendMessage($chat_id, 'Ainda não identificamos o pagamento. Tente novamente mais tarde.', null, null, 1);
         }
       } else {
-        $this->sendMessage($chat_id, 'Opção inválida.');
+        $this->sendMessage($chat_id, 'Opção inválida.', null, null, 1);
       }
     } catch (Exception $e) {
       Log::error($e->getMessage());
@@ -120,7 +124,98 @@ class NumeroVirtualService
     }
   }
 
-  public function mostrarOpcoesNumeros($chat_id)
+  public function start2(Request $request)
+  {
+    try {
+      $update = json_decode(file_get_contents('php://input'), true);
+      $valor_numero = 7.5;
+
+      //Callback
+      if (isset($update['callback_query'])) {
+        $username = $this->retornaUsername($update['callback_query']);
+
+        $callback_data = $update['callback_query']['data'];
+        $chat_id = $update['callback_query']['message']['chat']['id'];
+
+        if ($callback_data === 'comprar_whatsapp') {
+          $this->sendMessage($chat_id, 'Você escolheu comprar um número para WhatsApp!', null, null, 2);
+          $this->responderCallbackQueryComprar($update['callback_query']['id'], 2);
+          $this->mostrarOpcoesValores($chat_id, 2);
+        } elseif ($callback_data === 'comprar_telegram') {
+          $this->sendMessage($chat_id, 'Você escolheu comprar um número para Telegram!', null, null, 2);
+          $this->responderCallbackQueryComprar($update['callback_query']['id'], 2);
+          $this->mostrarOpcoesValores($chat_id, 2);
+        }
+
+        if (Str::startsWith($callback_data, 'recarregar')) {
+          $this->responderCallbackQueryRecarregar($username, $chat_id, $callback_data, 2);
+        }
+
+        return;
+      }
+
+      if (!isset($update['message'])) {
+        return;
+      }
+
+      $username = $this->retornaUsername($update);
+      $chat_id = $update['message']['chat']['id'];
+      $text = strtolower($update['message']['text']);
+
+      /*if (isset($update['callback_query'])) {
+        $callback_data = $update['callback_query']['data'];
+        $chat_id = $update['callback_query']['message']['chat']['id'];
+
+        if ($callback_data === 'comprar_whatsapp' || $callback_data === 'comprar_telegram') {
+          //$this->sendMessage($chat_id, "Você escolheu comprar um número para WhatsApp!");
+          $numero_virtual = $this->comprarNumeroVirtual($callback_data);
+          //$this->sendMessage($chat_id, "Pagamento confirmado! Seu número virtual é: $numero_virtual");
+        } /*elseif ($callback_data === "comprar_telegram") {
+            $this->sendMessage($chat_id, "Você escolheu comprar um número para Telegram!");
+            $numero_virtual = $this->comprarNumeroVirtual();
+            $this->sendMessage($chat_id, "Pagamento confirmado! Seu número virtual é: $numero_virtual");
+        }
+      }*/
+      if ($text == '/start') {
+        $keyboard = [
+          'keyboard' => [[['text' => '/servico']], [['text' => '/recarregar']], [['text' => '/saldo']]],
+          'resize_keyboard' => true,
+          'one_time_keyboard' => false,
+        ];
+
+        $this->sendMessage($chat_id, 'Bem-vindo! Escolha uma opção abaixo:', $keyboard, null, null, 2);
+      } elseif ($text == '1') {
+        $this->sendMessage($chat_id, "O número virtual para WhatsApp custa R$ 7,50. Digite 'comprar' para prosseguir.", null, null, 2);
+      } elseif ($text == '2') {
+        $this->sendMessage($chat_id, "O número virtual para Telegram custa R$ 7,50. Digite 'comprar' para prosseguir.", null, null, 2);
+      } elseif ($text == '/servico') {
+        $this->mostrarOpcoesNumeros($chat_id, 2);
+      } elseif ($text == '/recarregar') {
+        $this->mostrarOpcoesValores($chat_id, 2);
+      } elseif ($text == '/saldo') {
+        $user = $this->retornaSaldoByUsername($username);
+        //if (!$user) {
+        $this->sendMessage($chat_id, 'Seu saldo é: R$ 0,00.', null, null, 2);
+        /*} else {
+          $this->sendMessage($chat_id, 'Seu saldo é: R$' . str_replace('.', ',', $user->balance). '.');
+        }*/
+      } elseif ($text == 'confirmar pagamento') {
+        if ($this->verificarPagamento($chat_id)) {
+          //$numero_virtual = $this->comprarNumeroVirtual();
+          //$this->sendMessage($chat_id, "Pagamento confirmado! Seu número virtual é: $numero_virtual");
+        } else {
+          $this->sendMessage($chat_id, 'Ainda não identificamos o pagamento. Tente novamente mais tarde.', null, null, 2);
+        }
+      } else {
+        $this->sendMessage($chat_id, 'Opção inválida.', null, null, 2);
+      }
+    } catch (Exception $e) {
+      Log::error($e->getMessage());
+      return [$e->getMessage()];
+    }
+  }
+
+  public function mostrarOpcoesNumeros($chat_id, $numero)
   {
     try {
       $keyboard = [
@@ -136,7 +231,7 @@ class NumeroVirtualService
         'reply_markup' => $keyboard,
       ];
 
-      $url = $this->API_URL . 'sendMessage';
+      $url = $this->API_URL2 . 'sendMessage';
       $response = Http::withHeaders(['Content-Type' => 'application/json'])->post($url, $dados);
     } catch (Exception $e) {
       Log::error($e->getMessage());
@@ -144,9 +239,10 @@ class NumeroVirtualService
     }
   }
 
-  public function mostrarOpcoesValores($chat_id)
+  public function mostrarOpcoesValores($chat_id, $numero)
   {
     try {
+
       $keyboard = [
         'inline_keyboard' => [
           [['text' => 'R$ 7,50', 'callback_data' => 'recarregar_7.5']],
@@ -164,7 +260,12 @@ class NumeroVirtualService
         'reply_markup' => $keyboard,
       ];
 
-      $url = $this->API_URL . 'sendMessage';
+      if ($numero === 1) {
+        $url = $this->API_URL1 . 'sendMessage';
+      } else if ($numero === 2) {
+        $url = $this->API_URL2 . 'sendMessage';
+      }
+
       $response = Http::withHeaders(['Content-Type' => 'application/json'])->post($url, $dados);
     } catch (Exception $e) {
       Log::error($e->getMessage());
@@ -172,7 +273,7 @@ class NumeroVirtualService
     }
   }
 
-  public function sendMessage($chat_id, $message, $keyboard = null, $parse_mode = null)
+  public function sendMessage($chat_id, $message, $keyboard = null, $parse_mode = null, $numero)
   {
     try {
       $data = [
@@ -188,7 +289,11 @@ class NumeroVirtualService
         $data['parse_mode'] = 'HTML';
       }
 
-      $url = $this->API_URL . 'sendMessage';
+      if ($numero === 1) {
+        $url = $this->API_URL1 . 'sendMessage';
+      } else if ($numero === 2) {
+        $url = $this->API_URL2 . 'sendMessage';
+      }
       return Http::post($url, $data);
     } catch (Exception $e) {
       Log::error($e->getMessage());
@@ -196,10 +301,14 @@ class NumeroVirtualService
     }
   }
 
-  private function responderCallbackQueryComprar($callbackQueryId)
+  private function responderCallbackQueryComprar($callbackQueryId, $numero)
   {
     try {
-      $url = $this->API_URL . 'answerCallbackQuery';
+      if ($numero === 1) {
+        $url = $this->API_URL1 . 'answerCallbackQuery';
+      } else if ($numero === 2) {
+        $url = $this->API_URL2 . 'answerCallbackQuery';
+      }
 
       Http::post($url, [
         'callback_query_id' => $callbackQueryId,
@@ -212,7 +321,7 @@ class NumeroVirtualService
     }
   }
 
-  private function responderCallbackQueryRecarregar($username, $chat_id, $valor)
+  private function responderCallbackQueryRecarregar($username, $chat_id, $valor, $numero)
   {
     try {
       $valor = explode('_', $valor)[1] ?? null;
@@ -229,7 +338,8 @@ class NumeroVirtualService
         "🔹 *Pagamento via PIX*\n\n" .
           "📌 Copie o código abaixo e cole no seu app bancário para pagar:\n\n<pre>$pix_copia_e_cola</pre>",
         null,
-        'HTML'
+        'HTML',
+        $numero
       );
       $responseArray = json_decode($response, true);
       $message_id = $responseArray['result']['message_id'] ?? null;
