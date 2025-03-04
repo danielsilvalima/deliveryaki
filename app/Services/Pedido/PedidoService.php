@@ -175,6 +175,10 @@ class PedidoService
         ->where('empresa_id', Auth::user()->empresa_id)
         ->where('id', $id)->first();
 
+      if (!$pedidos) {
+        return back()->with('error', 'PEDIDO NÃO ENCONTRADO.');
+      }
+
       return $pedidos;
     } catch (\Exception $e) {
 

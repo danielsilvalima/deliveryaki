@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\HashGenerator;
 use App\Services\ViaCep\ViaCepService;
+use App\Services\Fcm\FcmService;
+use App\Services\Empresa\AgendaEmpresaService;
 use Illuminate\Support\Str;
 
 class RegisterBasic extends Controller
@@ -21,7 +23,7 @@ class RegisterBasic extends Controller
     return view('content.authentications.auth-register-basic');
   }
 
-  public function store(Request $request)
+  public function store(Request $request, FcmService $fcmService, AgendaEmpresaService $agendaEmpresaService)
   {
     $validator = Validator::make($request->all(), [
       'email' => 'required|email|unique:users',
@@ -66,6 +68,11 @@ class RegisterBasic extends Controller
         DB::rollBack();
       } else {
         DB::commit();
+
+        $empresa_admin = $agendaEmpresaService->findByEmailSummary('daniel.silvalima89@gmail.com');
+        $mensagem = 'Novo login empresa:' . $empresa['razao_social'] . ' - e-mail:' . $usuario['email'];
+        $fcmService->enviaPushNotificationAgendaAdmin($empresa_admin, $mensagem, 'Novo Login');
+
         if (!Auth::attempt($request->only('email', 'password'))) {
           return redirect()->back();
         }

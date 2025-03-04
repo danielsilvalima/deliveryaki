@@ -118,8 +118,8 @@
           <td>{{ $pedido->cliente->ceps->logradouro }}, {{ $pedido->cliente->numero }} - {{ $pedido->cliente->ceps->bairro }}
           </td>
           <td>{{ $pedido->created_at->format('d/m/Y H:i') }}</td>
-          <td style="text-align: right;">{{ number_format($pedido->vlr_taxa , 2, ',', '.')}}</td>
-          <td style="text-align: right;">{{ number_format($pedido->vlr_total, 2, ',', '.') }}</td>
+          <td style="text-align: right;">R$ {{ number_format($pedido->vlr_taxa , 2, ',', '.')}}</td>
+          <td style="text-align: right;">R$ {{ number_format($pedido->vlr_total, 2, ',', '.') }}</td>
           <td style="text-align: center;">{!! $pedido->tipo_entrega == "E"
             ? '<span class="badge rounded-pill bg-label-warning me-1">ENTREGA</span>'
             : ($pedido->tipo_entrega == "R" ? '<span class="badge rounded-pill bg-label-danger me-1">RETIRA</span>' : '') !!}</td>

@@ -29,12 +29,11 @@
 </div>
 
 
-<script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
+<div src="https://cdn.datatables.net/2.0.7/js/dataTables.js">
+  </script>
 
-<div class="card">
-  <div class="card-body">
-    <form id="form" action="{{ route('pedido.update', $pedido->id) }}" method="POST">
-      @csrf()
+  <div class="card">
+    <div class="card-body">
       <div class="row">
         <div class="col-md-8">
           <div class="form-floating form-floating-outline mb-3">
@@ -68,64 +67,63 @@
       </div>
 
 
-      <button type="submit" id="submitButton" class="btn btn-outline-primary" style="width: 120px;">
-        <span id="buttonText">ADICIONAR</span>
+      <button type="button" id="submitButton" class="btn btn-outline-primary" style="width: 120px;">
+        <span type="button" id="add-product">ADICIONAR</span>
         <span id="spinner" class="spinner-border spinner-border-sm text-light" role="status" aria-hidden="true" style="display: none;"></span>
       </button>
-    </form>
+
+    </div>
   </div>
-  <script>
-    document.getElementById('form').addEventListener('submit', function() {
-      var submitButton = document.getElementById('submitButton');
-      var buttonText = document.getElementById('buttonText');
-      var spinner = document.getElementById('spinner');
 
-      buttonText.style.display = 'none'; // Esconde o texto
-      spinner.style.display = 'inline-block'; // Mostra o spinner
-      submitButton.disabled = true;
-    });
-  </script>
-</div>
-
-<div class="card mt-4">
-  <h5 class="card-header">PRODUTOS</h5>
-  <div class="table-responsive text-nowrap">
-    <table class="table">
-      <thead class="table-dark">
-        <tr>
-          <th style="width: 1%;">ID</th>
-          <th style="width: 20%;">DESCRIÇÃO</th>
-          <th style="width: 20%;">APRESENTAÇÃO</th>
-          <th style="width: 10%;">VLR UNIT</th>
-          <th style="width: 5%;">QTD</th>
-          <th style="width: 10%;">VLR TOTAL</th>
-          <th style="width: 10%;">AÇÕES</th>
-        </tr>
-      </thead>
-      <tbody class="table-border-bottom-0">
-
-        @foreach($pedido->pedido_items as $item)
-        <tr>
-          <td>{{ $item->id }}</td>
-          <td>{{ $item->produto->descricao }}</td>
-          <td>{{ $item->produto->apresentacao }}</td>
-          <td style="text-align: right;">{{ number_format($item->vlr_unitario , 2, ',', '.')}}</td>
-          <td style="text-align: right;">{{ $item->qtd}}</td>
-          <td style="text-align: right;">{{ number_format($item->vlr_total, 2, ',', '.') }}</td>
-          <td>
-            <button type="button" class="btn btn-danger btn-sm remove-expediente">
-              <i class="mdi mdi-trash-can-outline"></i> Excluir
-            </button>
-
-          </td>
-        </tr>
-        @endforeach
-      </tbody>
-    </table>
-    <script src="{{ asset('assets/js/pedido.js') }}"></script>
+  <div class="card mt-4">
+    <h5 class="card-header">PRODUTOS</h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead class="table-dark">
+          <tr>
+            <th style="width: 1%;">ID</th>
+            <th style="width: 20%;">DESCRIÇÃO</th>
+            <th style="width: 20%;">APRESENTAÇÃO</th>
+            <th style="width: 10%;">VLR UNIT</th>
+            <th style="width: 5%;">QTD</th>
+            <th style="width: 10%;">VLR TOTAL</th>
+            <th style="width: 10%;">AÇÕES</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0" id="table-body-pedido-items">
+        </tbody>
+      </table>
+    </div>
+    <div id="existingPedidoData" style="display: none;">
+      @json($pedido)
+    </div>
+    <div id="existingProdutosData" style="display: none;">
+      @json($pedido)
+    </div>
   </div>
-</div>
+
+  <div class="card mt-3">
+    <div class="card-body d-flex justify-content-end gap-2">
+      <form id="salvarForm" action="{{ route('pedido.update', $pedido->id) }}" method="POST">
+        @csrf
+        @method('PUT')
+        <div id="listaProdutos" type="hidden" class="mb-3"></div>
+        <button type="submit" id="salvarButton" class="btn btn-primary">
+          <span id="salvarText">SALVAR</span>
+          <span id="salvarSpinner" class="spinner-border spinner-border-sm text-light d-none" role="status" aria-hidden="true"></span>
+        </button>
+        <button type="submit" id="submitButton" class="btn btn-primary" style="width: 120px;">
+          <span id="buttonText">SALVAR</span>
+          <span id="spinner" class="spinner-border spinner-border-sm text-light" role="status" aria-hidden="true" style="display: none;"></span>
+        </button>
+      </form>
+
+      <a href="{{ route('pedido.index') }}" class="btn btn-secondary">CANCELAR</a>
+    </div>
+  </div>
+
+  <script src="{{ asset('assets/js/pedido.js') }}"></script>
 
 
 
-@endsection
+  @endsection

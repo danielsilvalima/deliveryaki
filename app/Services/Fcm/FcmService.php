@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\Fcm;
 
 use NotificationChannels\Fcm\FcmMessage;
@@ -125,7 +126,13 @@ class FcmService
         'message' => 'NOTIFICAÇÃO ENVIADA COM SUCESSO',
       ];
     } catch (\Exception $e) {
-      throw new \Exception('FALHA AO ENVIAR A NOTIFICAÇÃO DO PEDIDO: ' . $e->getMessage());
+      \Log::error('Erro ao enviar notificação: ' . $e->getMessage());
+
+      // Retorna erro sem interromper o fluxo
+      return [
+        'success' => false,
+        'message' => 'FALHA AO ENVIAR A NOTIFICAÇÃO',
+      ];
     }
   }
 }

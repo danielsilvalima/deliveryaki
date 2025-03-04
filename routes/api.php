@@ -30,6 +30,7 @@ Route::middleware('api.keyagenda')->group(function () {
   Route::get('/agenda/empresa', [AgendaEmpresaController::class, 'get'])->name('agenda.get');
   Route::get('/agenda/empresa/agendamento', [AgendaEmpresaController::class, 'getByID'])->name('agenda.getByID');
   Route::post('/agenda/empresa', [AgendaEmpresaController::class, 'store'])->name('agenda.store');
+  Route::post('/agenda/empresa/auth', [AgendaEmpresaController::class, 'updateToken'])->name('agenda.updateToken');
   Route::get('/agenda/horario-expediente', [AgendaHorarioExpedienteController::class, 'get'])->name(
     'horarioexpediente.get'
   );

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pedido;
 use App\Http\Controllers\Controller;
 use App\Models\Empresa;
 use App\Models\Pedido;
+use App\Models\Produto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\ResponseHelper;
@@ -134,6 +135,44 @@ class PedidoController extends Controller
       return redirect()
         ->back()
         ->with('success', $mensagem);
+    } catch (\Exception $e) {
+      DB::rollBack();
+      return redirect()
+        ->back()
+        ->with('error', 'PEDIDO NÃO FOI ATUALIZADO. ' . $e->getMessage());
+    }
+  }
+
+  public function update(Request $request, $id)
+  {
+    try {
+      $pedido = Pedido::with('pedido_items')->findOrFail($id);
+      dd($request->produtos);
+
+      foreach ($dadosItens as $itemData) {
+        $item = $pedido->pedido_items->where('id', $itemData['id'])->first();
+
+        if ($item) {
+          // Se a quantidade mudou, atualiza
+          if ($item->qtd != $itemData['qtd']) {
+            $item->qtd = $itemData['qtd'];
+            $item->vlr_total = $item->qtd * $item->vlr_unitario;
+            $item->save();
+          }
+        } else {
+          // Se o item não existe, cria um novo item
+          $pedido->pedido_items()->create([
+            'produto_id' => $itemData['produto_id'],
+            'qtd' => $itemData['qtd'],
+            'vlr_unitario' => $itemData['vlr_unitario'],
+            'vlr_total' => $itemData['qtd'] * $itemData['vlr_unitario'],
+          ]);
+        }
+      }
+
+      return redirect()
+        ->back()
+        ->with('success', 'PEDIDO ATUALIZADO COM SUCESS');
     } catch (\Exception $e) {
       DB::rollBack();
       return redirect()
