@@ -145,30 +145,45 @@ class PedidoController extends Controller
 
   public function update(Request $request, $id)
   {
+    DB::beginTransaction();
     try {
       $pedido = Pedido::with('pedido_items')->findOrFail($id);
-      dd($request->produtos);
 
-      foreach ($dadosItens as $itemData) {
-        $item = $pedido->pedido_items->where('id', $itemData['id'])->first();
+      $pedidos = json_decode($request->pedidos, true);
+
+      $novosProdutoIds = collect($pedidos)->pluck('produto_id')->toArray();
+
+      $pedido->pedido_items()->whereNotIn('produto_id', $novosProdutoIds)->delete();
+
+      foreach ($pedidos as $itemData) {
+        $item = $pedido->pedido_items->where('produto_id', $itemData['produto_id'])->first();
 
         if ($item) {
           // Se a quantidade mudou, atualiza
           if ($item->qtd != $itemData['qtd']) {
             $item->qtd = $itemData['qtd'];
-            $item->vlr_total = $item->qtd * $item->vlr_unitario;
+            $item->vlr_unitario = $itemData['vlr_unitario'];
+            $item->vlr_total = $itemData['vlr_total'];
             $item->save();
           }
         } else {
           // Se o item não existe, cria um novo item
           $pedido->pedido_items()->create([
+            'pedido_id' => $pedido['id'],
             'produto_id' => $itemData['produto_id'],
             'qtd' => $itemData['qtd'],
             'vlr_unitario' => $itemData['vlr_unitario'],
-            'vlr_total' => $itemData['qtd'] * $itemData['vlr_unitario'],
+            'vlr_total' => $itemData['vlr_total'],
+            'empresa_id' => $pedido['empresa_id'],
+            'cliente_id' => $pedido['cliente_id'],
           ]);
         }
       }
+
+      $pedido->vlr_total = $pedido->pedido_items()->sum('vlr_total');
+      $pedido->save();
+
+      DB::commit();
 
       return redirect()
         ->back()

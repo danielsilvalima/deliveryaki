@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <td>${produtoId}</td>
         <td>${descricao}</td>
         <td>${apresentacao || ''}</td>
-        <td style="text-align: center;">R$ ${parseFloat(vlrUnit).toFixed(2).replace('.', ',')}</td>
+        <td class="vlr-unitario" style="text-align: center;">R$ ${parseFloat(vlrUnit).toFixed(2).replace('.', ',')}</td>
         <td class="qtd" style="text-align: center;">${qtd}</td>
         <td class="vlr-total" style="text-align: center;">R$ ${parseFloat(vlrTotal).toFixed(2).replace('.', ',')}</td>
         <td>
@@ -75,11 +75,6 @@ document.addEventListener('DOMContentLoaded', function () {
       showToast('PRODUTO NÃO ENCONTRADO!', 'danger');
       return;
     }
-
-    //LOCALIZA PRODUTO EXISTENTE NO PEDIDO
-    /*let pedidoProdutoEncontrado = existingPedido.pedido_items.find(
-      produto => produto.produto_id === produtoEncontrado.id
-    );*/
 
     const vlr_unitario = produtoEncontrado ? parseFloat(produtoEncontrado.vlr_unitario) : null;
     const descricao = produtoEncontrado.descricao;
@@ -123,10 +118,14 @@ document.addEventListener('DOMContentLoaded', function () {
       const vlrTotal = parseFloat(
         row.querySelector('.vlr-total').textContent.replace('R$', '').trim().replace(',', '.')
       );
+      const vlrUnitario = parseFloat(
+        row.querySelector('.vlr-unitario').textContent.replace('R$', '').trim().replace(',', '.')
+      );
 
       pedidos.push({
         produto_id: produtoId,
         qtd: qtd,
+        vlr_unitario: vlrUnitario,
         vlr_total: vlrTotal
       });
     });
@@ -140,6 +139,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const pedidosInput = document.createElement('input');
     pedidosInput.type = 'hidden';
     pedidosInput.name = 'pedidos';
+    pedidosInput.id = 'pedidos';
     pedidosInput.value = JSON.stringify(pedidos);
 
     form.appendChild(pedidosInput);

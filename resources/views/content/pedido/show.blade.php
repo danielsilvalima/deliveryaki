@@ -107,18 +107,14 @@
       <form id="salvarForm" action="{{ route('pedido.update', $pedido->id) }}" method="POST">
         @csrf
         @method('PUT')
-        <div id="listaProdutos" type="hidden" class="mb-3"></div>
-        <button type="submit" id="salvarButton" class="btn btn-primary">
-          <span id="salvarText">SALVAR</span>
-          <span id="salvarSpinner" class="spinner-border spinner-border-sm text-light d-none" role="status" aria-hidden="true"></span>
-        </button>
-        <button type="submit" id="submitButton" class="btn btn-primary" style="width: 120px;">
+        <div id="listaProdutos" type="hidden"></div>
+        <button type="submit" id="submitButton" class="btn btn-primary" style="width: 120px; ">
           <span id="buttonText">SALVAR</span>
           <span id="spinner" class="spinner-border spinner-border-sm text-light" role="status" aria-hidden="true" style="display: none;"></span>
         </button>
       </form>
 
-      <a href="{{ route('pedido.index') }}" class="btn btn-secondary">CANCELAR</a>
+      <a href="{{ route('pedido.index') }}" class="btn btn-secondary " style="width: 150px; ">CANCELAR</a>
     </div>
   </div>
 
