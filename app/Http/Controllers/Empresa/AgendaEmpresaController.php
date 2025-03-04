@@ -35,6 +35,28 @@ class AgendaEmpresaController extends Controller
     }
   }
 
+  public function getLogin(Request $request, AgendaEmpresaService $agendaEmpresaService, FcmService $fcmService)
+  {
+    try {
+      $email = $request->query('email');
+      if (empty($email)) {
+        return ResponseHelper::error('O "E-MAIL" É OBRIGATÓRIO', Response::HTTP_BAD_REQUEST);
+      }
+      $empresa = $agendaEmpresaService->findByEmail($email);
+
+      $empresa_admin = $agendaEmpresaService->findByEmailSummary('daniel.silvalima89@gmail.com');
+      $mensagem = 'Novo login empresa:' . $empresa->razao_social . ' - e-mail:' . $request->email;
+      $ret = $fcmService->enviaPushNotificationAgendaAdmin($empresa_admin, $mensagem, 'Novo Login');
+
+      return response()->json(
+        $ret,
+        Response::HTTP_OK,
+      );
+    } catch (\Exception $e) {
+      return ResponseHelper::error($e->getMessage());
+    }
+  }
+
   public function store(Request $request, AgendaEmpresaService $agendaEmpresaService)
   {
     try {
@@ -102,7 +124,7 @@ class AgendaEmpresaController extends Controller
     }
   }
 
-  public function updateToken(Request $request, AgendaEmpresaService $agendaEmpresaService, FcmService $fcmService)
+  public function updateToken(Request $request, AgendaEmpresaService $agendaEmpresaService)
   {
     try {
       $requiredFields = ['email', 'hash'];
@@ -117,10 +139,6 @@ class AgendaEmpresaController extends Controller
       if ($empresa) {
         $empresa->token_notificacao = $request->hash;
         $empresa->save();
-
-        $empresa_admin = $agendaEmpresaService->findByEmailSummary('daniel.silvalima89@gmail.com');
-        $mensagem = 'Novo login empresa:' . $empresa->razao_social . ' - e-mail:' . $request->email;
-        $ret = $fcmService->enviaPushNotificationAgendaAdmin($empresa_admin, $mensagem, 'Novo Login');
       }
 
       return response()->json(

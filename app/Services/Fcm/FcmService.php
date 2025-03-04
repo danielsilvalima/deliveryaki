@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 use App\Models\Pedido;
 use Kreait\Firebase\Factory;
+use Illuminate\Support\Facades\Log;
 
 class FcmService
 {
@@ -126,7 +127,7 @@ class FcmService
         'message' => 'NOTIFICAÇÃO ENVIADA COM SUCESSO',
       ];
     } catch (\Exception $e) {
-      \Log::error('Erro ao enviar notificação: ' . $e->getMessage());
+      Log::error('Erro ao enviar notificação: ' . $e->getMessage());
 
       // Retorna erro sem interromper o fluxo
       return [

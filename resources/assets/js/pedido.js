@@ -5,14 +5,12 @@ document.addEventListener('DOMContentLoaded', function () {
   const addProductButton = document.querySelector('#add-product');
   const form = document.querySelector('#salvarForm');
   const existingProdutos = JSON.parse(document.getElementById('existingProdutosData').textContent || '[]');
+  const existingPedido = JSON.parse(document.getElementById('existingPedidoData').textContent || '[]');
 
   loadExistingRows();
 
   // Função para carregar os itens do pedido ao abrir a página
   function loadExistingRows() {
-    const existingPedido = JSON.parse(document.getElementById('existingPedidoData').textContent || '[]');
-    console.log('EXISTENTE');
-    console.log(existingPedido.pedido_items);
     if (existingPedido.pedido_items) {
       existingPedido.pedido_items.forEach(item => {
         addRowToTable(
@@ -42,8 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
       qtdCell.textContent = newQtd;
 
       let newTotal = newQtd * vlrUnit;
-      //vlrTotalCell.textContent = newTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-      vlrTotalCell.textContent = newTotal;
+      vlrTotalCell.textContent = 'R$ ' + newTotal.toFixed(2).replace('.', ',');
     } else {
       // Criando nova linha no datatable
       const row = document.createElement('tr');
@@ -53,9 +50,9 @@ document.addEventListener('DOMContentLoaded', function () {
         <td>${produtoId}</td>
         <td>${descricao}</td>
         <td>${apresentacao || ''}</td>
-        <td style="text-align: center;">R$ ${vlrUnit.replace('.', ',')}</td>
+        <td style="text-align: center;">R$ ${parseFloat(vlrUnit).toFixed(2).replace('.', ',')}</td>
         <td class="qtd" style="text-align: center;">${qtd}</td>
-        <td class="vlr-total" style="text-align: center;">R$ ${vlrTotal.replace('.', ',')}</td>
+        <td class="vlr-total" style="text-align: center;">R$ ${parseFloat(vlrTotal).toFixed(2).replace('.', ',')}</td>
         <td>
           <button type="button" class="btn btn-danger btn-sm remove-item-pedido">
             <i class="mdi mdi-trash-can-outline"></i>
@@ -71,18 +68,27 @@ document.addEventListener('DOMContentLoaded', function () {
   addProductButton.addEventListener('click', function () {
     const produtoSelect = document.querySelector('#produto');
     const produtoId = produtoSelect.value;
-    const produtoDescricao = produtoSelect.options[produtoSelect.selectedIndex].text;
-    const produtoPreco = parseFloat(produtoSelect.dataset.preco);
 
-    console.log('Produto:', existingProdutos);
-    console.log('Produto ID:', produtoId);
-    console.log('Produto Descrição:', produtoDescricao);
-    console.log('Produto Preço:', produtoPreco);
+    let produtoEncontrado = existingProdutos.find(produto => produto.id === Number(produtoId));
 
-    if (produtoId && produtoPreco) {
-      addRowToTable(produtoId, produtoDescricao, 1, produtoPreco);
+    if (!produtoEncontrado) {
+      showToast('PRODUTO NÃO ENCONTRADO!', 'danger');
+      return;
+    }
+
+    //LOCALIZA PRODUTO EXISTENTE NO PEDIDO
+    /*let pedidoProdutoEncontrado = existingPedido.pedido_items.find(
+      produto => produto.produto_id === produtoEncontrado.id
+    );*/
+
+    const vlr_unitario = produtoEncontrado ? parseFloat(produtoEncontrado.vlr_unitario) : null;
+    const descricao = produtoEncontrado.descricao;
+    const apresentacao = produtoEncontrado.apresentacao;
+
+    if (produtoId && vlr_unitario) {
+      addRowToTable(produtoId, descricao, apresentacao, 1, vlr_unitario, vlr_unitario);
     } else {
-      showToast('Selecione um produto antes de adicionar.', 'warning');
+      showToast('SELECIONE UM PRODUTO ANTES DE ADICIONAR.', 'warning');
     }
   });
 
@@ -92,18 +98,14 @@ document.addEventListener('DOMContentLoaded', function () {
       const row = event.target.closest('tr');
       let qtdCell = row.querySelector('.qtd');
       let vlrTotalCell = row.querySelector('.vlr-total');
-      console.log(qtdCell);
-      console.log(vlrTotalCell);
-      let vlrUnit = parseFloat(row.children[2].textContent.replace('R$', '').trim().replace(',', '.'));
-      console.log(vlrUnit);
+      let vlrUnit = parseFloat(row.children[3].textContent.replace('R$', '').trim().replace(',', '.'));
 
       let qtd = parseInt(qtdCell.textContent, 10);
-      console.log(qtd);
       if (qtd > 1) {
         qtd -= 1;
         qtdCell.textContent = qtd;
         let newTotal = qtd * vlrUnit;
-        vlrTotalCell.textContent = newTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        vlrTotalCell.textContent = 'R$ ' + newTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
       } else {
         row.remove();
       }

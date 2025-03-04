@@ -98,7 +98,7 @@
       @json($pedido)
     </div>
     <div id="existingProdutosData" style="display: none;">
-      @json($pedido)
+      @json($produtos)
     </div>
   </div>
 
