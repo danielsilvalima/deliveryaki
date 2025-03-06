@@ -14,7 +14,7 @@ class AgendaClienteController extends Controller
 {
   public function getByIDEmail(Request $request, AgendaEmpresaService $agendaEmpresaService)
   {
-    try{
+    try {
       $hash = $request->query('id');
       $email = $request->query('email');
       if (empty($hash)) {
@@ -34,10 +34,11 @@ class AgendaClienteController extends Controller
     }
   }
 
-  public function get(Request $request, AgendaClienteService $agendaClienteService, AgendaEmpresaService $agendaEmpresaService){
-    try{
+  public function get(Request $request, AgendaClienteService $agendaClienteService, AgendaEmpresaService $agendaEmpresaService)
+  {
+    try {
       if (empty($request->id)) {
-        return ResponseHelper::error('O "ID" É OBRIGATÓRIOOO', Response::HTTP_BAD_REQUEST);
+        return ResponseHelper::error('O "ID" É OBRIGATÓRIO', Response::HTTP_BAD_REQUEST);
       }
       if (empty($request->data)) {
         return ResponseHelper::error('A "DATA" É OBRIGATÓRIO', Response::HTTP_BAD_REQUEST);
@@ -53,8 +54,9 @@ class AgendaClienteController extends Controller
     }
   }
 
-  public function store(Request $request, AgendaClienteService $agendaClienteService, AgendaEmpresaService $agendaEmpresaService, FcmService $fcmService){
-    try{
+  public function store(Request $request, AgendaClienteService $agendaClienteService, AgendaEmpresaService $agendaEmpresaService, FcmService $fcmService)
+  {
+    try {
       if (empty($request->id)) {
         return ResponseHelper::error('O "ID" É OBRIGATÓRIO', Response::HTTP_BAD_REQUEST);
       }
@@ -72,8 +74,8 @@ class AgendaClienteController extends Controller
       }
 
       return response()->json([
-          "message" => "AGENDAMENTO CRIADO COM SUCESSO!",
-          "data" => $empresa
+        "message" => "AGENDAMENTO CRIADO COM SUCESSO!",
+        "data" => $empresa
       ], Response::HTTP_OK);
     } catch (\Exception $e) {
       return ResponseHelper::error($e->getMessage());
@@ -82,7 +84,7 @@ class AgendaClienteController extends Controller
 
   public function getAgendamentoByIDEmail(Request $request, AgendaClienteService $agendaClienteService, AgendaEmpresaService $agendaEmpresaService)
   {
-    try{
+    try {
       $hash = $request->query('id');
       $email = $request->query('email');
       if (empty($hash)) {
@@ -103,13 +105,14 @@ class AgendaClienteController extends Controller
     }
   }
 
-  public function destroy(Request $request, AgendaClienteService $agendaClienteService, AgendaEmpresaService $agendaEmpresaService){
-    try{
+  public function destroy(Request $request, AgendaClienteService $agendaClienteService, AgendaEmpresaService $agendaEmpresaService)
+  {
+    try {
       $requiredFields = ['id', 'empresa_servico_id', 'empresa_id', 'hash', 'email'];
       foreach ($requiredFields as $field) {
-          if (empty($request->agendamento[$field])) {
-              return ResponseHelper::error("O campo \"$field\" é obrigatório.", Response::HTTP_BAD_REQUEST);
-          }
+        if (empty($request->agendamento[$field])) {
+          return ResponseHelper::error("O campo \"$field\" é obrigatório.", Response::HTTP_BAD_REQUEST);
+        }
       }
 
       $agenda_cliente = $agendaClienteService->delete($request->agendamento, $agendaEmpresaService);
@@ -123,13 +126,14 @@ class AgendaClienteController extends Controller
     }
   }
 
-  public function getClienteByIDEmail(Request $request, AgendaClienteService $agendaClienteService, AgendaEmpresaService $agendaEmpresaService){
-    try{
+  public function getClienteByIDEmail(Request $request, AgendaClienteService $agendaClienteService, AgendaEmpresaService $agendaEmpresaService)
+  {
+    try {
       $requiredFields = ['id', 'empresa_recurso_id', 'email'];
       foreach ($requiredFields as $field) {
-          if (empty($request[$field])) {
-              return ResponseHelper::error("O campo \"$field\" é obrigatório.", Response::HTTP_BAD_REQUEST);
-          }
+        if (empty($request[$field])) {
+          return ResponseHelper::error("O campo \"$field\" é obrigatório.", Response::HTTP_BAD_REQUEST);
+        }
       }
       $hash = $request->query('id');
       $email = $request->query('email');
