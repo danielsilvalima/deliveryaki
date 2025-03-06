@@ -16,7 +16,7 @@ class AgendaEmpresaService
   private $base_url;
   public function __construct()
   {
-      $this->base_url = config('app.url_agendacliente'); // Inicializa o valor da variável a partir da configuração
+    $this->base_url = config('app.url_agendacliente'); // Inicializa o valor da variável a partir da configuração
   }
 
   public function create($empresa)
@@ -73,8 +73,8 @@ class AgendaEmpresaService
 
       return $this->findByID($empresa_db->id);
     } catch (\Exception $e) {
-        DB::rollBack();
-        throw new \Exception('ERRO AO CRIAR A EMPRESA: ' . $e->getMessage());
+      DB::rollBack();
+      throw new \Exception('ERRO AO CRIAR A EMPRESA: ' . $e->getMessage());
     }
   }
 
@@ -84,13 +84,13 @@ class AgendaEmpresaService
     try {
       $user_db = $empresa->agenda_user;
       if ($user_db) {
-          $user_db->nome_completo = $empresa->agenda_user['nome_completo'];
-          $user_db->email = $empresa->agenda_user['email'];
-          $user_db->celular = $empresa->agenda_user['celular'];
-          $user_db->save();
+        $user_db->nome_completo = $empresa->agenda_user['nome_completo'];
+        $user_db->email = $empresa->agenda_user['email'];
+        $user_db->celular = $empresa->agenda_user['celular'];
+        $user_db->save();
       }
 
-      $novosExpedientes = collect($empresa->listaExpedientes ?? []);
+      /*$novosExpedientes = collect($empresa->listaExpedientes ?? []);
 
       // Busca os expedientes existentes no banco para essa empresa
       $expedientesExistentes = AgendaEmpresaExpediente::where('empresa_id', $empresa->id)->get();
@@ -122,13 +122,13 @@ class AgendaEmpresaService
                   'status' => 'A'
               ]);
           }
-      }
+      }*/
 
       // Desativar expedientes que não estão mais na lista enviada
-      $horariosAtivos = $novosExpedientes->pluck('horario_expediente_id')->toArray();
+      /*$horariosAtivos = $novosExpedientes->pluck('horario_expediente_id')->toArray();
       AgendaEmpresaExpediente::where('empresa_id', $empresa->id)
           ->whereNotIn('horario_expediente_id', $horariosAtivos)
-          ->update(['status' => 'D']);
+          ->update(['status' => 'D']);*/
 
       // Atualiza os dados da empresa
       unset($empresa->listaExpedientes, $empresa->listaServicos, $empresa->expiration, $empresa->message, $empresa->hash);
@@ -141,24 +141,24 @@ class AgendaEmpresaService
 
       return $empresa_db;
     } catch (\Exception $e) {
-        DB::rollBack();
-        throw new \Exception('ERRO AO ATUALIZAR A EMPRESA: ' . $e->getMessage());
+      DB::rollBack();
+      throw new \Exception('ERRO AO ATUALIZAR A EMPRESA: ' . $e->getMessage());
     }
   }
 
   public function findAll()
-	{
+  {
     return AgendaEmpresa::with(['agenda_user', 'agenda_empresa_expedientes'])->get();
-	}
+  }
 
   public function findByID(string $id)
-	{
-    try{
+  {
+    try {
       $empresa = AgendaEmpresa::select(['id', 'razao_social'])
         ->with([
-            'agenda_empresa_expedientes.agenda_horario_expedientes', // Relacionamento de expediente e horários
-            'agenda_empresa_servicos',              // Relacionamento de serviços
-            'agenda_clientes'
+          'agenda_empresa_expedientes.agenda_horario_expedientes', // Relacionamento de expediente e horários
+          'agenda_empresa_servicos',              // Relacionamento de serviços
+          'agenda_clientes'
         ])
         ->where('status', 'A') // Empresa ativa
         ->where('id', $id)
@@ -166,10 +166,10 @@ class AgendaEmpresaService
 
       $empresa->hash = $this->base_url . $empresa->hash;
 
-      if($this->validaDataExpiracao($empresa)){
+      if ($this->validaDataExpiracao($empresa)) {
         $empresa->expiration = true;
         $empresa->message = 'CADASTRO DA EMPRESA EXPIRADO, ENTRE EM CONTATO COM O SUPORTE';
-      }else{
+      } else {
         $empresa->expiration = false;
       }
       unset($empresa->expiration_at);
@@ -177,127 +177,127 @@ class AgendaEmpresaService
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
       throw new \Exception('ID NÃO ENCONTRADO.' . $e->getMessage());
     } catch (\Exception $e) {
-        throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
+      throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
     }
   }
 
   public function findByEmail(string $email)
-	{
-    try{
+  {
+    try {
       $empresa = AgendaEmpresa::with([
         'agenda_user', // Relacionamento direto com usuários
         'agenda_empresa_expedientes' => function ($query) { // Relacionamento de expediente
-            $query->where('status', 'A') // Apenas expedientes ativos
-                  ->with('agenda_horario_expedientes'); // Carrega os horários do expediente
+          $query->where('status', 'A') // Apenas expedientes ativos
+            ->with('agenda_horario_expedientes'); // Carrega os horários do expediente
         },
         'agenda_empresa_servicos' => function ($query) { // Relacionamento de serviços da empresa
-            $query->where('status', 'A'); // Apenas registros com status 'A'
+          $query->where('status', 'A'); // Apenas registros com status 'A'
         },
         'agenda_empresa_recursos' => function ($query) { // Relacionamento de recursos da empresa
-            $query->where('status', 'A'); // Apenas registros com status 'A'
+          $query->where('status', 'A'); // Apenas registros com status 'A'
         }
       ])
-      ->whereHas('agenda_user', function ($query) use ($email) {
+        ->whereHas('agenda_user', function ($query) use ($email) {
           $query->where('email', $email)
-                ->where('status', 'A'); // Usuário ativo
-      })
-      ->where('status', 'A') // Empresa ativa
-      ->first();
+            ->where('status', 'A'); // Usuário ativo
+        })
+        ->where('status', 'A') // Empresa ativa
+        ->first();
 
-      if($empresa){
+      if ($empresa) {
         $empresa->hash = $empresa->hash ? $this->base_url . $empresa->hash : '';
 
-        if($this->validaDataExpiracao($empresa)){
+        if ($this->validaDataExpiracao($empresa)) {
           $empresa->expiration = true;
           $empresa->message = 'CADASTRO DA EMPRESA EXPIRADO, ENTRE EM CONTATO COM O SUPORTE';
-        }else{
+        } else {
           $empresa->expiration = false;
         }
         unset($empresa->expiration_at);
         return $empresa;
-      }else{
+      } else {
         return $empresa;
       }
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
       throw new \Exception('EMAIL NÃO ENCONTRADO.' . $e->getMessage());
     } catch (\Exception $e) {
-        throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
+      throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
     }
-	}
+  }
 
   public function findByEmailSummary(string $email)
-	{
-    try{
+  {
+    try {
       $empresa = AgendaEmpresa::with([
         'agenda_user', // Relacionamento direto com usuários
       ])
-      ->whereHas('agenda_user', function ($query) use ($email) {
+        ->whereHas('agenda_user', function ($query) use ($email) {
           $query->where('email', $email)
-                ->where('status', 'A'); // Usuário ativo
-      })
-      ->where('status', 'A') // Empresa ativa
-      ->first();
+            ->where('status', 'A'); // Usuário ativo
+        })
+        ->where('status', 'A') // Empresa ativa
+        ->first();
 
-      if($empresa){
-        if($this->validaDataExpiracao($empresa)){
+      if ($empresa) {
+        if ($this->validaDataExpiracao($empresa)) {
           return [];
-        }else{
+        } else {
           return $empresa;
         }
-      }else{
+      } else {
         return $empresa;
       }
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
       throw new \Exception('EMAIL NÃO ENCONTRADO.' . $e->getMessage());
     } catch (\Exception $e) {
-        throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
+      throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
     }
-	}
+  }
 
   public function findByIDEmailSummary(string $id, string $email)
-	{
-    try{
+  {
+    try {
       $empresa = AgendaEmpresa::with([
         'agenda_user', // Relacionamento direto com usuários
       ])
-      ->whereHas('agenda_user', function ($query) use ($email) {
+        ->whereHas('agenda_user', function ($query) use ($email) {
           $query->where('email', $email)
-                ->where('status', 'A'); // Usuário ativo
-      })
-      ->where('status', 'A')
-      ->where('id', $id) // Empresa ativa
-      ->first();
+            ->where('status', 'A'); // Usuário ativo
+        })
+        ->where('status', 'A')
+        ->where('id', $id) // Empresa ativa
+        ->first();
 
-      if($empresa){
-        if($this->validaDataExpiracao($empresa)){
+      if ($empresa) {
+        if ($this->validaDataExpiracao($empresa)) {
           return [];
-        }else{
+        } else {
           return $empresa;
         }
-      }else{
+      } else {
         return $empresa;
       }
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
       throw new \Exception('EMAIL NÃO ENCONTRADO.' . $e->getMessage());
     } catch (\Exception $e) {
-        throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
+      throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
     }
-	}
+  }
 
   public function findByHashEmailCliente(string $hash, string $email)
-	{
-    try{
+  {
+    try {
       $empresa = AgendaEmpresa::select(['id', 'razao_social', 'expiration_at'])
         ->with([
-            // Relacionamento de serviços com status 'A'
-            'agenda_empresa_recursos' => function ($query) {
-                $query->where('status', 'A');
-            },
-            // Relacionamento de clientes vinculados à empresa, filtrando pelo email
-            'agenda_clientes' => function ($query) use ($email) {
-                $query->where('email', $email)
-                      ->with(['agenda_cliente_agendamentos']); // Inclui os agendamentos do cliente
-            }
+          // Relacionamento de serviços com status 'A'
+          'agenda_empresa_recursos' => function ($query) {
+            $query->where('status', 'A');
+          },
+          // Relacionamento de clientes vinculados à empresa, filtrando pelo email
+          'agenda_clientes' => function ($query) use ($email) {
+            $query->where('email', $email)
+              ->with(['agenda_cliente_agendamentos']); // Inclui os agendamentos do cliente
+          }
         ])
         ->where('status', 'A') // Empresa ativa
         ->where('hash', $hash)
@@ -305,10 +305,10 @@ class AgendaEmpresaService
 
       $empresa->hash = $this->base_url . $empresa->hash;
 
-      if($this->validaDataExpiracao($empresa)){
+      if ($this->validaDataExpiracao($empresa)) {
         $empresa->expiration = true;
         $empresa->message = 'CADASTRO DA EMPRESA EXPIRADO, ENTRE EM CONTATO COM O SUPORTE';
-      }else{
+      } else {
         $empresa->expiration = false;
       }
       unset($empresa->expiration_at, $empresa->agenda_clientes);
@@ -316,18 +316,18 @@ class AgendaEmpresaService
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
       throw new \Exception('ID NÃO ENCONTRADO.' . $e->getMessage());
     } catch (\Exception $e) {
-        throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
+      throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
     }
-	}
+  }
 
   public function findByHash(string $hash)
-	{
-    try{
+  {
+    try {
       $empresa = AgendaEmpresa::select(['id', 'razao_social'])
         ->with([
-            'agenda_empresa_expedientes.agenda_horario_expedientes', // Relacionamento de expediente e horários
-            'agenda_empresa_servicos',              // Relacionamento de serviços
-            'agenda_clientes'
+          'agenda_empresa_expedientes.agenda_horario_expedientes', // Relacionamento de expediente e horários
+          'agenda_empresa_servicos',              // Relacionamento de serviços
+          'agenda_clientes'
         ])
         ->where('status', 'A') // Empresa ativa
         ->where('hash', $hash)
@@ -335,10 +335,10 @@ class AgendaEmpresaService
 
       $empresa->hash = $this->base_url . $empresa->hash;
 
-      if($this->validaDataExpiracao($empresa)){
+      if ($this->validaDataExpiracao($empresa)) {
         $empresa->expiration = true;
         $empresa->message = 'CADASTRO DA EMPRESA EXPIRADO, ENTRE EM CONTATO COM O SUPORTE';
-      }else{
+      } else {
         $empresa->expiration = false;
       }
       unset($empresa->expiration_at);
@@ -346,17 +346,17 @@ class AgendaEmpresaService
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
       throw new \Exception('ID NÃO ENCONTRADO.' . $e->getMessage());
     } catch (\Exception $e) {
-        throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
+      throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
     }
   }
   public function findByHashAgendamento(string $id, string $data)
-	{
-    try{
+  {
+    try {
       $empresa = AgendaEmpresa::select(['id', 'razao_social'])
-      ->with([
+        ->with([
           'agenda_empresa_expedientes' => function ($query) {
-              $query->where('status', 'A') // Apenas expedientes ativos
-                  ->with('agenda_horario_expedientes'); // Relacionamento de horários dentro dos expedientes
+            $query->where('status', 'A') // Apenas expedientes ativos
+              ->with('agenda_horario_expedientes'); // Relacionamento de horários dentro dos expedientes
           },
           'agenda_empresa_servicos' => function ($query) {
             $query->where('status', 'A')->with('agenda_empresa_recursos');
@@ -366,20 +366,20 @@ class AgendaEmpresaService
             $endOfDay = Carbon::parse($data)->endOfDay();     // 2025-01-25 23:59:59
 
             $query->whereBetween('start_scheduling_at', [$startOfDay, $endOfDay])->orderBy('start_scheduling_at', 'ASC');
-        }
-      ])
-      ->where('status', 'A') // Apenas empresas ativas
-      ->where('id', $id)
-      ->first();
+          }
+        ])
+        ->where('status', 'A') // Apenas empresas ativas
+        ->where('id', $id)
+        ->first();
 
-      if(!$empresa){
+      if (!$empresa) {
         return null;
       }
 
-      if($this->validaDataExpiracao($empresa)){
+      if ($this->validaDataExpiracao($empresa)) {
         $empresa->expiration = true;
         $empresa->message = 'CADASTRO DA EMPRESA EXPIRADO, ENTRE EM CONTATO COM O SUPORTE';
-      }else{
+      } else {
         $empresa->expiration = false;
       }
       unset($empresa->expiration_at, $empresa->agenda_empresa_expedientes);
@@ -389,9 +389,10 @@ class AgendaEmpresaService
     } catch (\Exception $e) {
       throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
     }
-	}
+  }
 
-  public function validaDataExpiracao(AgendaEmpresa $empresa){
+  public function validaDataExpiracao(AgendaEmpresa $empresa)
+  {
     $dataHoje = Carbon::now()->startOfDay(); // Ajusta a data atual para o início do dia
     $dataExpiracao = Carbon::parse($empresa->expiration_at)->startOfDay(); // Ajusta a data de expiração para o início do dia
 
@@ -400,24 +401,23 @@ class AgendaEmpresaService
   }
 
   public function findByAtivoNotExpirated()
-	{
-    try{
+  {
+    try {
       $empresa = AgendaEmpresa::with([
         'agenda_cliente_agendamentos', // Relacionamento com os agendamentos
       ])
-      ->where('status', 'A')
-      ->where('expiration_at', '>=', Carbon::today())
-      /*->where(function ($query) {
+        ->where('status', 'A')
+        ->where('expiration_at', '>=', Carbon::today())
+        /*->where(function ($query) {
           $query->whereHas('agenda_cliente_agendamentos', function ($subQuery) {
               $subQuery->where('notificado', false)->where('status', 'A');
           })->orWhereDoesntHave('agenda_cliente_agendamentos'); // Empresas sem agendamentos
       })*/
-      ->get();
+        ->get();
 
       return $empresa;
     } catch (\Exception $e) {
-        throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
+      throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
     }
-	}
-
+  }
 }
