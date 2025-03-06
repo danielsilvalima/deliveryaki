@@ -142,7 +142,7 @@ class AgendaEmpresaController extends Controller
       $ret = $fcmService->enviaPushNotificationAgendaAdmin($empresa_admin, $mensagem, 'Novo Login');
 
       return response()->json(
-        $empresa,
+        $ret,
         Response::HTTP_OK,
       );
     } catch (\Exception $e) {
