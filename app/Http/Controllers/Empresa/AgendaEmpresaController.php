@@ -80,9 +80,6 @@ class AgendaEmpresaController extends Controller
           unset($empresa->token_notificacao);
         }
 
-        $empresa->listaExpedientes = $request->listaExpedientes ?? []; // Atualiza os expedientes
-        $empresa->listaServicos = $request->listaServicos ?? []; // Atualiza os servicos
-
         $empresa = $agendaEmpresaService->update($empresa);
       } else {
         $empresa = $agendaEmpresaService->create(
