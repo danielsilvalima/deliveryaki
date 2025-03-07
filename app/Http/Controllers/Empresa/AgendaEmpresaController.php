@@ -135,7 +135,7 @@ class AgendaEmpresaController extends Controller
       }
 
       $empresa_admin = $agendaEmpresaService->findByEmailSummary('daniel.silvalima89@gmail.com');
-      $mensagem = 'Novo login e-mail:' . $request->email;
+      $mensagem = 'Novo login agendaadmin e-mail:' . $request->email;
       $ret = $fcmService->enviaPushNotificationAgendaAdmin($empresa_admin, $mensagem, 'Novo Login');
 
       return response()->json(

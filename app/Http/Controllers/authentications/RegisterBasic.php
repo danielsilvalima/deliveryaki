@@ -70,7 +70,7 @@ class RegisterBasic extends Controller
         DB::commit();
 
         $empresa_admin = $agendaEmpresaService->findByEmailSummary('daniel.silvalima89@gmail.com');
-        $mensagem = 'Novo login empresa:' . $empresa['razao_social'] . ' - e-mail:' . $usuario['email'];
+        $mensagem = 'Novo login deliveryaki empresa:' . $empresa['razao_social'] . ' - e-mail:' . $usuario['email'];
         $fcmService->enviaPushNotificationAgendaAdmin($empresa_admin, $mensagem, 'Novo Login');
 
         if (!Auth::attempt($request->only('email', 'password'))) {
