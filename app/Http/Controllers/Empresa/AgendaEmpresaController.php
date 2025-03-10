@@ -8,6 +8,7 @@ use App\Services\Fcm\FcmService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Helpers\ResponseHelper;
+use Illuminate\Support\Facades\Log;
 
 class AgendaEmpresaController extends Controller
 {
@@ -136,11 +137,17 @@ class AgendaEmpresaController extends Controller
 
       $empresa_admin = $agendaEmpresaService->findByEmailSummary('daniel.silvalima89@gmail.com');
       $mensagem = 'Novo login agendaadmin e-mail:' . $request->email;
+      if (!$empresa_admin) {
+        Log::error('Administrador não encontrado para envio da notificação.');
+      } else {
+        $ret = $fcmService->enviaPushNotificationAgendaAdmin($empresa_admin, $mensagem, 'Novo Login');
+      }
+
       $ret = $fcmService->enviaPushNotificationAgendaAdmin($empresa_admin, $mensagem, 'Novo Login');
 
       return response()->json(
         $empresa,
-        Response::HTTP_OK,
+        $ret['success'] ? Response::HTTP_OK : Response::HTTP_CREATED,
       );
     } catch (\Exception $e) {
       return ResponseHelper::error($e->getMessage());

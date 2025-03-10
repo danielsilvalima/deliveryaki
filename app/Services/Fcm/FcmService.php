@@ -100,7 +100,7 @@ class FcmService
 
       if (!$empresa->token_notificacao) {
         return [
-          'success' => true,
+          'success' => false,
           'message' => 'EMPRESA NÃO ENCONTRADO OU TOKEN DO DISPOSITIVO NÃO DISPONÍVEL',
         ];
       }
