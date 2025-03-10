@@ -231,7 +231,11 @@ class NumeroVirtualService
         'reply_markup' => $keyboard,
       ];
 
-      $url = $this->API_URL2 . 'sendMessage';
+      if ($numero === 1) {
+        $url = $this->API_URL1 . 'sendMessage';
+      } else if ($numero === 2) {
+        $url = $this->API_URL2 . 'sendMessage';
+      }
       $response = Http::withHeaders(['Content-Type' => 'application/json'])->post($url, $dados);
     } catch (Exception $e) {
       Log::error($e->getMessage());
@@ -490,6 +494,7 @@ class NumeroVirtualService
           $username = $chat['username'];
         } else {
           Log::info('Username não encontrado.');
+          Log::info($message);
         }
       } else {
         Log::info("Campo 'chat' não encontrado.");
