@@ -47,6 +47,7 @@
         <div class="col-md-2">
           <div class="form-floating-outline ">
             <select class="form-select" id="tipo_entrega" name="tipo_entrega" aria-label="TIPO ENTREGA">
+              <option value="" "selected">TODOS</option>
               <option value="E" {{ $tipo_entrega == "E" ? "selected" : '' }}>ENTREGA</option>
               <option value="R" {{ $tipo_entrega == "R" ? "selected" : '' }}>RETIRA</option>
             </select>

@@ -30,7 +30,7 @@ class PedidoController extends Controller
       'email' => Auth::user()->email,
       'data_inicio' => $data_fim,
       'data_fim' => $data_fim,
-      'tipo_entrega' => 'E',
+      'tipo_entrega' => '',
       'status' => 'A'
     ]);
   }

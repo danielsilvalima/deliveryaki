@@ -135,7 +135,7 @@ class PedidoService
     }
   }
 
-  public function buscaPedidosPorData($data_inicio = null, $data_fim = null, $tipo_entrega = 'E', $status = 'A')
+  public function buscaPedidosPorData($data_inicio = null, $data_fim = null, $tipo_entrega = null, $status = 'A')
   {
     try {
 
@@ -145,9 +145,12 @@ class PedidoService
         'pedido_items' // Relacionamento com pedido_items
       ])
         ->where('empresa_id', Auth::user()->empresa_id)
-        ->where('tipo_entrega', $tipo_entrega)
         ->where('status', $status)
         ->orderBy('id', 'ASC');
+
+      if (!empty($tipo_entrega)) {
+        $query->where('tipo_entrega', $tipo_entrega);
+      }
 
       // Se as datas forem preenchidas, aplica o filtro
       if (!empty($data_inicio) && !empty($data_fim)) {
