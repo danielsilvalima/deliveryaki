@@ -70,8 +70,8 @@ Route::middleware('api.keyagenda')->group(function () {
   Route::post('/store/produto', [StoreProdutoController::class, 'store'])->name('store.store');
   Route::delete('/store/produto/{id}', [StoreProdutoController::class, 'delete'])->name('store.delete');
   Route::post('/store/produto/clique', [StoreProdutoController::class, 'storeClique'])->name('store.storeClique');
+  Route::get('/store/produto', [StoreProdutoController::class, 'get'])->name('store.get');
+  Route::get('/store/produto/{id}', [StoreProdutoController::class, 'getByID'])->name('store.getByID');
 });
 Route::post('/numerovirtual', [NumeroVirtualController::class, 'store'])->name('numero.store');
 Route::post('/numerovirtual/2', [NumeroVirtualController::class, 'store2'])->name('numero.store2');
-Route::get('/store/produto', [StoreProdutoController::class, 'get'])->name('store.get');
-Route::get('/store/produto/{id}', [StoreProdutoController::class, 'getByID'])->name('store.getByID');
