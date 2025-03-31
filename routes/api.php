@@ -84,7 +84,7 @@ Route::middleware('api.keyagenda')->group(function () {
 Route::middleware('api.keypedido')->post('/deliveryaki/login', [EmpresaController::class, 'login'])->name('login.login');
 Route::middleware('api.keypedido')->get('/deliveryaki/cep/cep', [CepController::class, 'getCEP'])->name('cep.getCEP');
 Route::middleware('api.keypedido')->get('/deliveryaki/cep', [CepController::class, 'get'])->name('empresa.get');
-Route::middleware('api.keypedido')->post('/deliveryaki/empresa', [EmpresaController::class, 'store'])->name('produto.store');
+Route::middleware('api.keypedido')->post('/deliveryaki/empresa', [EmpresaController::class, 'store'])->name('empresa.store');
 
 Route::middleware(['api.keypedido', 'auth:sanctum'])->group(function () {
   Route::get('/deliveryaki/categoria', [CategoriaController::class, 'get'])->name('categoria.get');
