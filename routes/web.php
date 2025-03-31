@@ -82,7 +82,7 @@ Route::middleware('auth:sanctum')->group(function () {
   //Empresa
   Route::get('/empresa', [EmpresaController::class, 'index'])->name('empresa.index');
   Route::get('/empresa/create', [EmpresaController::class, 'create'])->name('empresa.create');
-  Route::post('/empresa', [EmpresaController::class, 'store'])->name('empresa.store');
+  //Route::post('/empresa', [EmpresaController::class, 'store'])->name('empresa.store');
   Route::get('/empresa/{id}', [EmpresaController::class, 'show'])->name('empresa.show');
   Route::put('/empresa/{id}', [EmpresaController::class, 'edit'])->name('empresa.edit');
   Route::delete('/empresa/{id}/delete', [EmpresaController::class, 'modal'])->name('empresa.modal');
@@ -97,7 +97,7 @@ Route::middleware('auth:sanctum')->group(function () {
   //Produto
   Route::get('/produto', [ProdutoController::class, 'index'])->name('produto.index');
   Route::get('/produto/create', [ProdutoController::class, 'create'])->name('produto.create');
-  Route::post('/produto', [ProdutoController::class, 'store'])->name('produto.store');
+  //Route::post('/produto', [ProdutoController::class, 'store'])->name('produto.store');
   Route::get('/produto/{id}', [ProdutoController::class, 'show'])->name('produto.show');
   Route::put('/produto/{id}', [ProdutoController::class, 'edit'])->name('produto.edit');
   Route::delete('/produto/{id}/delete', [ProdutoController::class, 'modal'])->name('produto.modal');
@@ -116,7 +116,7 @@ Route::middleware('auth:sanctum')->group(function () {
   //Categoria
   Route::get('/categoria', [CategoriaController::class, 'index'])->name('categoria.index');
   Route::get('/categoria/create', [CategoriaController::class, 'create'])->name('categoria.create');
-  Route::post('/categoria', [CategoriaController::class, 'store'])->name('categoria.store');
+  //Route::post('/categoria', [CategoriaController::class, 'store'])->name('categoria.store');
   Route::get('/categoria/{id}', [CategoriaController::class, 'show'])->name('categoria.show');
   Route::put('/categoria/{id}', [CategoriaController::class, 'edit'])->name('categoria.edit');
   Route::delete('/categoria/{id}/delete', [CategoriaController::class, 'modal'])->name('categoria.modal');
@@ -126,8 +126,8 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::get('/pedido', [PedidoController::class, 'index'])->name('pedido.index');
   Route::post('/pedido', [PedidoController::class, 'postPedido'])->name('pedido.postPedido');
   Route::get('/pedido/{id}', [PedidoController::class, 'show'])->name('pedido.show');
-  Route::put('/pedido/{id}', [PedidoController::class, 'updateStatus'])->name('pedido.updateStatus');
-  Route::put('/pedido/update/{id}', [PedidoController::class, 'update'])->name('pedido.update');
+  //Route::put('/pedido/{id}', [PedidoController::class, 'updateStatus'])->name('pedido.updateStatus');
+  //Route::put('/pedido/update/{id}', [PedidoController::class, 'update'])->name('pedido.update');
 
   //Usuário
   Route::get('/usuario/{id}', [UsuarioController::class, 'show'])->name('usuario.show');
