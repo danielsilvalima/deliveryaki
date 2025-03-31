@@ -9,11 +9,14 @@ use App\Models\Produto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\ResponseHelper;
+use App\Models\PedidoItem;
+use App\Services\Empresa\EmpresaService;
 use App\Services\Pedido\PedidoService;
 use App\Services\Produto\ProdutoService;
 use App\Services\Fcm\FcmService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
+use Illuminate\Http\Response;
 
 class PedidoController extends Controller
 {
@@ -103,79 +106,112 @@ class PedidoController extends Controller
     }
   }
 
-  public function updateStatus(Request $request, $id, FcmService $fcmService)
+  public function updateStatus(Request $request, EmpresaService $empresaService, FcmService $fcmService)
   {
     DB::beginTransaction();
     try {
-      $pedido = Pedido::findOrFail($id);
+      $empresa = $request->input('empresa');
+      $pedido = $request->input('pedido');
+      $status = $request->input('status');
+
+      $empresa = Empresa::find($empresa['id']);
+      if (!$empresa) {
+        return response()->json(['error' => 'Empresa não encontrada.'], Response::HTTP_NOT_FOUND);
+      }
+      if ($empresaService->validaDataExpiracao($empresa)) {
+        return response()->json(['error' => 'A empresa está expirada e não pode atualizar pedidos.'], Response::HTTP_FORBIDDEN);
+      }
 
       $resultado = ['success' => true, 'message' => ''];
 
-      $pedido->status = $request->input('status');
-      $pedido->save();
-
-      if ($request->input('status') === 'S') {
-        $token = optional($pedido->pedido_notificacaos->first())->token_notificacao;
-
-        $resultado = $fcmService->enviaPushNotificationDelivery($pedido, $token);
+      $pedido_db = Pedido::find($pedido['id']);
+      if (!$pedido_db) {
+        return response()->json(['error' => 'Pedido não encontrado.'], Response::HTTP_NOT_FOUND);
       }
 
-      if ($request->input('status') === 'C') {
-        $token = optional($pedido->pedido_notificacaos->first())->token_notificacao;
+      $pedido_db->status = $status;
+      $pedido_db->save();
 
-        $resultado = $fcmService->enviaPushNotificationCanceled($pedido, $token);
+      if ($pedido_db->status === 'S') {
+        $token = optional($pedido_db->pedido_notificacaos->first())->token_notificacao;
+
+        $resultado = $fcmService->enviaPushNotificationDelivery($pedido_db, $token);
+      }
+
+      if ($pedido_db->status === 'C') {
+        $token = optional($pedido_db->pedido_notificacaos->first())->token_notificacao;
+
+        $resultado = $fcmService->enviaPushNotificationCanceled($pedido_db, $token);
       }
 
       DB::commit();
 
       $mensagem = $resultado['success']
-        ? 'PEDIDO ATUALIZADO COM SUCESSO. ' . $resultado['message']
-        : 'PEDIDO ATUALIZADO COM SUCESSO, MAS A NOTIFICAÇÃO FALHOU: ' . $resultado['message'];
+        ? 'Pedido atualizado com sucesso. ' . $resultado['message']
+        : 'Pedido atualizado com sucesso, a notificação falhou: ' . $resultado['message'];
 
-      return redirect()
-        ->back()
-        ->with('success', $mensagem);
+      return response()->json(
+        ['message' => $mensagem],
+        Response::HTTP_OK
+      );
     } catch (\Exception $e) {
       DB::rollBack();
-      return redirect()
-        ->back()
-        ->with('error', 'PEDIDO NÃO FOI ATUALIZADO. ' . $e->getMessage());
+      return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
   }
 
-  public function update(Request $request, $id)
+  public function update(Request $request, $id, EmpresaService $empresaService)
   {
     DB::beginTransaction();
     try {
       $pedido = Pedido::with('pedido_items')->findOrFail($id);
 
-      $pedidos = json_decode($request->pedidos, true);
+      $empresa = Empresa::find($pedido->empresa_id);
+      if (!$empresa) {
+        return response()->json(['error' => 'Empresa não encontrada.'], Response::HTTP_NOT_FOUND);
+      }
+      if ($empresaService->validaDataExpiracao($empresa)) {
+        return response()->json(['error' => 'A empresa está expirada e não pode atualizar produtos.'], Response::HTTP_FORBIDDEN);
+      }
 
-      $novosProdutoIds = collect($pedidos)->pluck('produto_id')->toArray();
+      if (!$request->all()) {
+        return response()->json(['error' => 'Nenhum item foi enviado para atualização.'], Response::HTTP_BAD_REQUEST);
+      }
+
+      $pedidos = collect($request->all());
+
+      if ($pedidos->isEmpty()) {
+        return response()->json(['error' => 'Nenhum produto foi enviado.'], Response::HTTP_BAD_REQUEST);
+      }
+
+      $novosProdutoIds = $pedidos->pluck('produto_id')->toArray();
 
       $pedido->pedido_items()->whereNotIn('produto_id', $novosProdutoIds)->delete();
 
       foreach ($pedidos as $itemData) {
-        $item = $pedido->pedido_items->where('produto_id', $itemData['produto_id'])->first();
+        $produtoId = $itemData['produto_id'];
+
+        // Busca o item no pedido
+        $item = $pedido->pedido_items()->where('produto_id', $produtoId)->first();
 
         if ($item) {
-          // Se a quantidade mudou, atualiza
+          // Se a quantidade mudou, atualiza o item
           if ($item->qtd != $itemData['qtd']) {
-            $item->qtd = $itemData['qtd'];
-            $item->vlr_unitario = $itemData['vlr_unitario'];
-            $item->vlr_total = $itemData['vlr_total'];
-            $item->save();
+            $item->update([
+              'qtd' => $itemData['qtd'],
+              'vlr_total' => $itemData['qtd'] * $itemData['vlr_unitario'],
+            ]);
           }
         } else {
-          // Se o item não existe, cria um novo item
-          $pedido->pedido_items()->create([
-            'pedido_id' => $pedido['id'],
-            'produto_id' => $itemData['produto_id'],
+          // Se não existe, cria um novo item no pedido
+          PedidoItem::create([
+            'pedido_id' => $pedido->id,
+            'produto_id' => $produtoId,
             'qtd' => $itemData['qtd'],
             'vlr_unitario' => $itemData['vlr_unitario'],
-            'vlr_total' => $itemData['vlr_total'],
-            'empresa_id' => $pedido['empresa_id'],
-            'cliente_id' => $pedido['cliente_id'],
+            'vlr_total' => $itemData['qtd'] * $itemData['vlr_unitario'],
+            'empresa_id' => $pedido->empresa_id,
+            'cliente_id' => $pedido->cliente_id,
           ]);
         }
       }
@@ -185,14 +221,90 @@ class PedidoController extends Controller
 
       DB::commit();
 
-      return redirect()
-        ->back()
-        ->with('success', 'PEDIDO ATUALIZADO COM SUCESS');
+      return response()->json(
+        ['message' => 'Pedido atualizado com sucesso.'],
+        Response::HTTP_OK
+      );
     } catch (\Exception $e) {
       DB::rollBack();
-      return redirect()
-        ->back()
-        ->with('error', 'PEDIDO NÃO FOI ATUALIZADO. ' . $e->getMessage());
+      return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  public function get(Request $request, EmpresaService $empresaService)
+  {
+    try {
+      $empresa_id = $request->input('empresa_id');
+
+      $empresa = Empresa::find($empresa_id);
+      if (!$empresa) {
+        return response()->json(['error' => 'Empresa não encontrada.'], Response::HTTP_NOT_FOUND);
+      }
+      if ($empresaService->validaDataExpiracao($empresa)) {
+        return response()->json(['error' => 'A empresa está expirada e não pode consultar pedidos.'], Response::HTTP_FORBIDDEN);
+      }
+
+      $limit = $request->input('per_page', 10);
+      $page = $request->input('page', 1);
+
+      $query = Pedido::query();
+      $query->where('empresa_id', $empresa_id);
+
+      // Aplicando filtros
+      if (!is_null($request->input('pedido_id'))) {
+        $query->where('id', $request->input('pedido_id'));
+      }
+      $query->when($request->filled('filtros.status'), function ($q) use ($request) {
+        $q->whereIn('status', $request->input('filtros.status', []));
+      });
+
+      $query->when($request->filled('filtros.tipoPagamento'), function ($q) use ($request) {
+        $q->whereIn('tipo_pagamento', $request->input('filtros.tipoPagamento', []));
+      });
+
+      $query->when($request->filled('filtros.tipoEntrega'), function ($q) use ($request) {
+        $q->whereIn('tipo_entrega', $request->input('filtros.tipoEntrega', []));
+      });
+
+      $query->when($request->filled('filtros.startDate'), function ($q) use ($request) {
+        $q->whereDate('created_at', '>=', $request->input('filtros.startDate'));
+      });
+
+      $query->when($request->filled('filtros.endDate'), function ($q) use ($request) {
+        $q->whereDate('created_at', '<=', $request->input('filtros.endDate'));
+      });
+
+      // Relacionamentos necessário
+      $query->with(['cliente', 'cliente.ceps', 'pedido_items.produto']);
+
+      //ordenação
+      $query->orderBy('created_at', 'asc');
+
+      // Paginação
+      $itensPaginados = $query->paginate($limit, ['*'], 'page', $page);
+
+      return response()->json([
+        'current_page' => $itensPaginados->currentPage(),
+        'data' => collect($itensPaginados->items())->map(function ($pedido) {
+          return [
+            'id' => $pedido->id,
+            'uuid' => $pedido->uuid,
+            'status' => $pedido->status,
+            'tipo_pagamento' => $pedido->tipo_pagamento,
+            'tipo_entrega' => $pedido->tipo_entrega,
+            'vlr_taxa' => $pedido->vlr_taxa,
+            'vlr_total' => $pedido->vlr_total,
+            'created_at' => $pedido->created_at,
+            'cliente' => $pedido->cliente,
+            'pedido_items' => $pedido->pedido_items
+          ];
+        }),
+        'total_pages' => $itensPaginados->lastPage(),
+        'total' => $itensPaginados->total(),
+        'per_page' => $itensPaginados->perPage()
+      ], Response::HTTP_OK);
+    } catch (\Exception $e) {
+      return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
   }
 }

@@ -15,13 +15,13 @@ class FcmService
   {
     try {
       if (!$pedido) {
-        throw new \Exception('PEDIDO NÃO FOI LOCALIZADO');
+        throw new \Exception('Pedido não foi localizado');
       }
 
       if (!$token) {
         return [
           'success' => true,
-          'message' => 'CLIENTE/PEDIDO NÃO ENCONTRADO OU TOKEN DO DISPOSITIVO NÃO DISPONÍVEL',
+          'message' => 'Cliente/Pedido não encontrado ou Token do dispositivo não disponível',
         ];
       }
 
@@ -44,10 +44,10 @@ class FcmService
 
       return [
         'success' => true,
-        'message' => 'NOTIFICAÇÃO ENVIADA COM SUCESSO',
+        'message' => 'Notificação enviada com sucesso.',
       ];
     } catch (\Exception $e) {
-      throw new \Exception('FALHA AO ENVIAR A NOTIFICAÇÃO DO PEDIDO: ' . $e->getMessage());
+      throw new \Exception('Falha ao enviar a notificação do pedido: ' . $e->getMessage());
     }
   }
 

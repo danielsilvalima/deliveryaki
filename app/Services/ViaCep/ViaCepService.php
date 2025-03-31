@@ -13,7 +13,7 @@ class ViaCepService
       $base_url = config('app.url_via_cep');
 
       if (empty($base_url)) {
-        throw new \Exception('CONFIGURAÇÃO VAZIA');
+        throw new \Exception('Configuração vazia');
       }
 
 
@@ -23,7 +23,7 @@ class ViaCepService
 
       // Verifica se a resposta falhou ou se não retornou dados
       if ($via_cep_response->failed() || $via_cep_response->json('erro') === true) {
-        throw new \Exception('CEP NÃO ENCONTRADO');
+        throw new \Exception('CEP não encontrado');
       }
 
       $dados = $via_cep_response->json();
@@ -37,7 +37,7 @@ class ViaCepService
         'uf' => strtoupper($dados['uf']) ?? '',
       ];
     } catch (\Exception $e) {
-        throw new \Exception($e);
+      throw new \Exception($e);
     }
   }
 }

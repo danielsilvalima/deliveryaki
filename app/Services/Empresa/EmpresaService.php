@@ -33,7 +33,7 @@ class EmpresaService
         ->where('status', 'A')
         ->first();
     } catch (\Exception $e) {
-      throw new \Exception('HASH INVÁLIDO');
+      throw new \Exception('Hash inválido');
     }
   }
 
@@ -74,11 +74,11 @@ class EmpresaService
   {
     DB::beginTransaction();
     try {
-      if ($request->hasFile('logo')) {
+      if ($request->hasFile('imagem')) {
         $this->deleteOldFile($empresa->id);
 
         $directory = "public/logos/empresas/{$empresa->cnpj}";
-        $file = $request->file('logo');
+        $file = $request->file('imagem');
         $filename = uniqid() . '_' . $file->getClientOriginalName();
         $filePath = $file->storeAs($directory, $filename);
         $empresa->path = $recurso['path'] = str_replace('public/', '', $filePath);
@@ -156,5 +156,14 @@ class EmpresaService
   public function removeCaracteres($valor)
   {
     return preg_replace('/\D/', '', $valor);
+  }
+
+  public function validaDataExpiracao(Empresa $empresa)
+  {
+    $dataHoje = Carbon::now()->startOfDay(); // Ajusta a data atual para o início do dia
+    $dataExpiracao = Carbon::parse($empresa->expiration_at)->startOfDay(); // Ajusta a data de expiração para o início do dia
+
+    // Retorna true se a data de expiração for igual ou posterior à data de hoje
+    return $dataExpiracao < $dataHoje;
   }
 }

@@ -12,9 +12,12 @@ class ProdutoService
 {
   public function findAllProductCategoryActiveByEmpresaID($id)
   {
-    $produto = Empresa::with([
+    return Empresa::with([
       'categorias' => function ($query) {
         $query->where('status', 'A') // Filtra categorias ativas
+          ->whereHas('produtos', function ($query) {
+            $query->where('status', 'A'); // Garante que a categoria tem produtos ativos
+          })
           ->orderBy('descricao', 'ASC')
           ->with([
             'produtos' => function ($query) {
@@ -24,8 +27,6 @@ class ProdutoService
           ]);
       },
     ])->where('id', $id)->first();
-
-    return $produto;
   }
 
   public function findAllProductActiveByEmpresaID($id)
@@ -40,20 +41,20 @@ class ProdutoService
     return $produto;
   }
 
-  public function update(Request $request, Produto $produto, EmpresaService $empresaService)
+  public function update(Request $request, Produto $produto, Empresa $empresa)
   {
     DB::beginTransaction();
     try {
-      if ($request->hasFile('logo')) {
+      if ($request->hasFile('imagem')) {
         $this->deleteOldFile($produto->id);
 
-        $empresa = $empresaService->findByID($produto->empresa_id);
+        //$empresa = $empresaService->findByID($produto->empresa_id);
 
         $directory = "public/logos/produtos/{$empresa->cnpj}";
-        $file = $request->file('logo');
+        $file = $request->file('imagem');
         $filename = uniqid() . '_' . $file->getClientOriginalName();
         $filePath = $file->storeAs($directory, $filename);
-        $produto->path = $recurso['path'] = str_replace('public/', '', $filePath);
+        $produto->path = str_replace('public/', '', $filePath);
         $produto->save();
       }
 
@@ -69,7 +70,32 @@ class ProdutoService
       return $produto;
     } catch (\Exception $e) {
       DB::rollBack();
-      return back()->with('error', 'NÃO FOI POSSÍVEL ATUALIZAR O PRODUTO. ' . $e->getMessage());
+      //return back()->with('error', 'NÃO FOI POSSÍVEL ATUALIZAR O PRODUTO. ' . $e->getMessage());
+      throw new \Exception("Erro ao cadastrar o produto: " . $e->getMessage());
+    }
+  }
+
+  public function store($produto, $request, $empresa)
+  {
+    DB::beginTransaction();
+    try {
+      $produto = Produto::create($produto);
+
+      if ($request->hasFile('imagem')) {
+        $file = $request->file('imagem');
+        $directory = "public/logos/produtos/{$empresa->cnpj}";
+        $filename = uniqid() . '_' . $file->getClientOriginalName();
+        $filePath = $file->storeAs($directory, $filename);
+
+        $produto->path = str_replace('public/', '', $filePath);
+        $produto->save();
+      }
+
+      DB::commit();
+      return $produto;
+    } catch (\Exception $e) {
+      DB::rollBack();
+      throw new \Exception("Erro ao cadastrar o produto: " . $e->getMessage());
     }
   }
 

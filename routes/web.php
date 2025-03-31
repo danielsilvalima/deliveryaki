@@ -62,12 +62,12 @@ Route::post('/cep', [RegisterBasic::class, 'getCEP'])->name('auth-register-basic
 //Route::get('/login', [LoginBasic::class, 'index'])->name('auth-login-basic');
 
 //API FRONT
-Route::middleware('api.key')->group(function () {
+Route::middleware('api.keypedido')->group(function () {
   Route::get('/api/cardapio/{id}', [CardapioController::class, 'get'])->name('cardapio.get');
   Route::post('/api/pedido/{id}', [PedidoController::class, 'post'])->name('pedido.post');
   Route::get('/api/cliente/{id}', [ClienteController::class, 'get'])->name('cliente.get');
 
-  Route::get('/api/cep', [CepController::class, 'get'])->name('cep.get');
+  //Route::get('/api/cep', [CepController::class, 'get'])->name('cep.get');
 });
 
 //Route::get('/api/pedido', [PedidoController::class, 'post'])->name('pedido.post');

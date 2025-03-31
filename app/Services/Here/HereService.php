@@ -11,7 +11,7 @@ class HereService
   {
     try {
       $params = [
-        'q' => $logradouro.'+'.$numero.'+'.$bairro.'+'.$cidade.'+'.$uf,
+        'q' => $logradouro . '+' . $numero . '+' . $bairro . '+' . $cidade . '+' . $uf,
         'apikey' => config('app.here_key'),
       ];
       // https://geocode.search.hereapi.com/v1/geocode
@@ -20,7 +20,7 @@ class HereService
       $geocode_response = Http::get($geocode_url, $params);
 
       if ($geocode_response->failed() || empty($geocode_response->json('items'))) {
-          throw new \Exception('ENDEREÇO NÃO ENCONTRADO');
+        throw new \Exception('Endereço não encontrado');
       }
 
       $position = $geocode_response->json('items')[0]['position'];
@@ -30,9 +30,8 @@ class HereService
         'latitude' => $latitude,
         'longitude' => $longitude,
       ];
-
     } catch (\Exception $e) {
-        throw new \Exception('ERRO AO CONSULTAR A LAT E LNG DE '.$logradouro);
+      throw new \Exception('Erro ao consultar a LAT e LNG de ' . $logradouro);
     }
   }
 
@@ -42,8 +41,8 @@ class HereService
       $route_url = config('app.url_here_route');
       $params = [
         'transportMode' => 'car',
-        'origin' => $empresaLatLng['longitude'].','.$empresaLatLng['latitude'],
-        'destination' => $clienteLatLng['longitude'].','.$clienteLatLng['latitude'],
+        'origin' => $empresaLatLng['longitude'] . ',' . $empresaLatLng['latitude'],
+        'destination' => $clienteLatLng['longitude'] . ',' . $clienteLatLng['latitude'],
         'return' => 'summary',
         'apikey' => config('app.here_key'),
       ];
@@ -51,7 +50,7 @@ class HereService
       $route_response = Http::get($route_url, $params);
 
       if ($route_response->failed() || empty($route_response->json('routes'))) {
-          throw new \Exception('ENDEREÇO NÃO ENCONTRADO');
+        throw new \Exception('Endereço não encontrado');
       }
 
       $distance = $route_response['routes'][0]['sections'][0]['summary']['length'] ?? null;
@@ -60,7 +59,7 @@ class HereService
         'distancia' => $distance,
       ];
     } catch (\Exception $e) {
-        throw new \Exception('ERRO AO CONSULTAR A DISTÂNCIA');
+      throw new \Exception('Erro ao consultar a distância');
     }
   }
 }

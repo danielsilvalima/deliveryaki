@@ -49,13 +49,15 @@ class CepController extends Controller
 
         $empresa = $empresaService->findByHash($empresa_hash);
         if (!$empresa) {
-          return ResponseHelper::error('EMPRESA NÃO ENCONTRADA');
+          //return ResponseHelper::error('EMPRESA NÃO ENCONTRADA');
+          return response()->json(['error' => 'Empresa não encontrada.'], Response::HTTP_NOT_FOUND);
         }
 
         if (!$empresa->lat || !$empresa->lng) {
           $empresaLatLng = $hereService->findLatLng($empresa->logradouro, $empresa->numero, $empresa->bairro, $empresa->cidade, $empresa->uf);
           if (!$empresaLatLng) {
-            return ResponseHelper::error('NÃO FOI POSSÍVEL ENCONTRAR AS COORDENADAS DA EMPRESA');
+            //return ResponseHelper::error('NÃO FOI POSSÍVEL ENCONTRAR AS COORDENADAS DA EMPRESA');
+            return response()->json(['error' => 'Não foi possível encontrar as coordenadas da empresa.'], Response::HTTP_FORBIDDEN);
           }
 
           $empresa->update([
@@ -68,7 +70,8 @@ class CepController extends Controller
 
         $distancia = $hereService->findDistance($empresaLatLng, $clienteLatLng);
         if (!$distancia || !isset($distancia['distancia'])) {
-          return ResponseHelper::error('ERRO AO CALCULAR A DISTÂNCIA');
+          //return ResponseHelper::error('ERRO AO CALCULAR A DISTÂNCIA');
+          return response()->json(['error' => 'Erro ao calcular a distância.'], Response::HTTP_FORBIDDEN);
         }
 
         $distancia_km = $distancia['distancia'] / 1000; // Converte a distância para km
@@ -114,7 +117,42 @@ class CepController extends Controller
         $this->options
       );
     } catch (\Exception $e) {
-      return ResponseHelper::error($e->getMessage());
+      return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  public function getCEP(Request $request, CepService $cepService, ViaCepService $viaCepService, HereService $hereService, EmpresaService $empresaService)
+  {
+    try {
+      $request->validate([
+        'cep' => 'required|string',
+      ], [
+        'cep.required' => __('CAMPO cep é obrigatório'),
+      ]);
+
+      $numero_cep = $request->cep;
+
+      $cep = $cepService->findByCEP($numero_cep);
+
+      if (!$cep) {
+        $cep = $viaCepService->findViaCep($numero_cep);
+      }
+
+      return response()->json(
+        [
+          'cep' => $cep['cep'],
+          'logradouro' => $cep['logradouro'],
+          'bairro' => $cep['bairro'],
+          'complemento' => $cep['complemento'],
+          'cidade' => $cep['cidade'],
+          'uf' => $cep['uf']
+        ],
+        Response::HTTP_OK,
+        $this->header,
+        $this->options
+      );
+    } catch (\Exception $e) {
+      return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
   }
 }
