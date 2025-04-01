@@ -101,6 +101,7 @@ Route::middleware(['api.keypedido', 'auth:sanctum'])->group(function () {
   Route::get('/deliveryaki/pedido', [PedidoController::class, 'get'])->name('pedido.get');
   Route::put('/deliveryaki/pedido/status', [PedidoController::class, 'updateStatus'])->name('pedido.updateStatus');
   Route::put('/deliveryaki/pedido/{id}', [PedidoController::class, 'update'])->name('pedido.update');
+  Route::post('/deliveryaki/pedido/baixa', [PedidoController::class, 'updateBaixa'])->name('pedido.updateBaixa');
 
   Route::get('/deliveryaki/empresa', [EmpresaController::class, 'get'])->name('empresa.get');
   Route::post('/deliveryaki/empresa/update', [EmpresaController::class, 'update'])->name('empresa.update');

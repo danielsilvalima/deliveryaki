@@ -90,7 +90,7 @@ class PedidoController extends Controller
   {
     try {
       if (!($empresa = Empresa::where('hash', $id)->first())) {
-        return ResponseHelper::notFound('EMPRESA NÃO ENCONTRADA');
+        return ResponseHelper::notFound('Empresa não encontrada');
       }
 
       $cliente = $request->cliente;
@@ -100,7 +100,7 @@ class PedidoController extends Controller
 
       $pedido = $pedidoService->createPedido($cliente, $entrega, $request->pedido);
 
-      return ResponseHelper::success('PEDIDO GERADO COM SUCESSO');
+      return ResponseHelper::success('Pedido gerado com sucesso.');
     } catch (\Exception $e) {
       return ResponseHelper::error($e->getMessage());
     }
@@ -231,6 +231,45 @@ class PedidoController extends Controller
     }
   }
 
+  public function updateBaixa(Request $request, EmpresaService $empresaService)
+  {
+    DB::beginTransaction();
+    try {
+      $empresa = $request->input('empresa');
+      $pedidoIds = collect($request->input('pedidos'))->pluck('id');
+
+      $empresa = Empresa::find($empresa['id']);
+      if (!$empresa) {
+        return response()->json(['error' => 'Empresa não encontrada.'], Response::HTTP_NOT_FOUND);
+      }
+      if ($empresaService->validaDataExpiracao($empresa)) {
+        return response()->json(['error' => 'A empresa está expirada e não pode atualizar pedidos.'], Response::HTTP_FORBIDDEN);
+      }
+
+      $pedidos_db = Pedido::whereIn('id', $pedidoIds)->get()->keyBy('id');
+
+      $pedidosNaoEncontrados = array_diff($pedidoIds->toArray(), $pedidos_db->keys()->toArray());
+
+      foreach ($pedidos_db as $pedido_db) {
+        $pedido_db->pago = $pedido_db->pago === 0 ? 1 : 0;
+        $pedido_db->save();
+      }
+
+      DB::commit();
+
+      return response()->json(
+        [
+          'message' => 'Pedido(s) atualizados com sucesso.',
+          'pedidos_nao_encontrados' => $pedidosNaoEncontrados
+        ],
+        Response::HTTP_OK
+      );
+    } catch (\Exception $e) {
+      DB::rollBack();
+      return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+  }
+
   public function get(Request $request, EmpresaService $empresaService)
   {
     try {
@@ -274,6 +313,15 @@ class PedidoController extends Controller
         $q->whereDate('created_at', '<=', $request->input('filtros.endDate'));
       });
 
+      /*$query->when($request->filled('filtros.pago'), function ($q) use ($request) {
+        $q->whereIn('pago', $request->input('filtros.pago', []));
+      });*/
+      if ($request->has('filtros.pago')) {
+        $query->whereIn('pago', $request->input('filtros.pago'));
+      } else {
+        $query->where('pago', 0);
+      }
+
       // Relacionamentos necessário
       $query->with(['cliente', 'cliente.ceps', 'pedido_items.produto']);
 
@@ -290,6 +338,7 @@ class PedidoController extends Controller
             'id' => $pedido->id,
             'uuid' => $pedido->uuid,
             'status' => $pedido->status,
+            'pago' => $pedido->pago,
             'tipo_pagamento' => $pedido->tipo_pagamento,
             'tipo_entrega' => $pedido->tipo_entrega,
             'vlr_taxa' => $pedido->vlr_taxa,
