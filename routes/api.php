@@ -8,6 +8,7 @@ use App\Http\Controllers\HorarioExpediente\AgendaHorarioExpedienteController;
 use App\Http\Controllers\EmpresaExpediente\EmpresaExpedienteController;
 use App\Http\Controllers\Servico\AgendaServicoController;
 use App\Http\Controllers\Cliente\AgendaClienteController;
+use App\Http\Controllers\dashboard\Analytics;
 use App\Http\Controllers\HorarioExpediente\HorarioExpedienteController;
 use App\Http\Controllers\Recurso\AgendaRecursoController;
 use App\Http\Controllers\NumeroVirtual\NumeroVirtualController;
@@ -111,6 +112,8 @@ Route::middleware(['api.keypedido', 'auth:sanctum'])->group(function () {
   Route::put('/deliveryaki/usuario/{id}', [UsuarioController::class, 'update'])->name('usuario.update');
   Route::put('/deliveryaki/usuario/{id}/status', [UsuarioController::class, 'updateStatus'])->name('usuario.updateStatus');
   Route::put('/deliveryaki/usuario/{id}/password', [UsuarioController::class, 'updatePassword'])->name('usuario.updatePassword');
+
+  Route::get('/deliveryaki/dashboard', [Analytics::class, 'get'])->name('dashboard.get');
 });
 Route::post('/numerovirtual', [NumeroVirtualController::class, 'store'])->name('numero.store');
 Route::post('/numerovirtual/2', [NumeroVirtualController::class, 'store2'])->name('numero.store2');
