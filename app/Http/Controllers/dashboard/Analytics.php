@@ -35,7 +35,13 @@ class Analytics extends Controller
       $faturamento = Pedido::whereBetween('created_at', [$dataInicial, $dataFinal])
         ->sum('vlr_total', 'vlr_taxa');
 
-      $totalPedidos = Pedido::whereBetween('created_at', [$dataInicial, $dataFinal])->count();
+      //$totalPedidos = Pedido::whereBetween('created_at', [$dataInicial, $dataFinal])->count();
+      $pedidos = Pedido::whereBetween('created_at', [$dataInicial, $dataFinal])
+        ->selectRaw('COUNT(*) as totalPedidos')
+        ->selectRaw('tipo_pagamento, COUNT(*) as totalPorTipoPagamento')
+        ->selectRaw('tipo_entrega, COUNT(*) as totalPorTipoEntrega')
+        ->groupBy('tipo_pagamento', 'tipo_entrega')
+        ->get();
 
       $pedidosAtivos = Pedido::whereIn('status', ['A'])
         ->whereBetween('created_at', [$dataInicial, $dataFinal])
@@ -61,12 +67,15 @@ class Analytics extends Controller
         ->orderBy('created_at', 'desc')
         ->take(8)
         ->with('cliente:id,nome_completo')
-        ->get(['id', 'cliente_id', 'vlr_total', 'vlr_taxa', 'created_at', 'status'])
+        ->get(['id', 'cliente_id', 'vlr_total', 'vlr_taxa', 'pago', 'tipo_pagamento', 'tipo_entrega', 'created_at', 'status'])
         ->map(function ($pedido) {
           return [
             'nome' => $pedido->cliente->nome_completo ?? 'Cliente Desconhecido',
             'valor' => $pedido->vlr_total,
             'taxa' => $pedido->vlr_taxa,
+            'pago' => $pedido->pago,
+            'tipo_pagamento' => $pedido->tipo_pagamento,
+            'tipo_entrega' => $pedido->tipo_entrega,
             'horario' => $pedido->created_at->format('H:i'),
             'status' => $pedido->status,
           ];
@@ -96,9 +105,17 @@ class Analytics extends Controller
         ];
       });
 
+      $pedidosPorCategoria = Pedido::join('pedido_items', 'pedidos.id', '=', 'pedido_items.pedido_id')
+        ->join('produtos', 'pedido_items.produto_id', '=', 'produtos.id')
+        ->join('categorias', 'produtos.categoria_id', '=', 'categorias.id')
+        ->whereBetween('pedidos.created_at', [$dataInicial, $dataFinal])
+        ->selectRaw('categorias.descricao as categoria, COUNT(*) as total')
+        ->groupBy('categorias.descricao')
+        ->get();
+
       return response()->json([
         'faturamento' => $faturamento,
-        'totalPedidos' => $totalPedidos,
+        //'totalPedidos' => $totalPedidos,
         'pedidosPorDia' => $pedidosPorDia,
         'pedidosAtivos' => $pedidosAtivos,
         'pedidosPreparacao' => $pedidosPreparacao,
@@ -107,6 +124,8 @@ class Analytics extends Controller
         'pedidosCancelados' => $pedidosCancelados,
         'ultimosPedidos' => $ultimosPedidos,
         'evolucaoPedidos' => $evolucaoPedidos,
+        'pedidosPorCategoria' => $pedidosPorCategoria,
+        'pedidos' => $pedidos
       ], Response::HTTP_OK);
     } catch (\Exception $e) {
       return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
