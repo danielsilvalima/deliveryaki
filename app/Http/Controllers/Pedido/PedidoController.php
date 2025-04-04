@@ -178,7 +178,7 @@ class PedidoController extends Controller
         return response()->json(['error' => 'Nenhum item foi enviado para atualização.'], Response::HTTP_BAD_REQUEST);
       }
 
-      $pedidos = collect($request->all());
+      $pedidos = collect($request->input('pedido'));
 
       if ($pedidos->isEmpty()) {
         return response()->json(['error' => 'Nenhum produto foi enviado.'], Response::HTTP_BAD_REQUEST);
@@ -217,6 +217,12 @@ class PedidoController extends Controller
       }
 
       $pedido->vlr_total = $pedido->pedido_items()->sum('vlr_total');
+
+      $status = $request->input('status');
+      if (!is_null($status)) {
+        $pedido->status = $status;
+      }
+
       $pedido->save();
 
       DB::commit();
@@ -283,7 +289,7 @@ class PedidoController extends Controller
         return response()->json(['error' => 'A empresa está expirada e não pode consultar pedidos.'], Response::HTTP_FORBIDDEN);
       }
 
-      $limit = $request->input('per_page', 10);
+      //$limit = $request->input('per_page', 10);
       $page = $request->input('page', 1);
 
       $query = Pedido::query();
@@ -329,11 +335,12 @@ class PedidoController extends Controller
       $query->orderBy('created_at', 'asc');
 
       // Paginação
-      $itensPaginados = $query->paginate($limit, ['*'], 'page', $page);
+      //$itensPaginados = $query->paginate($limit, ['*'], 'page', $page);
+      $pedidos = $query->get();
 
       return response()->json([
-        'current_page' => $itensPaginados->currentPage(),
-        'data' => collect($itensPaginados->items())->map(function ($pedido) {
+        //'current_page' => $itensPaginados->currentPage(),
+        'data' => $pedidos->map(function ($pedido) {
           return [
             'id' => $pedido->id,
             'uuid' => $pedido->uuid,
@@ -348,9 +355,9 @@ class PedidoController extends Controller
             'pedido_items' => $pedido->pedido_items
           ];
         }),
-        'total_pages' => $itensPaginados->lastPage(),
+        /*'total_pages' => $itensPaginados->lastPage(),
         'total' => $itensPaginados->total(),
-        'per_page' => $itensPaginados->perPage()
+        'per_page' => $itensPaginados->perPage()*/
       ], Response::HTTP_OK);
     } catch (\Exception $e) {
       return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);

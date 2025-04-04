@@ -63,6 +63,10 @@ class Analytics extends Controller
         ->whereBetween('created_at', [$dataInicial, $dataFinal])
         ->count();
 
+      $pedidosFinalizados = Pedido::where('status', 'F')
+        ->whereBetween('created_at', [$dataInicial, $dataFinal])
+        ->count();
+
       $ultimosPedidos = Pedido::whereBetween('created_at', [$dataInicial, $dataFinal])
         ->orderBy('created_at', 'desc')
         ->take(8)
@@ -122,6 +126,7 @@ class Analytics extends Controller
         'pedidosSaiuParaEntrega' => $pedidosSaiuParaEntrega,
         'pedidosEntregues' => $pedidosEntregues,
         'pedidosCancelados' => $pedidosCancelados,
+        'pedidosFinalizados' => $pedidosFinalizados,
         'ultimosPedidos' => $ultimosPedidos,
         'evolucaoPedidos' => $evolucaoPedidos,
         'pedidosPorCategoria' => $pedidosPorCategoria,
