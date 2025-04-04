@@ -254,7 +254,7 @@ class EmpresaController extends Controller
 
       $empresa['vlr_km'] = Str::replace(',', '.', $empresa['vlr_km']);
 
-      $expiration = Carbon::now()->addDays(30);
+      $expiration = Carbon::now()->addDays(15);
 
       do {
         $empresa['hash'] = HashGenerator::generateUniqueHash8Caracter();

@@ -24,7 +24,7 @@ class AgendaEmpresaService
     DB::beginTransaction();
     try {
       // Adiciona 30 dias à data atual
-      $expiration = Carbon::now()->addDays(30);
+      $expiration = Carbon::now()->addDays(15);
 
       $hash = null;
       do {
