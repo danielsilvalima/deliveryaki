@@ -331,6 +331,13 @@ class NumeroVirtualService
           'text' => 'Processando sua escolha...',
           'show_alert' => false,
         ]);
+      } else if ($numero === 3) {
+        $url = $this->API_URL3 . 'answerCallbackQuery';
+        Http::post($url, [
+          'callback_query_id' => $callbackQueryId,
+          'text' => 'Processing your choice...',
+          'show_alert' => false,
+        ]);
       }
     } catch (Exception $e) {
       Log::error($e->getMessage());
@@ -677,18 +684,38 @@ class NumeroVirtualService
     $chat_id = $callback['message']['chat']['id'];
     $callback_id = $callback['id'];
 
-    if ($callback_data === 'comprar_whatsapp') {
-      $this->sendMessage($chat_id, 'Você escolheu comprar um número para WhatsApp!', null, null, 2);
+    if ($callback_data === 'acess_40.90') {
+      $this->sendMessage($chat_id, 'You chose the Lifetime Access!', null, null, 3);
       $this->responderCallbackQueryComprar($callback_id, 2);
-      $this->mostrarOpcoesValores($chat_id, 2);
-    } elseif ($callback_data === 'comprar_telegram') {
-      $this->sendMessage($chat_id, 'Você escolheu comprar um número para Telegram!', null, null, 2);
+    } elseif ($callback_data === 'acess_26.29') {
+      $this->sendMessage($chat_id, 'You chose the VIP access 3 months!', null, null, 3);
       $this->responderCallbackQueryComprar($callback_id, 2);
-      $this->mostrarOpcoesValores($chat_id, 2);
+    } elseif ($callback_data === 'acess_11.68') {
+      $this->sendMessage($chat_id, 'You chose the VIP access 1 month!', null, null, 3);
+      $this->responderCallbackQueryComprar($callback_id, 2);
     }
 
-    if (Str::startsWith($callback_data, 'recarregar')) {
-      $this->responderCallbackQueryRecarregar($username, $chat_id, $callback_data, 2);
+    if ($callback_data === 'acess_40.90') {
+      $valor = 40.90;
+    } else if ($callback_data === 'acess_26.29') {
+      $valor = 26.29;
+    } else if ($callback_data === 'acess_11.68') {
+      $valor = 11.68;
+    }
+    if ($valor) {
+      $pix_copia_e_cola = $this->gerarPixCopiaCola($valor);
+
+      $response = $this->sendMessage(
+        $chat_id,
+        "🔹 *Payment via PIX*\n\n" .
+          "📌 Copy the code below and paste it into your banking app to pay:\n\n<pre>$pix_copia_e_cola</pre>",
+        null,
+        'HTML',
+        3
+      );
+      $responseArray = json_decode($response, true);
+      $message_id = $responseArray['result']['message_id'] ?? null;
+      $this->criarTransacao($username, $chat_id, $message_id, $pix_copia_e_cola, $valor);
     }
   }
 
@@ -697,9 +724,9 @@ class NumeroVirtualService
     try {
       $keyboard = [
         'inline_keyboard' => [
-          [['text' => 'Lifetime access | USD 7,00', 'callback_data' => 'acesso_40.90']],
-          [['text' => 'VIP access 3 months | USD 4,50', 'callback_data' => 'acesso_26.29']],
-          [['text' => 'VIP access 1 month | USD 2,00', 'callback_data' => 'acesso_11.68']],
+          [['text' => 'Lifetime access | USD 7,00', 'callback_data' => 'acess_40.90']],
+          [['text' => 'VIP access 3 months | USD 4,50', 'callback_data' => 'acess_26.29']],
+          [['text' => 'VIP access 1 month | USD 2,00', 'callback_data' => 'acess_11.68']],
         ],
       ];
 
