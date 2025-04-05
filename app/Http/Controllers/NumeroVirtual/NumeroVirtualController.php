@@ -42,4 +42,15 @@ class NumeroVirtualController extends Controller
       return ResponseHelper::error($e->getMessage());
     }
   }
+
+  public function store3(Request $request, NumeroVirtualService $numeroVirtualService)
+  {
+    try {
+      $numero = $numeroVirtualService->start3($request);
+
+      return response()->json([$numero], Response::HTTP_OK);
+    } catch (\Exception $e) {
+      return ResponseHelper::error($e->getMessage());
+    }
+  }
 }
