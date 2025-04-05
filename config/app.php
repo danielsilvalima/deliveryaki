@@ -45,6 +45,7 @@ return [
 
   'telegram_bot1' => env('TELEGRAM_BOT1', ''),
   'telegram_bot2' => env('TELEGRAM_BOT2', ''),
+  'telegram_bot3' => env('TELEGRAM_BOT3', ''),
   'telegram_sms' => env('TELEGRAM_SMS', ''),
   'telegram_gn_id' => env('TELEGRAM_GN_ID', ''),
   'telegram_gn_sec' => env('TELEGRAM_GN_SEC', ''),

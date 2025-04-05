@@ -15,8 +15,10 @@ class NumeroVirtualService
 {
   private $TOKEN1;
   private $TOKEN2;
+  private $TOKEN3;
   private $API_URL1;
   private $API_URL2;
+  private $API_URL3;
   private $TOKEN_SMS;
   private $TOKEN_GN_ID;
   private $TOKEN_GN_SEC;
@@ -25,8 +27,10 @@ class NumeroVirtualService
   {
     $this->TOKEN1 = config('app.telegram_bot1');
     $this->TOKEN2 = config('app.telegram_bot2');
+    $this->TOKEN3 = config('app.telegram_bot3');
     $this->API_URL1 = "https://api.telegram.org/$this->TOKEN1/";
     $this->API_URL2 = "https://api.telegram.org/$this->TOKEN2/";
+    $this->API_URL3 = "https://api.telegram.org/$this->TOKEN3/";
     $this->TOKEN_SMS = config('app.telegram_sms');
     $this->TOKEN_GN_ID = config('app.telegram_gn_id');
     $this->TOKEN_GN_SEC = config('app.telegram_gn_sec');
