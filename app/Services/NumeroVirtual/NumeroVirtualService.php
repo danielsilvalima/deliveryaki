@@ -581,7 +581,7 @@ class NumeroVirtualService
         $callback_data = $update['callback_query']['data'];
         $chat_id = $update['callback_query']['message']['chat']['id'];
 
-        if ($callback_data === 'comprar_whatsapp') {
+        if ($callback_data === 'start') {
           $this->sendMessage($chat_id, 'Você escolheu comprar um número para WhatsApp!', null, null, 2);
           $this->responderCallbackQueryComprar($update['callback_query']['id'], 2);
           $this->mostrarOpcoesValores($chat_id, 2);
