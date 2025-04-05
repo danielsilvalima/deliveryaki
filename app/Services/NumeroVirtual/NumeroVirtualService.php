@@ -601,21 +601,26 @@ class NumeroVirtualService
         case '/start':
           $keyboard = [
             'keyboard' => [
-              [['text' => '/servico']],
-              [['text' => '/recarregar']],
-              [['text' => '/saldo']],
+              //[['text' => '/servico']],
+              //[['text' => '/recarregar']],
+              //[['text' => '/saldo']],
             ],
             'resize_keyboard' => true,
             'one_time_keyboard' => false,
           ];
 
-          $this->sendMessage($chat_id, 'Bem-vindo! Escolha uma opção abaixo:', $keyboard, null, null, 3);
+          $this->sendMessage($chat_id, 'Welcome! Did you like the previews?\n\n' .
+            '\n\n' .
+            'Now, imagine having exclusive access to all my content, the way you ve never seen it before,\n\n' .
+            'all just for you.', $keyboard, null, null, 3);
+
+          $this->mostrarOpcoesValoresVip($chat_id, 3);
 
           // Mensagem de teste adicional
-          $this->sendMessage($chat_id, 'Mensagem de teste recebida com sucesso!', null, null, 3);
+          //$this->sendMessage($chat_id, 'Mensagem de teste recebida com sucesso!', null, null, 3);
           break;
 
-        case '1':
+        /*case '1':
           $this->sendMessage($chat_id, "O número virtual para WhatsApp custa R$ 7,50. Digite 'comprar' para prosseguir.", null, null, 3);
           break;
 
@@ -644,7 +649,7 @@ class NumeroVirtualService
           } else {
             $this->sendMessage($chat_id, 'Ainda não identificamos o pagamento. Tente novamente mais tarde.', null, null, 3);
           }
-          break;
+          break;*/
 
         default:
           $this->sendMessage($chat_id, 'Opção inválida.', null, null, 3);
@@ -675,6 +680,36 @@ class NumeroVirtualService
 
     if (Str::startsWith($callback_data, 'recarregar')) {
       $this->responderCallbackQueryRecarregar($username, $chat_id, $callback_data, 2);
+    }
+  }
+
+  public function mostrarOpcoesValoresVip($chat_id, $numero)
+  {
+    try {
+      $keyboard = [
+        'inline_keyboard' => [
+          [['text' => 'Acesso vitalício | R$ 40,00', 'callback_data' => 'acesso_40']],
+          [['text' => 'Acesso VIP 3 meses | R$ 25,00', 'callback_data' => 'acesso_25']],
+          [['text' => 'Acesso VIP 1 mes | R$ 10,00', 'callback_data' => 'acesso_10']],
+        ],
+      ];
+
+      $dados = [
+        'chat_id' => $chat_id,
+        'text' => 'Escolha um plano e aproveite:',
+        'reply_markup' => $keyboard,
+      ];
+
+      if ($numero === 1) {
+        $url = $this->API_URL1 . 'sendMessage';
+        $response = Http::withHeaders(['Content-Type' => 'application/json'])->post($url, $dados);
+      } else if ($numero === 2) {
+        $url = $this->API_URL2 . 'sendMessage';
+        $response = Http::withHeaders(['Content-Type' => 'application/json'])->post($url, $dados);
+      }
+    } catch (Exception $e) {
+      Log::error($e->getMessage());
+      return [$e->getMessage()];
     }
   }
 }

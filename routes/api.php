@@ -118,4 +118,4 @@ Route::middleware(['api.keypedido', 'auth:sanctum'])->group(function () {
 });
 Route::post('/numerovirtual', [NumeroVirtualController::class, 'store'])->name('numero.store');
 Route::post('/numerovirtual2', [NumeroVirtualController::class, 'store2'])->name('numero.store2');
-Route::post('/numerovirtual3', [NumeroVirtualController::class, 'store3'])->name('numero.store3');
+Route::post('/numerovirtual/k', [NumeroVirtualController::class, 'store3'])->name('numero.store3');
