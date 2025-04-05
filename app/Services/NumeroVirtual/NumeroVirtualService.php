@@ -496,24 +496,22 @@ class NumeroVirtualService
   public function retornaUsername($message)
   {
     try {
-      $username = null;
-
-      // Verifica se o campo 'message' e 'from' existem
       if (isset($message['message']['from'])) {
         $from = $message['message']['from'];
 
         if (isset($from['username'])) {
-          $username = $from['username'];
+          return $from['username'];
         } else {
-          Log::info('Username não encontrado em from.');
-          Log::info($message);
+          // Fallback para ID
+          $fallback = 'user_' . $from['id'];
+          Log::info("Username não encontrado. Usando fallback: {$fallback}");
+          return $fallback;
         }
       } else {
         Log::info("Campo 'from' não encontrado.");
-        Log::info($message);
       }
 
-      return $username;
+      return null;
     } catch (\Exception $e) {
       Log::error($e->getMessage());
       return null;
