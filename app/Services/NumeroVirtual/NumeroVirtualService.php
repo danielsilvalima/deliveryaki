@@ -497,23 +497,26 @@ class NumeroVirtualService
   {
     try {
       $username = null;
-      if (isset($message['message']['chat'])) {
-        $chat = $message['message']['chat'];
 
-        if (isset($chat['username'])) {
-          $username = $chat['username'];
+      // Verifica se o campo 'message' e 'from' existem
+      if (isset($message['message']['from'])) {
+        $from = $message['message']['from'];
+
+        if (isset($from['username'])) {
+          $username = $from['username'];
         } else {
-          Log::info('Username não encontrado.');
+          Log::info('Username não encontrado em from.');
           Log::info($message);
         }
       } else {
-        Log::info("Campo 'chat' não encontrado.");
+        Log::info("Campo 'from' não encontrado.");
+        Log::info($message);
       }
 
       return $username;
     } catch (\Exception $e) {
       Log::error($e->getMessage());
-      return ['error' => $e->getMessage()];
+      return null;
     }
   }
 
