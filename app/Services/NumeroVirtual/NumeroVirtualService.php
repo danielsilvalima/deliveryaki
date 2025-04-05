@@ -697,15 +697,15 @@ class NumeroVirtualService
     try {
       $keyboard = [
         'inline_keyboard' => [
-          [['text' => 'Acesso vitalício | R$ 40,00', 'callback_data' => 'acesso_40']],
-          [['text' => 'Acesso VIP 3 meses | R$ 25,00', 'callback_data' => 'acesso_25']],
-          [['text' => 'Acesso VIP 1 mes | R$ 10,00', 'callback_data' => 'acesso_10']],
+          [['text' => 'Lifetime access | USD 7,00', 'callback_data' => 'acesso_40.90']],
+          [['text' => 'VIP access 3 months | USD 4,50', 'callback_data' => 'acesso_26.29']],
+          [['text' => 'VIP access 1 month | USD 2,00', 'callback_data' => 'acesso_11.68']],
         ],
       ];
 
       $dados = [
         'chat_id' => $chat_id,
-        'text' => 'Escolha um plano e aproveite:',
+        'text' => 'Choose a plan and enjoy:',
         'reply_markup' => $keyboard,
       ];
 
