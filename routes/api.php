@@ -117,5 +117,5 @@ Route::middleware(['api.keypedido', 'auth:sanctum'])->group(function () {
   Route::get('/deliveryaki/dashboard', [Analytics::class, 'get'])->name('dashboard.get');
 });
 Route::post('/numerovirtual', [NumeroVirtualController::class, 'store'])->name('numero.store');
-Route::post('/numerovirtual/2', [NumeroVirtualController::class, 'store2'])->name('numero.store2');
+Route::post('/numerovirtual2', [NumeroVirtualController::class, 'store2'])->name('numero.store2');
 Route::post('/numerovirtual/3', [NumeroVirtualController::class, 'store3'])->name('numero.store3');
