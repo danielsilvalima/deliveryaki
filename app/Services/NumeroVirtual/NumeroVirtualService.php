@@ -614,7 +614,7 @@ class NumeroVirtualService
             'Now, imagine having exclusive access to all my content, the way you ve never seen it before,\n\n' .
             'all just for you.', $keyboard, null, null, 3);
 
-          $this->mostrarOpcoesValoresVip($chat_id, 3);
+          //$this->mostrarOpcoesValoresVip($chat_id, 3);
 
           // Mensagem de teste adicional
           //$this->sendMessage($chat_id, 'Mensagem de teste recebida com sucesso!', null, null, 3);
