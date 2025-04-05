@@ -612,11 +612,13 @@ class NumeroVirtualService
             'resize_keyboard' => true,
             'one_time_keyboard' => false,
           ];
+          Log::info('entrou');
+          Log::info($text);
 
           $this->sendMessage($chat_id, 'Welcome! Did you like the previews?\n\n' .
             '\n\n' .
             'Now, imagine having exclusive access to all my content, the way you ve never seen it before,\n\n' .
-            'all just for you.', $keyboard, null, null, 3);
+            'all just for you.', null, null, 3);
 
           //$this->mostrarOpcoesValoresVip($chat_id, 3);
 
