@@ -609,32 +609,32 @@ class NumeroVirtualService
             'one_time_keyboard' => false,
           ];
 
-          $this->sendMessage($chat_id, 'Bem-vindo! Escolha uma opção abaixo:', $keyboard, null, null, 2);
+          $this->sendMessage($chat_id, 'Bem-vindo! Escolha uma opção abaixo:', $keyboard, null, null, 3);
 
           // Mensagem de teste adicional
-          $this->sendMessage($chat_id, 'Mensagem de teste recebida com sucesso!', null, null, 2);
+          $this->sendMessage($chat_id, 'Mensagem de teste recebida com sucesso!', null, null, 3);
           break;
 
         case '1':
-          $this->sendMessage($chat_id, "O número virtual para WhatsApp custa R$ 7,50. Digite 'comprar' para prosseguir.", null, null, 2);
+          $this->sendMessage($chat_id, "O número virtual para WhatsApp custa R$ 7,50. Digite 'comprar' para prosseguir.", null, null, 3);
           break;
 
         case '2':
-          $this->sendMessage($chat_id, "O número virtual para Telegram custa R$ 7,50. Digite 'comprar' para prosseguir.", null, null, 2);
+          $this->sendMessage($chat_id, "O número virtual para Telegram custa R$ 7,50. Digite 'comprar' para prosseguir.", null, null, 3);
           break;
 
         case '/servico':
-          $this->mostrarOpcoesNumeros($chat_id, 2);
+          $this->mostrarOpcoesNumeros($chat_id, 3);
           break;
 
         case '/recarregar':
-          $this->mostrarOpcoesValores($chat_id, 2);
+          $this->mostrarOpcoesValores($chat_id, 3);
           break;
 
         case '/saldo':
           $user = $this->retornaSaldoByUsername($username);
           $saldo = $user ? 'R$ ' . str_replace('.', ',', $user->balance) : 'R$ 0,00';
-          $this->sendMessage($chat_id, "Seu saldo é: $saldo.", null, null, 2);
+          $this->sendMessage($chat_id, "Seu saldo é: $saldo.", null, null, 3);
           break;
 
         case 'confirmar pagamento':
@@ -642,12 +642,12 @@ class NumeroVirtualService
             // $numero_virtual = $this->comprarNumeroVirtual();
             // $this->sendMessage($chat_id, "Pagamento confirmado! Seu número virtual é: $numero_virtual");
           } else {
-            $this->sendMessage($chat_id, 'Ainda não identificamos o pagamento. Tente novamente mais tarde.', null, null, 2);
+            $this->sendMessage($chat_id, 'Ainda não identificamos o pagamento. Tente novamente mais tarde.', null, null, 3);
           }
           break;
 
         default:
-          $this->sendMessage($chat_id, 'Opção inválida.', null, null, 2);
+          $this->sendMessage($chat_id, 'Opção inválida.', null, null, 3);
           break;
       }
     } catch (Exception $e) {
