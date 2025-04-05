@@ -592,11 +592,15 @@ class NumeroVirtualService
       if (!isset($update['message'])) {
         return;
       }
+      Log::info('passou');
 
       $chat_id = $update['message']['chat']['id'];
+      Log::info('chat id');
+      Log::info($chat_id);
       $username = $this->retornaUsername($update);
       $text = strtolower($update['message']['text']);
-
+      Log::info('text');
+      Log::info($text);
       switch ($text) {
         case '/start':
           $keyboard = [
