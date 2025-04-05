@@ -237,10 +237,11 @@ class NumeroVirtualService
 
       if ($numero === 1) {
         $url = $this->API_URL1 . 'sendMessage';
+        $response = Http::withHeaders(['Content-Type' => 'application/json'])->post($url, $dados);
       } else if ($numero === 2) {
         $url = $this->API_URL2 . 'sendMessage';
+        $response = Http::withHeaders(['Content-Type' => 'application/json'])->post($url, $dados);
       }
-      $response = Http::withHeaders(['Content-Type' => 'application/json'])->post($url, $dados);
     } catch (Exception $e) {
       Log::error($e->getMessage());
       return [$e->getMessage()];
@@ -270,11 +271,11 @@ class NumeroVirtualService
 
       if ($numero === 1) {
         $url = $this->API_URL1 . 'sendMessage';
+        $response = Http::withHeaders(['Content-Type' => 'application/json'])->post($url, $dados);
       } else if ($numero === 2) {
         $url = $this->API_URL2 . 'sendMessage';
+        $response = Http::withHeaders(['Content-Type' => 'application/json'])->post($url, $dados);
       }
-
-      $response = Http::withHeaders(['Content-Type' => 'application/json'])->post($url, $dados);
     } catch (Exception $e) {
       Log::error($e->getMessage());
       return [$e->getMessage()];
@@ -299,10 +300,11 @@ class NumeroVirtualService
 
       if ($numero === 1) {
         $url = $this->API_URL1 . 'sendMessage';
+        return Http::post($url, $data);
       } else if ($numero === 2) {
         $url = $this->API_URL2 . 'sendMessage';
+        return Http::post($url, $data);
       }
-      return Http::post($url, $data);
     } catch (Exception $e) {
       Log::error($e->getMessage());
       return [$e->getMessage()];
@@ -314,15 +316,19 @@ class NumeroVirtualService
     try {
       if ($numero === 1) {
         $url = $this->API_URL1 . 'answerCallbackQuery';
+        Http::post($url, [
+          'callback_query_id' => $callbackQueryId,
+          'text' => 'Processando sua escolha...',
+          'show_alert' => false,
+        ]);
       } else if ($numero === 2) {
         $url = $this->API_URL2 . 'answerCallbackQuery';
+        Http::post($url, [
+          'callback_query_id' => $callbackQueryId,
+          'text' => 'Processando sua escolha...',
+          'show_alert' => false,
+        ]);
       }
-
-      Http::post($url, [
-        'callback_query_id' => $callbackQueryId,
-        'text' => 'Processando sua escolha...',
-        'show_alert' => false,
-      ]);
     } catch (Exception $e) {
       Log::error($e->getMessage());
       return [$e->getMessage()];
