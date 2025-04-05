@@ -571,8 +571,10 @@ class NumeroVirtualService
   public function start3(Request $request)
   {
     try {
+      Log::info('Iniciando envio de notificações...');
       $update = json_decode(file_get_contents('php://input'), true);
       $valor_numero = 7.5;
+      Log::info($update);
 
       //Callback
       if (isset($update['callback_query'])) {
@@ -581,7 +583,7 @@ class NumeroVirtualService
         $callback_data = $update['callback_query']['data'];
         $chat_id = $update['callback_query']['message']['chat']['id'];
 
-        if ($callback_data === 'start') {
+        if ($callback_data === 'comprar_whatsapp') {
           $this->sendMessage($chat_id, 'Você escolheu comprar um número para WhatsApp!', null, null, 2);
           $this->responderCallbackQueryComprar($update['callback_query']['id'], 2);
           $this->mostrarOpcoesValores($chat_id, 2);
