@@ -304,6 +304,9 @@ class NumeroVirtualService
       } else if ($numero === 2) {
         $url = $this->API_URL2 . 'sendMessage';
         return Http::post($url, $data);
+      } else if ($numero === 3) {
+        $url = $this->API_URL3 . 'sendMessage';
+        return Http::post($url, $data);
       }
     } catch (Exception $e) {
       Log::error($e->getMessage());
@@ -620,7 +623,7 @@ class NumeroVirtualService
             'Now, imagine having exclusive access to all my content, the way you ve never seen it before,\n\n' .
             'all just for you.', null, null, 3);
 
-          //$this->mostrarOpcoesValoresVip($chat_id, 3);
+          $this->mostrarOpcoesValoresVip($chat_id, 3);
 
           // Mensagem de teste adicional
           //$this->sendMessage($chat_id, 'Mensagem de teste recebida com sucesso!', null, null, 3);
@@ -711,6 +714,9 @@ class NumeroVirtualService
         $response = Http::withHeaders(['Content-Type' => 'application/json'])->post($url, $dados);
       } else if ($numero === 2) {
         $url = $this->API_URL2 . 'sendMessage';
+        $response = Http::withHeaders(['Content-Type' => 'application/json'])->post($url, $dados);
+      } else if ($numero === 3) {
+        $url = $this->API_URL3 . 'sendMessage';
         $response = Http::withHeaders(['Content-Type' => 'application/json'])->post($url, $dados);
       }
     } catch (Exception $e) {
