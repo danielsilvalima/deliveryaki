@@ -625,10 +625,10 @@ class NumeroVirtualService
           Log::info('entrou');
           Log::info($text);
 
-          $this->sendMessage($chat_id, 'Welcome! Did you like the previews?\n\n' .
-            '\n\n' .
-            'Now, imagine having exclusive access to all my content, the way you ve never seen it before,\n\n' .
-            'all just for you.', null, null, 3);
+          $this->sendMessage($chat_id, "Bem-vindo! Você gostou das prévias?\n\n" .
+            "\n\n" .
+            "Agora imagine ter acesso exclusivo a todo o meu conteúdo, de um jeito que você nunca viu antes,\n\n" .
+            "tudo só para você.", null, null, 3);
 
           $this->mostrarOpcoesValoresVip($chat_id, 3);
 
@@ -684,23 +684,23 @@ class NumeroVirtualService
     $chat_id = $callback['message']['chat']['id'];
     $callback_id = $callback['id'];
 
-    if ($callback_data === 'acess_40.90') {
+    if ($callback_data === 'acess_40') {
       $this->sendMessage($chat_id, 'You chose the Lifetime Access!', null, null, 3);
       $this->responderCallbackQueryComprar($callback_id, 2);
-    } elseif ($callback_data === 'acess_26.29') {
+    } elseif ($callback_data === 'acess_25') {
       $this->sendMessage($chat_id, 'You chose the VIP access 3 months!', null, null, 3);
       $this->responderCallbackQueryComprar($callback_id, 2);
-    } elseif ($callback_data === 'acess_11.68') {
+    } elseif ($callback_data === 'acess_10') {
       $this->sendMessage($chat_id, 'You chose the VIP access 1 month!', null, null, 3);
       $this->responderCallbackQueryComprar($callback_id, 2);
     }
 
-    if ($callback_data === 'acess_40.90') {
-      $valor = 40.90;
-    } else if ($callback_data === 'acess_26.29') {
-      $valor = 26.29;
-    } else if ($callback_data === 'acess_11.68') {
-      $valor = 11.68;
+    if ($callback_data === 'acess_40') {
+      $valor = 40;
+    } else if ($callback_data === 'acess_25') {
+      $valor = 25;
+    } else if ($callback_data === 'acess_10') {
+      $valor = 10;
     }
     if ($valor) {
       $pix_copia_e_cola = $this->gerarPixCopiaCola($valor);
@@ -724,15 +724,15 @@ class NumeroVirtualService
     try {
       $keyboard = [
         'inline_keyboard' => [
-          [['text' => 'Lifetime access | USD 7,00', 'callback_data' => 'acess_40.90']],
-          [['text' => 'VIP access 3 months | USD 4,50', 'callback_data' => 'acess_26.29']],
-          [['text' => 'VIP access 1 month | USD 2,00', 'callback_data' => 'acess_11.68']],
+          [['text' => 'Acesso vitalício | R$ 40,00', 'callback_data' => 'acess_40']],
+          [['text' => 'Acesso VIP 3 meses | R$ 25,00', 'callback_data' => 'acess_25']],
+          [['text' => 'Acesso VIP 1 mês | R$ 10,00', 'callback_data' => 'acess_10']],
         ],
       ];
 
       $dados = [
         'chat_id' => $chat_id,
-        'text' => 'Choose a plan and enjoy:',
+        'text' => 'Escolha um plano e aproveite:',
         'reply_markup' => $keyboard,
       ];
 
