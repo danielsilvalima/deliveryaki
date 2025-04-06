@@ -684,13 +684,13 @@ class NumeroVirtualService
     $callback_id = $callback['id'];
 
     if ($callback_data === 'acess_40') {
-      $this->sendMessage($chat_id, 'You chose the Lifetime Access!', null, null, 3);
+      $this->sendMessage($chat_id, 'Você escolheu o acesso vitalício!', null, null, 3);
       $this->responderCallbackQueryComprar($callback_id, 2);
     } elseif ($callback_data === 'acess_25') {
-      $this->sendMessage($chat_id, 'You chose the VIP access 3 months!', null, null, 3);
+      $this->sendMessage($chat_id, 'Você escolheu o acesso VIP 3 meses!', null, null, 3);
       $this->responderCallbackQueryComprar($callback_id, 2);
     } elseif ($callback_data === 'acess_10') {
-      $this->sendMessage($chat_id, 'You chose the VIP access 1 month!', null, null, 3);
+      $this->sendMessage($chat_id, 'Você escolheu o acesso VIP 1 mês!', null, null, 3);
       $this->responderCallbackQueryComprar($callback_id, 2);
     }
 
