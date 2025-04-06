@@ -625,9 +625,8 @@ class NumeroVirtualService
           Log::info('entrou');
           Log::info($text);
 
-          $this->sendMessage($chat_id, "Bem-vindo! Você gostou das prévias?\n\n" .
-            "\n\n" .
-            "Agora imagine ter acesso exclusivo a todo o meu conteúdo, de um jeito que você nunca viu antes,\n\n" .
+          $this->sendMessage($chat_id, "Bem-vindo! Você gostou das prévias?" .
+            "Agora imagine ter acesso exclusivo a todo o meu conteúdo, de um jeito que você nunca viu antes," .
             "tudo só para você.", null, null, 3);
 
           $this->mostrarOpcoesValoresVip($chat_id, 3);
