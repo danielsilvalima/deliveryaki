@@ -602,15 +602,13 @@ class NumeroVirtualService
       if (!isset($update['message'])) {
         return;
       }
-      Log::info('passou');
 
       $chat_id = $update['message']['chat']['id'];
       Log::info('chat id');
       Log::info($chat_id);
       $username = $this->retornaUsername($update);
       $text = strtolower($update['message']['text']);
-      Log::info('text');
-      Log::info($text);
+
       switch ($text) {
         case '/start':
           $keyboard = [
@@ -622,8 +620,6 @@ class NumeroVirtualService
             'resize_keyboard' => true,
             'one_time_keyboard' => false,
           ];
-          Log::info('entrou');
-          Log::info($text);
 
           $this->sendMessage($chat_id, "Bem-vindo! Você gostou das prévias?" .
             "Agora imagine ter acesso exclusivo a todo o meu conteúdo, de um jeito que você nunca viu antes," .
