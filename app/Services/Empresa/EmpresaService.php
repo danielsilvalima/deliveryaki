@@ -60,11 +60,11 @@ class EmpresaService
     $aberto = $horaAtual >= $expediente->hora_abertura && $horaAtual <= $expediente->hora_fechamento;
     $noIntervalo = $horaAtual >= $expediente->intervalo_inicio && $horaAtual <= $expediente->intervalo_fim;
 
-    $horaAbertura = date('H\H:i', strtotime($expediente->hora_abertura)) . 'Min';
-    $horaFechamento = date('H\H:i', strtotime($expediente->hora_fechamento)) . 'Min';
+    $horaAbertura = date('H\hi', strtotime($expediente->hora_abertura));
+    $horaFechamento = date('H\hi', strtotime($expediente->hora_fechamento));
 
     $mensagem =
-      $aberto && !$noIntervalo ? "Estamos Abertos das {$horaAbertura} até {$horaFechamento}" : 'Estamos Fechados';
+      $aberto && !$noIntervalo ? "Estamos abertos! Atendemos hoje das {$horaAbertura} às {$horaFechamento}" : 'Estamos Fechados';
     $status = $aberto && !$noIntervalo ? 'aberto' : 'fechado';
 
     return ['status' => $status, 'mensagem' => $mensagem];
