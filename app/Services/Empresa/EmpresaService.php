@@ -110,13 +110,35 @@ class EmpresaService
 
       if (!empty($expedientes)) {
         // Obtém os IDs existentes para evitar re-criação desnecessária
-        $existentes = EmpresaExpediente::where('empresa_id', $empresa->id)->pluck('horario_expediente_id')->toArray();
+        $existentes = EmpresaExpediente::where('empresa_id', $empresa->id)
+          ->get()
+          ->keyBy('horario_expediente_id');
 
         foreach ($expedientes as $expediente) {
-          if (!in_array($expediente['horario_expediente_id'], $existentes)) {
+          $horarioId = $expediente['horario_expediente_id'];
+
+          // Atualiza se já existir
+          if ($existentes->has($horarioId)) {
+            $registro = $existentes->get($horarioId);
+
+            // Só atualiza se houver alguma diferença
+            if (
+              $registro->hora_abertura !== $expediente['hora_abertura'] ||
+              $registro->hora_fechamento !== $expediente['hora_fechamento'] ||
+              $registro->intervalo_inicio !== $expediente['intervalo_inicio'] ||
+              $registro->intervalo_fim !== $expediente['intervalo_fim']
+            ) {
+              $registro->hora_abertura = $expediente['hora_abertura'];
+              $registro->hora_fechamento = $expediente['hora_fechamento'];
+              $registro->intervalo_inicio = $expediente['intervalo_inicio'];
+              $registro->intervalo_fim = $expediente['intervalo_fim'];
+              $registro->save();
+            }
+          } else {
+            // Cria novo registro
             EmpresaExpediente::create([
               'empresa_id' => $empresa->id,
-              'horario_expediente_id' => $expediente['horario_expediente_id'],
+              'horario_expediente_id' => $horarioId,
               'hora_abertura' => $expediente['hora_abertura'],
               'hora_fechamento' => $expediente['hora_fechamento'],
               'intervalo_inicio' => $expediente['intervalo_inicio'],
@@ -125,8 +147,10 @@ class EmpresaService
           }
         }
         // Remove os que não estão mais na lista
+        $idsAtuais = array_column($expedientes, 'horario_expediente_id');
+
         EmpresaExpediente::where('empresa_id', $empresa->id)
-          ->whereNotIn('horario_expediente_id', array_column($expedientes, 'horario_expediente_id'))
+          ->whereNotIn('horario_expediente_id', $idsAtuais)
           ->delete();
       }
 
