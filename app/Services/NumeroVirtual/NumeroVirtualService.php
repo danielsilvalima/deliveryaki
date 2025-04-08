@@ -621,9 +621,12 @@ class NumeroVirtualService
             'one_time_keyboard' => false,
           ];
 
-          $this->sendMessage($chat_id, "Bem-vindo! Você gostou das prévias?" .
-            "Agora imagine ter acesso exclusivo a todo o meu conteúdo, de um jeito que você nunca viu antes," .
-            "tudo só para você.", null, null, 3);
+          $this->sendMessage($chat_id, "🔞 Ao assinar meu VIP, ganhará meu WhatsApp pessoal gratuitamente
+🔞 Vídeos de sexo forte e hardcore
+🔞 Exibicionismo, lingeries
+🔞 Múltiplos orgamos
+
+O que você precisa para se divertir do jeito que quer é um clique e uma única atitude, te espero no meu privado! 🙈👇🏻", null, null, 3);
 
           $this->mostrarOpcoesValoresVip($chat_id, 3);
 
