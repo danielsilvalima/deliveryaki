@@ -8,8 +8,10 @@ use App\Models\Empresa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\ResponseHelper;
+use App\Models\CategoriaVisibilidade;
 use Illuminate\Http\Response;
 use App\Services\Empresa\EmpresaService;
+use Illuminate\Support\Facades\DB;
 
 class CategoriaController extends Controller
 {
@@ -83,6 +85,9 @@ class CategoriaController extends Controller
       $query = Categoria::query();
       $query->where('empresa_id', $empresa_id);
 
+      $query = Categoria::with(['visibilidades.horarioExpediente'])
+        ->where('empresa_id', $empresa_id);
+
       if (!is_null($request->input('categoria_id'))) {
         $query->where('id', $request->input('categoria_id'));
       }
@@ -103,13 +108,28 @@ class CategoriaController extends Controller
 
   public function store(Request $request)
   {
+    DB::beginTransaction();
     try {
       $data = $request->input('categoria');
+      $categoriaRequest = [
+        'descricao' => $data['descricao'],
+        'empresa_id' => $data['empresa_id'],
+      ];
 
-      $categoria = Categoria::create($data);
+      $diasVisiveis = $data['dias_visiveis'];
+      $categoria = Categoria::create($categoriaRequest);
 
+      foreach ($diasVisiveis as $diaId) {
+        CategoriaVisibilidade::create([
+          'categoria_id' => $categoria->id,
+          'horario_expediente_id' => $diaId,
+        ]);
+      }
+
+      DB::commit();
       return response()->json(['message' => 'Categoria cadastrada com sucesso.', 'categoria' => $categoria], Response::HTTP_OK);
     } catch (\Exception $e) {
+      DB::rollBack();
       return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
   }
@@ -117,14 +137,47 @@ class CategoriaController extends Controller
   public function update(Request $request, string $id)
   {
     try {
-      $data = $request->only(['descricao', 'empresa_id', 'status']);
+      //$data = $request->only(['descricao', 'empresa_id', 'status']);
+      $data = $request->all();
 
       $categoria = Categoria::find($id);
       if (!$categoria) {
         return response()->json(['error' => 'Categoria não encontrada.'], Response::HTTP_NOT_FOUND);
       }
 
-      $categoria->fill($data)->save();
+      /*$categoria->fill($data)->save();*/
+      $categoria->update([
+        'descricao' => $data['descricao'],
+        'empresa_id' => $data['empresa_id'],
+        'status' => $data['status'],
+      ]);
+
+      if (array_key_exists('dias_visiveis', $data) && is_array($data['dias_visiveis'])) {
+        $diasPayload = $data['dias_visiveis'];
+
+        // Dias já salvos no banco
+        $diasSalvos = CategoriaVisibilidade::where('categoria_id', $categoria->id)
+          ->pluck('horario_expediente_id')
+          ->toArray();
+
+        // Inserir novos
+        $diasParaInserir = array_diff($diasPayload, $diasSalvos);
+        foreach ($diasParaInserir as $diaId) {
+          CategoriaVisibilidade::create([
+            'categoria_id' => $categoria->id,
+            'horario_expediente_id' => $diaId,
+          ]);
+        }
+
+        // Remover os que não estão mais no payload
+        $diasParaRemover = array_diff($diasSalvos, $diasPayload);
+        CategoriaVisibilidade::where('categoria_id', $categoria->id)
+          ->whereIn('horario_expediente_id', $diasParaRemover)
+          ->delete();
+      } else {
+        // Se dias_visiveis não foi enviado, remove todos
+        CategoriaVisibilidade::where('categoria_id', $categoria->id)->delete();
+      }
 
       return response()->json(['message' => 'Categoria atualizada com sucesso.'], Response::HTTP_OK);
     } catch (\Exception $e) {

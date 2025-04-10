@@ -5,6 +5,7 @@ namespace App\Services\Produto;
 use App\Models\Produto;
 use App\Models\Empresa;
 use App\Services\Empresa\EmpresaService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -12,17 +13,26 @@ class ProdutoService
 {
   public function findAllProductCategoryActiveByEmpresaID($id)
   {
+    $diaAtual = Carbon::now()->dayOfWeek;
+
     return Empresa::with([
-      'categorias' => function ($query) {
-        $query->where('status', 'A') // Filtra categorias ativas
+      'categorias' => function ($query) use ($diaAtual) {
+        $query->where('status', 'A')
           ->whereHas('produtos', function ($query) {
-            $query->where('status', 'A'); // Garante que a categoria tem produtos ativos
+            $query->where('status', 'A');
+          })
+          ->whereHas('visibilidades', function ($sub) use ($diaAtual) {
+            $sub->where('horario_expediente_id', function ($inner) use ($diaAtual) {
+              $inner->select('id')
+                ->from('horario_expedientes')
+                ->where('dia_semana', $diaAtual)
+                ->limit(1);
+            });
           })
           ->orderBy('descricao', 'ASC')
           ->with([
             'produtos' => function ($query) {
-              $query->where('status', 'A') // Filtra produtos ativos
-                ->orderBy('descricao', 'ASC');
+              $query->where('status', 'A')->orderBy('descricao', 'ASC');
             },
           ]);
       },

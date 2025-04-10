@@ -14,13 +14,17 @@ class Categoria extends Model
   protected $guarded = [];
 
   public function produtos()
-    {
-        return $this->hasMany(Produto::class);
-    }
+  {
+    return $this->hasMany(Produto::class);
+  }
 
-    public function empresa()
-    {
-        return $this->belongsTo(Empresa::class);
-    }
+  public function empresa()
+  {
+    return $this->belongsTo(Empresa::class);
+  }
 
+  public function visibilidades()
+  {
+    return $this->hasMany(CategoriaVisibilidade::class);
+  }
 }

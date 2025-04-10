@@ -7,12 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class HorarioExpediente extends Model
 {
-    use HasFactory;
+  use HasFactory;
 
-    protected $guarded = [];
+  protected $guarded = [];
 
-    public function empresa_expedientes()
-    {
-      return $this->hasMany(EmpresaExpediente::class, 'horario_expediente_id');
-    }
+  public function empresa_expedientes()
+  {
+    return $this->hasMany(EmpresaExpediente::class, 'horario_expediente_id');
+  }
+
+  public function categoriasVisiveis()
+  {
+    return $this->hasMany(CategoriaVisibilidade::class, 'horario_expediente_id');
+  }
 }
