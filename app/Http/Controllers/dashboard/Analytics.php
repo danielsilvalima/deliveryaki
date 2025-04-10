@@ -32,42 +32,42 @@ class Analytics extends Controller
       $dataInicial = Carbon::parse($request->input('dataInicial', now()->startOfMonth()))->toDateString() . ' 00:00:00';
       $dataFinal = Carbon::parse($request->input('dataFinal', now()->startOfMonth()))->toDateString() . ' 23:59:59';
 
-      $faturamento = Pedido::whereBetween('created_at', [$dataInicial, $dataFinal])
+      $faturamento = Pedido::where('empresa_id', $empresa_id)->whereBetween('created_at', [$dataInicial, $dataFinal])
         ->sum('vlr_total', 'vlr_taxa');
 
       //$totalPedidos = Pedido::whereBetween('created_at', [$dataInicial, $dataFinal])->count();
-      $pedidos = Pedido::whereBetween('created_at', [$dataInicial, $dataFinal])
+      $pedidos = Pedido::where('empresa_id', $empresa_id)->whereBetween('created_at', [$dataInicial, $dataFinal])
         ->selectRaw('COUNT(*) as totalPedidos')
         ->selectRaw('tipo_pagamento, COUNT(*) as totalPorTipoPagamento')
         ->selectRaw('tipo_entrega, COUNT(*) as totalPorTipoEntrega')
         ->groupBy('tipo_pagamento', 'tipo_entrega')
         ->get();
 
-      $pedidosAtivos = Pedido::whereIn('status', ['A'])
+      $pedidosAtivos = Pedido::where('empresa_id', $empresa_id)->whereIn('status', ['A'])
         ->whereBetween('created_at', [$dataInicial, $dataFinal])
         ->count();
 
-      $pedidosPreparacao = Pedido::where('status', 'P')
+      $pedidosPreparacao = Pedido::where('empresa_id', $empresa_id)->where('status', 'P')
         ->whereBetween('created_at', [$dataInicial, $dataFinal])
         ->count();
 
-      $pedidosSaiuParaEntrega = Pedido::where('status', 'S')
+      $pedidosSaiuParaEntrega = Pedido::where('empresa_id', $empresa_id)->where('status', 'S')
         ->whereBetween('created_at', [$dataInicial, $dataFinal])
         ->count();
 
-      $pedidosEntregues = Pedido::where('status', 'E')
+      $pedidosEntregues = Pedido::where('empresa_id', $empresa_id)->where('status', 'E')
         ->whereBetween('created_at', [$dataInicial, $dataFinal])
         ->count();
 
-      $pedidosCancelados = Pedido::where('status', 'C')
+      $pedidosCancelados = Pedido::where('empresa_id', $empresa_id)->where('status', 'C')
         ->whereBetween('created_at', [$dataInicial, $dataFinal])
         ->count();
 
-      $pedidosFinalizados = Pedido::where('status', 'F')
+      $pedidosFinalizados = Pedido::where('empresa_id', $empresa_id)->where('status', 'F')
         ->whereBetween('created_at', [$dataInicial, $dataFinal])
         ->count();
 
-      $ultimosPedidos = Pedido::whereBetween('created_at', [$dataInicial, $dataFinal])
+      $ultimosPedidos = Pedido::where('empresa_id', $empresa_id)->whereBetween('created_at', [$dataInicial, $dataFinal])
         ->orderBy('created_at', 'desc')
         ->take(8)
         ->with('cliente:id,nome_completo')
@@ -85,7 +85,7 @@ class Analytics extends Controller
           ];
         });
 
-      $pedidosPorDia = Pedido::whereBetween('created_at', [$dataInicial, $dataFinal])
+      $pedidosPorDia = Pedido::where('empresa_id', $empresa_id)->whereBetween('created_at', [$dataInicial, $dataFinal])
         ->selectRaw('DATE(created_at) as data, COUNT(*) as total')
         ->groupBy('data')
         ->orderBy('data', 'asc')
@@ -96,6 +96,7 @@ class Analytics extends Controller
         DB::raw('DATE(created_at) as data'),
         DB::raw('COUNT(*) as totalPedidos')
       )
+        ->where('empresa_id', $empresa_id)
         ->whereBetween('created_at', [$dataInicial, $dataFinal])
         ->groupBy('data')
         ->orderBy('data', 'ASC')
@@ -112,6 +113,7 @@ class Analytics extends Controller
       $pedidosPorCategoria = Pedido::join('pedido_items', 'pedidos.id', '=', 'pedido_items.pedido_id')
         ->join('produtos', 'pedido_items.produto_id', '=', 'produtos.id')
         ->join('categorias', 'produtos.categoria_id', '=', 'categorias.id')
+        ->where('pedidos.empresa_id', $empresa_id)
         ->whereBetween('pedidos.created_at', [$dataInicial, $dataFinal])
         ->selectRaw('categorias.descricao as categoria, COUNT(*) as total')
         ->groupBy('categorias.descricao')
