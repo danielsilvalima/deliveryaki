@@ -53,7 +53,8 @@ class PedidoService
 
     try {
       // Validações
-      if (empty($entregaData['tipo_pagamento'])) {
+      //Necessário setar null para o modulo qrcode de mesas
+      if (!isset($entregaData['tipo_pagamento']) || $entregaData['tipo_pagamento'] === '' || $entregaData['tipo_pagamento'] === false) {
         $entregaData['tipo_pagamento'] = null;
       }
       $this->validateCliente($clienteData);
@@ -99,7 +100,7 @@ class PedidoService
       // Criação do pedido
       $pedido = new Pedido([
         'status' => 'A',
-        'tipo_pagamento' => strtoupper($entregaData['tipo_pagamento']),
+        'tipo_pagamento' => $entregaData['tipo_pagamento'] !== null ? strtoupper($entregaData['tipo_pagamento']) : null,
         'tipo_entrega' => strtoupper($entregaData['tipo_entrega']),
         'vlr_taxa' => floatval($entregaData['vlr_taxa']),
         'vlr_total' => floatval($entregaData['vlr_total']),
