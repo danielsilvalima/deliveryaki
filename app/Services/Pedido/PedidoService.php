@@ -24,8 +24,12 @@ class PedidoService
 
   public function validatePedido(array $entrega, array $itens): void
   {
-    if (empty($entrega['tipo_pagamento'])) {
-      throw new \Exception('O campo "tipo_pagamento" é obrigatório.');
+    if (
+      array_key_exists('tipo_pagamento', $entrega) &&
+      $entrega['tipo_pagamento'] !== null &&
+      !in_array($entrega['tipo_pagamento'], ['CR', 'DE', 'PI', 'DI'])
+    ) {
+      throw new \Exception('O tipo de pagamento informado é inválido.');
     }
 
     if (empty($entrega['vlr_total']) || $entrega['vlr_total'] <= 0) {
@@ -49,6 +53,9 @@ class PedidoService
 
     try {
       // Validações
+      if (empty($entregaData['tipo_pagamento'])) {
+        $entregaData['tipo_pagamento'] = null;
+      }
       $this->validateCliente($clienteData);
       $this->validatePedido($entregaData, $itensData);
 
@@ -92,7 +99,8 @@ class PedidoService
       // Criação do pedido
       $pedido = new Pedido([
         'status' => 'A',
-        'tipo_pagamento' => strtoupper($entregaData['tipo_pagamento']),
+        //'tipo_pagamento' => strtoupper($entregaData['tipo_pagamento']),
+        'tipo_pagamento' => null,
         'tipo_entrega' => strtoupper($entregaData['tipo_entrega']),
         'vlr_taxa' => floatval($entregaData['vlr_taxa']),
         'vlr_total' => floatval($entregaData['vlr_total']),
@@ -131,7 +139,7 @@ class PedidoService
       return $pedido;
     } catch (\Exception $e) {
       DB::rollBack();
-      throw new \Exception('ERRO AO CRIAR O PEDIDO: ' . $e->getMessage());
+      throw new \Exception('Erro ao criar o pedido: ' . $e->getMessage());
     }
   }
 

@@ -10,6 +10,7 @@ use App\Http\Controllers\Servico\AgendaServicoController;
 use App\Http\Controllers\Cliente\AgendaClienteController;
 use App\Http\Controllers\dashboard\Analytics;
 use App\Http\Controllers\HorarioExpediente\HorarioExpedienteController;
+use App\Http\Controllers\Mesa\MesaController;
 use App\Http\Controllers\Recurso\AgendaRecursoController;
 use App\Http\Controllers\NumeroVirtual\NumeroVirtualController;
 use App\Http\Controllers\Pedido\PedidoController;
@@ -115,6 +116,8 @@ Route::middleware(['api.keypedido', 'auth:sanctum'])->group(function () {
   Route::put('/deliveryaki/usuario/{id}/password', [UsuarioController::class, 'updatePassword'])->name('usuario.updatePassword');
 
   Route::get('/deliveryaki/dashboard', [Analytics::class, 'get'])->name('dashboard.get');
+
+  Route::get('/deliveryaki/mesa', [MesaController::class, 'get'])->name('mesa.get');
 });
 Route::post('/numerovirtual', [NumeroVirtualController::class, 'store'])->name('numero.store');
 Route::post('/numerovirtual2', [NumeroVirtualController::class, 'store2'])->name('numero.store2');
