@@ -27,7 +27,7 @@ class PedidoService
     if (
       array_key_exists('tipo_pagamento', $entrega) &&
       $entrega['tipo_pagamento'] !== null &&
-      !in_array($entrega['tipo_pagamento'], ['CR', 'DE', 'PI', 'DI'])
+      !in_array($entrega['tipo_pagamento'], ['cr', 'de', 'pi', 'di'])
     ) {
       throw new \Exception('O tipo de pagamento informado é inválido.');
     }
@@ -99,8 +99,7 @@ class PedidoService
       // Criação do pedido
       $pedido = new Pedido([
         'status' => 'A',
-        //'tipo_pagamento' => strtoupper($entregaData['tipo_pagamento']),
-        'tipo_pagamento' => null,
+        'tipo_pagamento' => strtoupper($entregaData['tipo_pagamento']),
         'tipo_entrega' => strtoupper($entregaData['tipo_entrega']),
         'vlr_taxa' => floatval($entregaData['vlr_taxa']),
         'vlr_total' => floatval($entregaData['vlr_total']),
