@@ -98,7 +98,7 @@ class PedidoController extends Controller
       $entrega = $request->entrega;
       $entrega['empresa_id'] = $empresa->id;
 
-      $pedido = $pedidoService->createPedido($cliente, $entrega, $request->pedido);
+      $pedido = $pedidoService->createPedido($cliente, $entrega, $request->pedido, $request->mesa);
 
       return ResponseHelper::success('Pedido gerado com sucesso.');
     } catch (\Exception $e) {
@@ -304,7 +304,10 @@ class PedidoController extends Controller
       });
 
       $query->when($request->filled('filtros.tipoPagamento'), function ($q) use ($request) {
-        $q->whereIn('tipo_pagamento', $request->input('filtros.tipoPagamento', []));
+        $q->where(function ($q2) use ($request) {
+          $q2->whereIn('tipo_pagamento', $request->input('filtros.tipoPagamento', []))
+            ->orWhereNull('tipo_pagamento');
+        });
       });
 
       $query->when($request->filled('filtros.tipoEntrega'), function ($q) use ($request) {

@@ -19,7 +19,7 @@ return new class extends Migration
     });
 
     // Adiciona coluna mesa_id na tabela empresas
-    Schema::table('empresas', function (Blueprint $table) {
+    Schema::table('pedidos', function (Blueprint $table) {
       $table->unsignedBigInteger('mesa_id')->nullable();
       $table->foreign('mesa_id')->references('id')->on('mesas')->onDelete('set null');
     });
@@ -39,7 +39,7 @@ return new class extends Migration
    */
   public function down(): void
   {
-    Schema::table('empresas', function (Blueprint $table) {
+    Schema::table('pedidos', function (Blueprint $table) {
       $table->dropForeign(['mesa_id']);
       $table->dropColumn('mesa_id');
     });

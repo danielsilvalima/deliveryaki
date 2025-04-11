@@ -5,6 +5,7 @@ namespace App\Services\Pedido;
 use App\Models\Cliente;
 use App\Models\Pedido;
 use App\Models\Cep;
+use App\Models\Mesa;
 use App\Models\PedidoNotificacao;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -47,92 +48,34 @@ class PedidoService
       }*/
   }
 
-  public function createPedido(array $clienteData, array $entregaData, array $itensData)
+  public function createPedido(array $clienteData, array $entregaData, array $itensData, ?array $mesaData = null)
   {
     DB::beginTransaction();
-
     try {
-      // Validações
-      //Necessário setar null para o modulo qrcode de mesas
-      if (!isset($entregaData['tipo_pagamento']) || $entregaData['tipo_pagamento'] === '' || $entregaData['tipo_pagamento'] === false) {
-        $entregaData['tipo_pagamento'] = null;
-      }
-      $this->validateCliente($clienteData);
-      $this->validatePedido($entregaData, $itensData);
+      $mesaNumero = $mesaData[0]['mesa'] ?? null;
 
-      // Consulta ou criação do CEP
-      $cep = Cep::firstOrCreate(
-        ['cep' => $clienteData['cep']],
-        [
-          'logradouro' => $clienteData['logradouro'],
-          'bairro' => $clienteData['bairro'],
-          'complemento' => $clienteData['complemento'],
-          'cidade' => $clienteData['cidade'],
-          'uf' => $clienteData['uf'],
-        ]
-      );
+      if ($mesaNumero) {
+        $mesa = Mesa::find($mesaNumero);
 
-      // Criação ou atualização do cliente
-      $cliente = Cliente::where('celular', $clienteData['celular'])
-        ->where('empresa_id', $clienteData['empresa_id'])
-        ->first();
-      if ($cliente) {
-        $clienteData['cep_id'] = $cep->id;
-        $cliente->update([
-          'nome_completo' => $clienteData['nome_completo'],
-          'cep' => $clienteData['cep'],
-          'numero' => $clienteData['numero'],
-          'celular' => $clienteData['celular'],
-          'empresa_id' => $clienteData['empresa_id'],
-          'cep_id' => $cep->id,
-        ]);
+        if ($mesa) {
+          // Verifica se há pedido em aberto para essa mesa
+          $pedidoExistente = Pedido::where('mesa_id', $mesa->id)
+            ->where('status', 'A')
+            ->where('empresa_id', $clienteData['empresa_id'])
+            ->first();
+
+          if ($pedidoExistente) {
+            $pedido = $this->adicionarProdutosEmPedidoExistente($pedidoExistente, $itensData);
+          } else {
+            $pedido = $this->criarNovoPedido($clienteData, $entregaData, $itensData, $mesa);
+          }
+        } else {
+          throw new \Exception('Mesa não encontrada para esta empresa.');
+        }
       } else {
-        $cliente = Cliente::create([
-          'nome_completo' => $clienteData['nome_completo'],
-          'cep' => $clienteData['cep'],
-          'numero' => $clienteData['numero'],
-          'celular' => $clienteData['celular'],
-          'empresa_id' => $clienteData['empresa_id'],
-          'cep_id' => $cep->id,
-        ]);
+        // Sem info de mesa, pedido normal (delivery ou retirada)
+        $pedido = $this->criarNovoPedido($clienteData, $entregaData, $itensData);
       }
-
-      // Criação do pedido
-      $pedido = new Pedido([
-        'status' => 'A',
-        'tipo_pagamento' => $entregaData['tipo_pagamento'] !== null ? strtoupper($entregaData['tipo_pagamento']) : null,
-        'tipo_entrega' => strtoupper($entregaData['tipo_entrega']),
-        'vlr_taxa' => floatval($entregaData['vlr_taxa']),
-        'vlr_total' => floatval($entregaData['vlr_total']),
-        //'deliver_at' => $entregaData['horario_entrega'],
-        'cliente_id' => $cliente->id,
-        'empresa_id' => $entregaData['empresa_id'],
-      ]);
-      $pedido->save();
-
-      //Inserir token da notificacao
-      $pedido_notificacao = new PedidoNotificacao([
-        'token_notificacao' => $entregaData['token_notificacao'],
-        'pedido_id' => $pedido->id,
-        'empresa_id' => $entregaData['empresa_id'],
-      ]);
-      $pedido_notificacao->save();
-
-      // Preparar os itens para inserção em massa
-      $itens = array_map(function ($itemData) use ($pedido, $cliente, $entregaData) {
-        return [
-          'produto_id' => $itemData['id'],
-          'qtd' => intval($itemData['qtd']),
-          'vlr_unitario' => floatval($itemData['vlr_unitario']),
-          'vlr_total' => floatval($itemData['vlr_total']),
-          'pedido_id' => $pedido->id,
-          'cliente_id' => $cliente->id,
-          'empresa_id' => $entregaData['empresa_id'],
-        ];
-      }, $itensData);
-
-      // Inserir os itens em massa
-      $pedido->pedido_items()->createMany($itens);
 
       DB::commit();
 
@@ -194,6 +137,139 @@ class PedidoService
     } catch (\Exception $e) {
 
       return back()->with('error', 'ERRO AO BUSCAR OS PEDIDOS. ' . $e->getMessage());
+    }
+  }
+
+  public function adicionarProdutosEmPedidoExistente(Pedido $pedido, array $itensData)
+  {
+    DB::beginTransaction();
+
+    try {
+      $cliente_id = $pedido->cliente_id;
+      $empresa_id = $pedido->empresa_id;
+
+      $itens = array_map(function ($itemData) use ($pedido, $cliente_id, $empresa_id) {
+        return [
+          'produto_id' => $itemData['id'],
+          'qtd' => intval($itemData['qtd']),
+          'vlr_unitario' => floatval($itemData['vlr_unitario']),
+          'vlr_total' => floatval($itemData['vlr_total']),
+          'pedido_id' => $pedido->id,
+          'cliente_id' => $cliente_id,
+          'empresa_id' => $empresa_id,
+        ];
+      }, $itensData);
+
+      $pedido->pedido_items()->createMany($itens);
+
+      // Atualizar valor total do pedido
+      $novoTotal = $pedido->pedido_items()->sum('vlr_total');
+      $pedido->vlr_total = $novoTotal;
+      $pedido->save();
+
+      DB::commit();
+
+      return $pedido;
+    } catch (\Exception $e) {
+      DB::rollBack();
+      throw new \Exception('Erro ao adicionar itens ao pedido existente: ' . $e->getMessage());
+    }
+  }
+
+  public function criarNovoPedido(array $clienteData, array $entregaData, array $itensData, ?Mesa $mesa = null)
+  {
+    DB::beginTransaction();
+    try {
+      // Validações
+      //Necessário setar null para o modulo qrcode de mesas
+      if (!isset($entregaData['tipo_pagamento']) || $entregaData['tipo_pagamento'] === '' || $entregaData['tipo_pagamento'] === false) {
+        $entregaData['tipo_pagamento'] = null;
+      }
+
+      $this->validateCliente($clienteData);
+      $this->validatePedido($entregaData, $itensData);
+
+      // Consulta ou criação do CEP
+      $cep = Cep::firstOrCreate(
+        ['cep' => $clienteData['cep']],
+        [
+          'logradouro' => $clienteData['logradouro'],
+          'bairro' => $clienteData['bairro'],
+          'complemento' => $clienteData['complemento'],
+          'cidade' => $clienteData['cidade'],
+          'uf' => $clienteData['uf'],
+        ]
+      );
+
+      // Criação ou atualização do cliente
+      $cliente = Cliente::where('celular', $clienteData['celular'])
+        ->where('empresa_id', $clienteData['empresa_id'])
+        ->first();
+      if ($cliente) {
+        $clienteData['cep_id'] = $cep->id;
+        $cliente->update([
+          'nome_completo' => $clienteData['nome_completo'],
+          'cep' => $clienteData['cep'],
+          'numero' => $clienteData['numero'],
+          'celular' => $clienteData['celular'],
+          'empresa_id' => $clienteData['empresa_id'],
+          'cep_id' => $cep->id,
+        ]);
+      } else {
+        $cliente = Cliente::create([
+          'nome_completo' => $clienteData['nome_completo'],
+          'cep' => $clienteData['cep'],
+          'numero' => $clienteData['numero'],
+          'celular' => $clienteData['celular'],
+          'empresa_id' => $clienteData['empresa_id'],
+          'cep_id' => $cep->id,
+        ]);
+      }
+
+      // Criação do pedido
+      $pedido = new Pedido([
+        'status' => 'A',
+        'tipo_pagamento' => $entregaData['tipo_pagamento'] !== null ? strtoupper($entregaData['tipo_pagamento']) : null,
+        'tipo_entrega' => strtoupper($entregaData['tipo_entrega']),
+        'vlr_taxa' => floatval($entregaData['vlr_taxa']),
+        'vlr_total' => floatval($entregaData['vlr_total']),
+        //'deliver_at' => $entregaData['horario_entrega'],
+        'cliente_id' => $cliente->id,
+        'empresa_id' => $entregaData['empresa_id'],
+        'mesa_id' => $mesa?->id,
+      ]);
+      $pedido->save();
+
+      //Inserir token da notificacao
+      $pedido_notificacao = new PedidoNotificacao([
+        'token_notificacao' => $entregaData['token_notificacao'],
+        'pedido_id' => $pedido->id,
+        'empresa_id' => $entregaData['empresa_id'],
+      ]);
+      $pedido_notificacao->save();
+
+      // Preparar os itens para inserção em massa
+      $itens = array_map(function ($itemData) use ($pedido, $cliente, $entregaData) {
+        return [
+          'produto_id' => $itemData['id'],
+          'qtd' => intval($itemData['qtd']),
+          'vlr_unitario' => floatval($itemData['vlr_unitario']),
+          'vlr_total' => floatval($itemData['vlr_total']),
+          'pedido_id' => $pedido->id,
+          'cliente_id' => $cliente->id,
+          'empresa_id' => $entregaData['empresa_id'],
+        ];
+      }, $itensData);
+
+      // Inserir os itens em massa
+      $pedido->pedido_items()->createMany($itens);
+
+      DB::commit();
+
+      return $pedido;
+    } catch (\Exception $e) {
+      DB::rollBack();
+      throw new \Exception($e->getMessage());
     }
   }
 }
