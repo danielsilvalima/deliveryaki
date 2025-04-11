@@ -65,7 +65,7 @@ Route::post('/cep', [RegisterBasic::class, 'getCEP'])->name('auth-register-basic
 Route::middleware('api.keypedido')->group(function () {
   Route::get('/api/cardapio/{id}', [CardapioController::class, 'get'])->name('cardapio.get');
   Route::post('/api/pedido/{id}', [PedidoController::class, 'post'])->name('pedido.post');
-  Route::get('/api/cliente/{id}', [ClienteController::class, 'get'])->name('cliente.get');
+  //Route::get('/api/cliente/{id}', [ClienteController::class, 'get'])->name('cliente.get');
 
   //Route::get('/api/cep', [CepController::class, 'get'])->name('cep.get');
 });
@@ -105,7 +105,7 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::delete('/produto/{id}/remover-logo', [ProdutoController::class, 'deleteLogo'])->name('produto.deleteLogo');
 
   //Cliente
-  Route::get('/cliente', [ClienteController::class, 'index'])->name('cliente.index');
+  //Route::get('/cliente', [ClienteController::class, 'index'])->name('cliente.index');
   Route::get('/cliente/create', [ClienteController::class, 'create'])->name('cliente.create');
   Route::post('/cliente', [ClienteController::class, 'store'])->name('cliente.store');
   Route::get('/cliente/{id}', [ClienteController::class, 'show'])->name('cliente.show');

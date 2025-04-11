@@ -132,7 +132,7 @@ class ClienteController extends Controller
     return view('content.cliente.show', compact('cliente'))->with(['email' => Auth::user()->email]);
   }
 
-  public function get(Request $request, string $id, ClienteService $clienteService, EmpresaService $empresaService)
+  /*public function get(Request $request, string $id, ClienteService $clienteService, EmpresaService $empresaService)
   {
     try {
       if (!($empresa = $empresaService->findByHash($id))) {
@@ -144,6 +144,37 @@ class ClienteController extends Controller
       return response()->json($cliente, Response::HTTP_OK, $this->header, $this->options);
     } catch (\Exception $e) {
       return ResponseHelper::error($e->getMessage());
+    }
+  }*/
+
+  public function get(Request $request)
+  {
+    try {
+      $empresa_id = $request->input('empresa_id');
+
+      $limit = $request->input('limit', 10);
+      $page = $request->input('page', 1);
+      $query = Cliente::query();
+      $query->where('empresa_id', $empresa_id);
+      $query->whereNot('celular', '99999999999');
+
+      $query->with(['ceps']);
+
+      if (!is_null($request->input('cliente_id'))) {
+        $query->where('id', $request->input('cliente_id'));
+      }
+
+      $itensPaginados = $query->paginate($limit, ['*'], 'page', $page);
+
+      return response()->json([
+        'current_page' => $itensPaginados->currentPage(),
+        'data' => $itensPaginados->items(),
+        'total_pages' => $itensPaginados->lastPage(),
+        'total' => $itensPaginados->total(),
+        'per_page' => $itensPaginados->perPage()
+      ], Response::HTTP_OK);
+    } catch (\Exception $e) {
+      return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
   }
 }

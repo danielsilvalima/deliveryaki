@@ -8,6 +8,7 @@ use App\Http\Controllers\HorarioExpediente\AgendaHorarioExpedienteController;
 use App\Http\Controllers\EmpresaExpediente\EmpresaExpedienteController;
 use App\Http\Controllers\Servico\AgendaServicoController;
 use App\Http\Controllers\Cliente\AgendaClienteController;
+use App\Http\Controllers\Cliente\ClienteController;
 use App\Http\Controllers\dashboard\Analytics;
 use App\Http\Controllers\HorarioExpediente\HorarioExpedienteController;
 use App\Http\Controllers\Mesa\MesaController;
@@ -118,6 +119,8 @@ Route::middleware(['api.keypedido', 'auth:sanctum'])->group(function () {
   Route::get('/deliveryaki/dashboard', [Analytics::class, 'get'])->name('dashboard.get');
 
   Route::get('/deliveryaki/mesa', [MesaController::class, 'get'])->name('mesa.get');
+
+  Route::get('/deliveryaki/cliente', [ClienteController::class, 'get'])->name('cliente.get');
 });
 Route::post('/numerovirtual', [NumeroVirtualController::class, 'store'])->name('numero.store');
 Route::post('/numerovirtual2', [NumeroVirtualController::class, 'store2'])->name('numero.store2');

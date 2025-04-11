@@ -85,7 +85,7 @@ class CategoriaController extends Controller
       $query = Categoria::query();
       $query->where('empresa_id', $empresa_id);
 
-      $query = Categoria::with(['visibilidades.horarioExpediente'])
+      $query->with(['visibilidades.horarioExpediente'])
         ->where('empresa_id', $empresa_id);
 
       if (!is_null($request->input('categoria_id'))) {
