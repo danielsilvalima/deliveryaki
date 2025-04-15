@@ -98,7 +98,7 @@ class PedidoController extends Controller
       $entrega = $request->entrega;
       $entrega['empresa_id'] = $empresa->id;
 
-      $pedido = $pedidoService->createPedido($cliente, $entrega, $request->pedido, $request->mesa);
+      $pedido = $pedidoService->createPedido($cliente, $entrega, $request->pedido, $request->observacao, $request->mesa);
 
       return ResponseHelper::success('Pedido gerado com sucesso.');
     } catch (\Exception $e) {
@@ -342,8 +342,11 @@ class PedidoController extends Controller
       $pedidos = $query->get();
 
       return response()->json([
-        //'current_page' => $itensPaginados->currentPage(),
         'data' => $pedidos->map(function ($pedido) {
+          $nomeCliente = $pedido->mesa_id && $pedido->mesa
+            ? $pedido->mesa->descricao
+            : ($pedido->cliente->nome_completo ?? 'Cliente não identificado');
+
           return [
             'id' => $pedido->id,
             'uuid' => $pedido->uuid,
@@ -354,13 +357,15 @@ class PedidoController extends Controller
             'vlr_taxa' => $pedido->vlr_taxa,
             'vlr_total' => $pedido->vlr_total,
             'created_at' => $pedido->created_at,
-            'cliente' => $pedido->cliente,
+            'observacao' => $pedido->observacao,
+            'cliente' => [
+              'nome_completo' => $nomeCliente,
+              'ceps' => $pedido->cliente->ceps ?? [],
+              'numero' => $pedido->cliente->numero
+            ],
             'pedido_items' => $pedido->pedido_items
           ];
         }),
-        /*'total_pages' => $itensPaginados->lastPage(),
-        'total' => $itensPaginados->total(),
-        'per_page' => $itensPaginados->perPage()*/
       ], Response::HTTP_OK);
     } catch (\Exception $e) {
       return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);

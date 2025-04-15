@@ -22,21 +22,26 @@ class Pedido extends Model
 
   public function cliente()
   {
-      return $this->belongsTo(Cliente::class);
+    return $this->belongsTo(Cliente::class);
   }
 
   public function empresa()
   {
-      return $this->belongsTo(Empresa::class);
+    return $this->belongsTo(Empresa::class);
   }
 
   public function pedido_items()
   {
-      return $this->hasMany(PedidoItem::class);
+    return $this->hasMany(PedidoItem::class);
   }
 
   public function pedido_notificacaos()
-    {
-        return $this->hasMany(PedidoNotificacao::class, 'pedido_id');
-    }
+  {
+    return $this->hasMany(PedidoNotificacao::class, 'pedido_id');
+  }
+
+  public function mesa()
+  {
+    return $this->belongsTo(Mesa::class);
+  }
 }

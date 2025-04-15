@@ -64,7 +64,7 @@ class EmpresaService
     $horaFechamento = date('H\hi', strtotime($expediente->hora_fechamento));
 
     $mensagem =
-      $aberto && !$noIntervalo ? "Estamos abertos! Atendemos hoje das {$horaAbertura} às {$horaFechamento}" : 'Estamos Fechados';
+      $aberto && !$noIntervalo ? "Atendemos hoje das {$horaAbertura} às {$horaFechamento}" : 'Estamos Fechados';
     $status = $aberto && !$noIntervalo ? 'aberto' : 'fechado';
 
     return ['status' => $status, 'mensagem' => $mensagem];

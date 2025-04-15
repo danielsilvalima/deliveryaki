@@ -114,6 +114,8 @@ class CategoriaController extends Controller
       $categoriaRequest = [
         'descricao' => $data['descricao'],
         'empresa_id' => $data['empresa_id'],
+        'qrcode_mesa' => $data['qrcode_mesa'],
+        'status' => isset($data['status']) ? $data['status'] : "A",
       ];
 
       $diasVisiveis = $data['dias_visiveis'];
@@ -150,6 +152,7 @@ class CategoriaController extends Controller
         'descricao' => $data['descricao'],
         'empresa_id' => $data['empresa_id'],
         'status' => $data['status'],
+        'qrcode_mesa' => $data['qrcode_mesa'],
       ]);
 
       if (array_key_exists('dias_visiveis', $data) && is_array($data['dias_visiveis'])) {

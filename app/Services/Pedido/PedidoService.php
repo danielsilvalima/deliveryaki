@@ -48,16 +48,17 @@ class PedidoService
       }*/
   }
 
-  public function createPedido(array $clienteData, array $entregaData, array $itensData, ?array $mesaData = null)
+  public function createPedido(array $clienteData, array $entregaData, array $itensData, ?string $observacaoData = null, ?array $mesaData = null)
   {
     DB::beginTransaction();
     try {
-      $mesaNumero = $mesaData[0]['mesa'] ?? null;
+      $mesaNumero = $mesaData['mesa'] ?? null;
 
+      $mesa = null;
       if ($mesaNumero) {
         $mesa = Mesa::find($mesaNumero);
-
-        if ($mesa) {
+      }
+      /*if ($mesa) {
           // Verifica se há pedido em aberto para essa mesa
           $pedidoExistente = Pedido::where('mesa_id', $mesa->id)
             ->where('status', 'A')
@@ -66,16 +67,16 @@ class PedidoService
 
           if ($pedidoExistente) {
             $pedido = $this->adicionarProdutosEmPedidoExistente($pedidoExistente, $itensData);
-          } else {
-            $pedido = $this->criarNovoPedido($clienteData, $entregaData, $itensData, $mesa);
-          }
+          } else {*/
+      //$pedido = $this->criarNovoPedido($clienteData, $entregaData, $itensData, $observacaoData, $mesa);
+      /* }
         } else {
           throw new \Exception('Mesa não encontrada para esta empresa.');
-        }
-      } else {
-        // Sem info de mesa, pedido normal (delivery ou retirada)
-        $pedido = $this->criarNovoPedido($clienteData, $entregaData, $itensData);
-      }
+        }*/
+      //} else {
+      // Sem info de mesa, pedido normal (delivery ou retirada)
+      $pedido = $this->criarNovoPedido($clienteData, $entregaData, $itensData, $observacaoData, $mesa);
+      //}
 
       DB::commit();
 
@@ -176,7 +177,7 @@ class PedidoService
     }
   }
 
-  public function criarNovoPedido(array $clienteData, array $entregaData, array $itensData, ?Mesa $mesa = null)
+  public function criarNovoPedido(array $clienteData, array $entregaData, array $itensData, ?string $observacao = null, ?Mesa $mesa = null)
   {
     DB::beginTransaction();
     try {
@@ -237,6 +238,7 @@ class PedidoService
         'cliente_id' => $cliente->id,
         'empresa_id' => $entregaData['empresa_id'],
         'mesa_id' => $mesa?->id,
+        'observacao' => $observacao,
       ]);
       $pedido->save();
 

@@ -28,10 +28,11 @@ class CardapioController extends Controller
   ) {
     try {
       if (!($empresa = $empresaService->findByHash($id))) {
-        return ResponseHelper::notFound('EMPRESA NÃO ENCONTRADA');
+        return ResponseHelper::notFound('Empresa não encontrada');
       }
+      $mesa = $request->input('mesa');
 
-      $empresa = $produtoService->findAllProductCategoryActiveByEmpresaID($empresa->id);
+      $empresa = $produtoService->findAllProductCategoryActiveByEmpresaID($empresa->id, $mesa);
 
       //$cardapio = $cardapioService->groupByCategory($cardapio);
 

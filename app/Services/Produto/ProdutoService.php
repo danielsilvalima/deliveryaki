@@ -11,13 +11,16 @@ use Illuminate\Support\Facades\DB;
 
 class ProdutoService
 {
-  public function findAllProductCategoryActiveByEmpresaID($id)
+  public function findAllProductCategoryActiveByEmpresaID($id, $mesa)
   {
     $diaAtual = Carbon::now()->dayOfWeek;
 
     return Empresa::with([
-      'categorias' => function ($query) use ($diaAtual) {
+      'categorias' => function ($query) use ($diaAtual, $mesa) {
         $query->where('status', 'A')
+          ->when($mesa, function ($q) {
+            $q->where('qrcode_mesa', true);
+          })
           ->whereHas('produtos', function ($query) {
             $query->where('status', 'A');
           })
