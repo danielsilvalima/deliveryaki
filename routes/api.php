@@ -9,6 +9,7 @@ use App\Http\Controllers\EmpresaExpediente\EmpresaExpedienteController;
 use App\Http\Controllers\Servico\AgendaServicoController;
 use App\Http\Controllers\Cliente\AgendaClienteController;
 use App\Http\Controllers\Cliente\ClienteController;
+use App\Http\Controllers\dashboard\AgendaAnalytics;
 use App\Http\Controllers\dashboard\Analytics;
 use App\Http\Controllers\HorarioExpediente\HorarioExpedienteController;
 use App\Http\Controllers\Mesa\MesaController;
@@ -72,6 +73,8 @@ Route::middleware('api.keyagenda')->group(function () {
   Route::get('/agenda/empresa/cliente/agenda', [AgendaClienteController::class, 'get'])->name('agendaCliente.get');
   Route::post('/agenda/empresa/cliente/agenda', [AgendaClienteController::class, 'store'])->name('agendaCliente.store');
   Route::delete('/agenda/empresa/cliente/agenda', [AgendaClienteController::class, 'destroy'])->name('agendaCliente.destroy');
+
+  Route::get('/agenda/dashboard', [AgendaAnalytics::class, 'get'])->name('dashboard.get');
 
 
   //store

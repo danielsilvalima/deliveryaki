@@ -88,6 +88,8 @@ class AgendaEmpresaController extends Controller
         );
       }
 
+      $empresa = $agendaEmpresaService->findByEmail($request->email);
+
       return response()->json(
         $empresa,
         Response::HTTP_OK,
@@ -108,6 +110,7 @@ class AgendaEmpresaController extends Controller
       if (empty($data)) {
         return ResponseHelper::error('O "DATA" É OBRIGATÓRIO', Response::HTTP_BAD_REQUEST);
       }
+
       $empresa = $agendaEmpresaService->findByHashAgendamento($id, $data);
       return response()->json(
         $empresa,

@@ -154,12 +154,11 @@ class AgendaEmpresaService
   public function findByID(string $id)
   {
     try {
-      $empresa = AgendaEmpresa::select(['id', 'razao_social'])
-        ->with([
-          'agenda_empresa_expedientes.agenda_horario_expedientes', // Relacionamento de expediente e horários
-          'agenda_empresa_servicos',              // Relacionamento de serviços
-          'agenda_clientes'
-        ])
+      $empresa = AgendaEmpresa::with([
+        'agenda_empresa_expedientes.agenda_horario_expedientes', // Relacionamento de expediente e horários
+        'agenda_empresa_servicos',              // Relacionamento de serviços
+        'agenda_clientes'
+      ])
         ->where('status', 'A') // Empresa ativa
         ->where('id', $id)
         ->first();
@@ -363,7 +362,7 @@ class AgendaEmpresaService
           },
           'agenda_clientes.agenda_cliente_agendamentos' => function ($query) use ($data) {
             $startOfDay = Carbon::parse($data)->startOfDay(); // 2025-01-25 00:00:00
-            $endOfDay = Carbon::parse($data)->endOfDay();     // 2025-01-25 23:59:59
+            $endOfDay = Carbon::parse($data)->endOfDay();     // 2025-01-25 23:59:59*
 
             $query->whereBetween('start_scheduling_at', [$startOfDay, $endOfDay])->orderBy('start_scheduling_at', 'ASC');
           }
