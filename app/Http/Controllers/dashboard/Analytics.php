@@ -67,14 +67,19 @@ class Analytics extends Controller
         ->whereBetween('created_at', [$dataInicial, $dataFinal])
         ->count();
 
-      $ultimosPedidos = Pedido::where('empresa_id', $empresa_id)->whereBetween('created_at', [$dataInicial, $dataFinal])
+      $ultimosPedidos = Pedido::where('empresa_id', $empresa_id)
+        ->whereBetween('created_at', [$dataInicial, $dataFinal])
         ->orderBy('created_at', 'desc')
         ->take(8)
-        ->with('cliente:id,nome_completo')
-        ->get(['id', 'cliente_id', 'vlr_total', 'vlr_taxa', 'pago', 'tipo_pagamento', 'tipo_entrega', 'created_at', 'status'])
+        ->with(['cliente:id,nome_completo', 'mesa:id,descricao'])
+        ->get(['id', 'cliente_id', 'mesa_id', 'vlr_total', 'vlr_taxa', 'pago', 'tipo_pagamento', 'tipo_entrega', 'created_at', 'status'])
         ->map(function ($pedido) {
+          $nome = $pedido->mesa_id && $pedido->mesa
+            ? $pedido->mesa->descricao
+            : ($pedido->cliente->nome_completo ?? 'Cliente Desconhecido');
+
           return [
-            'nome' => $pedido->cliente->nome_completo ?? 'Cliente Desconhecido',
+            'nome' => $nome,
             'valor' => $pedido->vlr_total,
             'taxa' => $pedido->vlr_taxa,
             'pago' => $pedido->pago,

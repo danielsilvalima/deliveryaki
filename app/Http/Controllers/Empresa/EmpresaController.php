@@ -211,7 +211,7 @@ class EmpresaController extends Controller
       }
       if ($empresaService->validaDataExpiracao($empresa)) {
         return response()->json(
-          ['error' => 'A empresa está expirada e não pode cadastrar produtos.'],
+          ['error' => 'A empresa está expirada e não pode atualizar empresa.'],
           Response::HTTP_FORBIDDEN
         );
       }
