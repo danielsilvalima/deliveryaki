@@ -203,14 +203,14 @@ class CategoriaController extends Controller
       }
 
       if (!$categoria = Categoria::where('id', $categoria_id)->where('empresa_id', $empresa_id)->first()) {
-        return response()->json(['error' => 'Produto não encontrado.'], Response::HTTP_NOT_FOUND);
+        return response()->json(['error' => 'Categoria não encontrado.'], Response::HTTP_NOT_FOUND);
       }
 
       $categoria->status = $categoria->status === "D" ? "A" : "D";
       $categoria->save();
 
       return response()->json([
-        ['message' => 'Categoria atualizado com sucesso.']
+        'message' => 'Categoria atualizado com sucesso.'
       ], Response::HTTP_OK);
     } catch (\Exception $e) {
       return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);

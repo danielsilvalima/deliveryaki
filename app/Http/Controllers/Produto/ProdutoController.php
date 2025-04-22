@@ -237,7 +237,7 @@ class ProdutoController extends Controller
       $produto->save();
 
       return response()->json([
-        ['message' => 'Produto atualizado com sucesso.']
+        'message' => 'Produto atualizado com sucesso.'
       ], Response::HTTP_OK);
     } catch (\Exception $e) {
       return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
