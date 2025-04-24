@@ -85,7 +85,7 @@ class Analytics extends Controller
             'pago' => $pedido->pago,
             'tipo_pagamento' => $pedido->tipo_pagamento,
             'tipo_entrega' => $pedido->tipo_entrega,
-            'horario' => $pedido->created_at->format('H:i'),
+            'horario' => $pedido->created_at->format('d/m/Y H:i'),
             'status' => $pedido->status,
           ];
         });

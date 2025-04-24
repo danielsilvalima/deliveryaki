@@ -16,12 +16,15 @@ return new class extends Migration
       $table->unsignedBigInteger('empresa_id');
       $table->enum('tipo_app', ['deliveryaki', 'agendaadmin']); // Origem da empresa
       $table->string('referencia', 7)->comment('04/2025'); // Ex: 04/2025
-      $table->decimal('valor_total', 10, 2);
-      $table->decimal('valor_a_pagar', 10, 2);
+      $table->decimal('valor_total', 10, 2)->default(0);
+      $table->decimal('valor_a_pagar', 10, 2)->default(0);
+      $table->decimal('valor_pago', 10, 2)->default(0);
       $table->enum('status', ['pendente', 'paga', 'vencida', 'cancelado'])->default('pendente');
       $table->date('vencimento');
       $table->timestamp('pago_em')->nullable();
       $table->string('metodo_pagamento')->nullable();
+      $table->string('tx_id', 35)->nullable();
+      $table->string('end_to_end_id', 35)->nullable();
       $table->text('url_pagamento')->nullable();
       $table->timestamps();
 

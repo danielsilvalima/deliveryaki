@@ -11,6 +11,7 @@ use App\Http\Controllers\Cliente\AgendaClienteController;
 use App\Http\Controllers\Cliente\ClienteController;
 use App\Http\Controllers\dashboard\AgendaAnalytics;
 use App\Http\Controllers\dashboard\Analytics;
+use App\Http\Controllers\Fatura\FaturaController;
 use App\Http\Controllers\HorarioExpediente\HorarioExpedienteController;
 use App\Http\Controllers\Mesa\MesaController;
 use App\Http\Controllers\Recurso\AgendaRecursoController;
@@ -124,6 +125,11 @@ Route::middleware(['api.keypedido', 'auth:sanctum'])->group(function () {
   Route::get('/deliveryaki/mesa', [MesaController::class, 'get'])->name('mesa.get');
 
   Route::get('/deliveryaki/cliente', [ClienteController::class, 'get'])->name('cliente.get');
+
+  Route::get('/deliveryaki/fatura/pagas', [FaturaController::class, 'getPagas'])->name('fatura.getPagas');
+  Route::get('/deliveryaki/fatura/pagar', [FaturaController::class, 'getPagar'])->name('fatura.getPagar');
+  Route::get('/deliveryaki/fatura', [FaturaController::class, 'getPix'])->name('fatura.getPix');
+  Route::post('/deliveryaki/fatura', [FaturaController::class, 'store'])->name('fatura.store');
 });
 Route::post('/numerovirtual', [NumeroVirtualController::class, 'store'])->name('numero.store');
 Route::post('/numerovirtual2', [NumeroVirtualController::class, 'store2'])->name('numero.store2');

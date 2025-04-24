@@ -471,7 +471,7 @@ class NumeroVirtualService
 
       $response = Http::withHeaders($headers)
         ->withOptions([
-          'cert' => base_path('app/certificate/cert.p12'),
+          'cert' => base_path('app/certificate/producao.p12'),
         ])
         ->{$method}($url, $data);
 
