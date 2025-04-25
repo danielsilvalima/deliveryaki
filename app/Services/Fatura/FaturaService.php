@@ -6,7 +6,7 @@ use App\Models\Empresa;
 use App\Models\Fatura;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
-use App\Services\Empresa\EmpresaService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -17,9 +17,8 @@ class FaturaService
   private $TOKEN_GN_ID;
   private $TOKEN_GN_SEC;
 
-  public function __construct(EmpresaService $empresaService)
+  public function __construct()
   {
-    $this->empresaService = $empresaService;
     $this->URL_GN = 'https://pix.api.efipay.com.br';
     $this->TOKEN_GN_ID = config('app.telegram_gn_id');
     $this->TOKEN_GN_SEC = config('app.telegram_gn_sec');
@@ -119,7 +118,7 @@ class FaturaService
     }
   }
 
-  public function consultarPixPorTxid(string $tx_id)
+  public function consultarPagamento(Fatura $fatura)
   {
     try {
       $accessToken = $this->obterAccessToken();
@@ -129,12 +128,61 @@ class FaturaService
       }
 
       //$url = $this->URL_GN . "/v2/pix/{$txid}";
-      $url = $this->URL_GN . "/v2/pix?inicio=2025-04-23T00:00:01Z&fim=2025-04-23T23:59:59Z";
+      //return $fatura;
+      //$url = $this->URL_GN . "/v2/pix?inicio=2025-04-23T00:00:01Z&fim=2025-04-23T23:59:59Z";
+      $inicio = Carbon::parse($fatura->created_at)
+        ->setTime(0, 0, 1)
+        ->toIso8601String();
 
-      return $this->chamarApiPagamento($url, 'GET', [], $accessToken);
+      $fim = Carbon::now()->toIso8601String();
+
+      $url = $this->URL_GN . "/v2/pix?inicio={$inicio}&fim={$fim}";
+
+      $response = $this->chamarApiPagamento($url, 'GET', [], $accessToken);
+
+      if (!isset($response['pix']) && !is_array($response['pix'])) {
+        throw new \Exception('Erro ao consultar o txid e endToEndId');
+      }
+
+      DB::beginTransaction();
+
+      $pagamentoEncontrado = false;
+
+      foreach ($response['pix'] as $pix) {
+        $txid = $pix['txid'] ?? null;
+        $end_to_end_id = $pix['endToEndId'] ?? null;
+
+        if ($txid && $txid === $fatura->tx_id) {
+          $fatura->end_to_end_id = $end_to_end_id;
+          $fatura->valor_pago = $pix['valor'];
+          $fatura->pago_em = Carbon::parse(now());
+          $fatura->status = 'paga';
+          $fatura->metodo_pagamento = 'pix';
+          $fatura->save();
+          $pagamentoEncontrado = true;
+          break;
+        }
+      }
+      DB::commit();
+
+      if ($pagamentoEncontrado) {
+        return [
+          'message' => 'Pagamento efetuado com sucesso',
+          'color' => 'success',
+        ];
+      } else {
+        return [
+          'message' => 'Pagamento não foi localizado',
+          'color' => 'warning',
+        ];
+      }
     } catch (\Exception $e) {
+      DB::rollBack();
       Log::error('Erro ao consultar Pix: ' . $e->getMessage());
-      throw new \Exception($e->getMessage());
+      return [
+        'message' => $e->getMessage(),
+        'color' => 'error',
+      ];
     }
   }
 
@@ -180,6 +228,49 @@ class FaturaService
       return $response->json();
     } catch (\Exception $e) {
       Log::error('Erro na chamada da API Gerencianet: ' . $e->getMessage());
+      throw new \Exception($e->getMessage());
+    }
+  }
+
+  public function gerarFatura($empresaId, $tipoApp, $valorMensal, $dataCadastro = null)
+  {
+    try {
+      $dataCadastro = $dataCadastro ? Carbon::parse($dataCadastro) : Carbon::now();
+
+      // Referência da fatura (mês/ano do cadastro)
+      $referencia = $dataCadastro->format('m/Y');
+
+      // Verifica se já existe fatura para essa referência
+      $faturaExistente = Fatura::where('empresa_id', $empresaId)
+        ->where('tipo_app', $tipoApp)
+        ->where('referencia', $referencia)
+        ->first();
+
+      if ($faturaExistente) {
+        return $faturaExistente; // Evita duplicidade
+      }
+
+      // Dias restantes do mês comercial (30 dias fixos)
+      $diaCadastro = $dataCadastro->day;
+      $diasRestantes = max(30 - $diaCadastro + 1, 1); // +1 inclui o dia atual
+
+      // Cálculo proporcional
+      $valorProporcional = round(($valorMensal / 30) * $diasRestantes, 2);
+
+      // Criação da fatura
+      $fatura = Fatura::create([
+        'empresa_id'     => $empresaId,
+        'tipo_app'       => $tipoApp,
+        'referencia'     => $referencia,
+        'valor_total'    => $valorProporcional,
+        'valor_a_pagar'  => $valorProporcional,
+        'status'         => 'pendente',
+        'vencimento'     => $dataCadastro->copy()->addDays(15)->toDateString(),
+      ]);
+
+      return $fatura;
+    } catch (\Exception $e) {
+      Log::error("Erro ao gerar fatura: " . $e->getMessage());
       throw new \Exception($e->getMessage());
     }
   }

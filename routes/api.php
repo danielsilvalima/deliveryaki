@@ -128,8 +128,13 @@ Route::middleware(['api.keypedido', 'auth:sanctum'])->group(function () {
 
   Route::get('/deliveryaki/fatura/pagas', [FaturaController::class, 'getPagas'])->name('fatura.getPagas');
   Route::get('/deliveryaki/fatura/pagar', [FaturaController::class, 'getPagar'])->name('fatura.getPagar');
-  Route::get('/deliveryaki/fatura', [FaturaController::class, 'getPix'])->name('fatura.getPix');
   Route::post('/deliveryaki/fatura', [FaturaController::class, 'store'])->name('fatura.store');
+
+  Route::get('/gestor/empresa', [EmpresaController::class, 'getGestor'])->name('gestor.getGestor');
+  Route::get('/gestor/financeiro', [FaturaController::class, 'getFinanceiro'])->name('gestor.getFinanceiro');
+  Route::get('/gestor/empresa/financeiro', [FaturaController::class, 'getEmpresa'])->name('gestor.getEmpresa');
+  Route::get('/gestor/fatura', [FaturaController::class, 'getFaturaPagamento'])->name('fatura.getFaturaPagamento');
+  Route::put('/gestor/fatura/{id}', [FaturaController::class, 'update'])->name('fatura.update');
 });
 Route::post('/numerovirtual', [NumeroVirtualController::class, 'store'])->name('numero.store');
 Route::post('/numerovirtual2', [NumeroVirtualController::class, 'store2'])->name('numero.store2');

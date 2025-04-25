@@ -10,7 +10,7 @@ use App\Helpers\HashGenerator;
 use App\Services\EmpresaExpediente\EmpresaExpedienteService;
 use App\Services\Empresa\EmpresaService;
 use App\Services\HorarioExpediente\HorarioExpedienteService;
-use App\Helpers\ResponseHelper;
+use App\Services\Fatura\FaturaService;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
@@ -231,7 +231,7 @@ class EmpresaController extends Controller
     }
   }
 
-  public function store(Request $request, EmpresaService $empresaService)
+  public function store(Request $request, EmpresaService $empresaService, FaturaService $faturaService)
   {
     DB::beginTransaction();
     try {
@@ -254,7 +254,10 @@ class EmpresaController extends Controller
 
       $empresa['vlr_km'] = Str::replace(',', '.', $empresa['vlr_km']);
 
-      $expiration = Carbon::now()->addDays(15);
+      $hoje = Carbon::parse('UTC')->setTimezone('America/Sao_Paulo');
+      $diasComerciais = 15;
+      $diasReais = round($diasComerciais * (365 / 360));
+      $expiration = $hoje->copy()->addDays($diasReais);
 
       do {
         $empresa['hash'] = HashGenerator::generateUniqueHash8Caracter();
@@ -274,6 +277,8 @@ class EmpresaController extends Controller
       ];
       User::create($usuario);
 
+      $faturaService->gerarFatura($empresa_db->id, 'deliveryaki', 69.9, $empresa_db->created_at);
+
       DB::commit();
       return response()->json(
         ['message' => 'Empresa cadastrada com sucesso.', 'empresa' => $empresa_db],
@@ -281,6 +286,30 @@ class EmpresaController extends Controller
       );
     } catch (\Exception $e) {
       DB::rollBack();
+      return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  public function getGestor(Request $request)
+  {
+    try {
+      $limit = $request->input('limit', 10);
+      $page = $request->input('page', 1);
+      $query = Empresa::with(['empresa_expedientes.horario_expedientes']);
+
+      $itensPaginados = $query->paginate($limit, ['*'], 'page', $page);
+
+      return response()->json(
+        [
+          'current_page' => $itensPaginados->currentPage(),
+          'data' => $itensPaginados->items(),
+          'total_pages' => $itensPaginados->lastPage(),
+          'total' => $itensPaginados->total(),
+          'per_page' => $itensPaginados->perPage(),
+        ],
+        Response::HTTP_OK
+      );
+    } catch (\Exception $e) {
       return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
   }

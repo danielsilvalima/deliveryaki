@@ -10,12 +10,16 @@ use App\Models\AgendaUser;
 use App\Models\AgendaEmpresaExpediente;
 use App\Helpers\HashGenerator;
 use App\Models\AgendaEmpresaServico;
+use App\Services\Fatura\FaturaService;
+
 
 class AgendaEmpresaService
 {
   private $base_url;
-  public function __construct()
+  protected $faturaService;
+  public function __construct(FaturaService $faturaService)
   {
+    $this->faturaService = $faturaService;
     $this->base_url = config('app.url_agendacliente'); // Inicializa o valor da variável a partir da configuração
   }
 
@@ -23,20 +27,27 @@ class AgendaEmpresaService
   {
     DB::beginTransaction();
     try {
-      // Adiciona 30 dias à data atual
-      $expiration = Carbon::now()->addDays(15);
+      // Adiciona 15 dias à data atual
+      $hoje = Carbon::parse('UTC')->setTimezone('America/Sao_Paulo');
+      $diasComerciais = 15;
+      $diasReais = round($diasComerciais * (365 / 360));
+      $expiration = $hoje->copy()->addDays($diasReais);
 
       $hash = null;
       do {
         $hash = HashGenerator::generateUniqueHash8Caracter();
       } while (AgendaEmpresa::where('hash', $hash)->exists());
 
+      $empresa['cnpj'] = $this->removeCaracteres($empresa['cnpj']);
+      $empresa['celular'] = $this->removeCaracteres($empresa['celular']);
+
       $empresa_db = AgendaEmpresa::create([
         'razao_social' => strtoupper($empresa['razao_social']),
         'cnpj' => $empresa['cnpj'],
         'expiration_at' => $expiration,
         'hash' => $hash,
-        'token_notificacao' => $empresa['token']
+        'token_notificacao' => $empresa['token'],
+        'plano_recurso' => $empresa['plano_recurso']
       ]);
 
       $user_db = AgendaUser::create([
@@ -68,6 +79,16 @@ class AgendaEmpresaService
           ]);
         }
       }
+
+      $planoRecurso = match ($empresa['plano_recurso']) {
+        '1' => 59.90,
+        '2' => 89.90,
+        '3' => 124.90,
+        '4' => 164.90,
+        default => 59.90,
+      };
+
+      $this->faturaService->gerarFatura($empresa_db->id, 'agendaadmin', $planoRecurso, $empresa_db->created_at);
 
       DB::commit();
 
@@ -418,5 +439,10 @@ class AgendaEmpresaService
     } catch (\Exception $e) {
       throw new \Exception('ERRO AO CONSULTAR EMPRESA: ' . $e->getMessage());
     }
+  }
+
+  public function removeCaracteres($valor)
+  {
+    return preg_replace('/\D/', '', $valor);
   }
 }
