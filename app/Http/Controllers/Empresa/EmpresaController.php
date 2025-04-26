@@ -7,6 +7,7 @@ use App\Models\Empresa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\HashGenerator;
+use App\Models\Fatura;
 use App\Services\EmpresaExpediente\EmpresaExpedienteService;
 use App\Services\Empresa\EmpresaService;
 use App\Services\HorarioExpediente\HorarioExpedienteService;
@@ -163,6 +164,14 @@ class EmpresaController extends Controller
     }
 
     $empresa = Empresa::find($usuario->empresa_id);
+
+    // Busca a fatura pendente da empresa, considerando o tipo_app
+    $faturasPendente = Fatura::select('id', 'referencia', 'vencimento')->where('empresa_id', $empresa->id)
+      ->where('tipo_app', 'deliveryaki')
+      ->where('status', 'pendente')
+      ->get();
+
+    $empresa->fatura = $faturasPendente;
 
     $token = $usuario->createToken('user-token')->plainTextToken;
 

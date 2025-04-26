@@ -32,21 +32,20 @@ class GerarFaturasMensais implements ShouldQueue
     $hoje = Carbon::now();
     $mesAnterior = $hoje->copy()->subMonth();
     $referencia = $mesAnterior->format('m/Y');
-    $vencimento = $hoje->copy()->startOfMonth()->addDays(10);
+    $vencimento = $hoje->copy()->startOfMonth()->addDays(9);
 
     // Agendamento
     $agendaEmpresas = AgendaEmpresa::where('status', 'A')->get();
     foreach ($agendaEmpresas as $empresa) {
-      $dataCriacao = Carbon::parse($empresa->created_at)->addDays(15);
-      if (!$this->faturaExiste($empresa->id, 'agendaadmin', $referencia) && $dataCriacao->lt($hoje->copy()->startOfMonth())) {
+
+      if (!$this->faturaExiste($empresa->id, 'agendaadmin', $referencia)) {
         $valorCheio = $this->valorPlanoAgenda($empresa->plano_recurso);
-        $valor_a_pagar = $this->calcularValorComercial($dataCriacao, $mesAnterior, $valorCheio);
 
         Fatura::create([
           'empresa_id' => $empresa->id,
           'tipo_app' => 'agendaadmin',
           'referencia' => $referencia,
-          'valor_a_pagar' => $valor_a_pagar,
+          'valor_a_pagar' => $valorCheio,
           'valor_total' => $valorCheio,
           'status' => 'pendente',
           'vencimento' => $vencimento,
@@ -57,16 +56,15 @@ class GerarFaturasMensais implements ShouldQueue
     // Delivery
     $empresasDelivery = Empresa::where('status', 'A')->get();
     foreach ($empresasDelivery as $empresa) {
-      $dataCriacao = Carbon::parse($empresa->created_at)->addDays(15);
-      if (!$this->faturaExiste($empresa->id, 'deliveryaki', $referencia) && $dataCriacao->lt($hoje->copy()->startOfMonth())) {
+
+      if (!$this->faturaExiste($empresa->id, 'deliveryaki', $referencia)) {
         $valorCheio = $this->valorFixoDelivery();
-        $valor_a_pagar = $this->calcularValorComercial($dataCriacao, $mesAnterior, $valorCheio);
 
         Fatura::create([
           'empresa_id' => $empresa->id,
           'tipo_app' => 'deliveryaki',
           'referencia' => $referencia,
-          'valor_a_pagar' => $valor_a_pagar,
+          'valor_a_pagar' => $valorCheio,
           'valor_total' => $valorCheio,
           'status' => 'pendente',
           'vencimento' => $vencimento,
@@ -97,21 +95,5 @@ class GerarFaturasMensais implements ShouldQueue
   private function valorFixoDelivery(): float
   {
     return 69.90;
-  }
-
-  private function calcularValorComercial(Carbon $dataInicioUso, Carbon $mesReferencia, float $valorCheio): float
-  {
-    $inicioDoMes = $mesReferencia->copy()->startOfMonth();
-    $fimDoMes = $mesReferencia->copy()->startOfMonth()->addDays(29);
-    $usoInicio = $dataInicioUso->greaterThan($inicioDoMes) ? $dataInicioUso : $inicioDoMes;
-
-    if ($usoInicio->gt($fimDoMes)) {
-      return 0; // não utilizou nesse mês
-    }
-
-    $diasDeUso = $fimDoMes->diffInDays($usoInicio) + 1; // mês comercial
-    $proporcional = ($valorCheio / 30) * $diasDeUso;
-
-    return round($proporcional, 2);
   }
 }
