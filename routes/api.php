@@ -20,6 +20,7 @@ use App\Http\Controllers\Pedido\PedidoController;
 use App\Http\Controllers\Produto\ProdutoController;
 use App\Http\Controllers\Produto\StoreProdutoController;
 use App\Http\Controllers\Usuario\UsuarioController;
+use App\Http\Controllers\WhatsappSession\WhatsappSessionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -135,6 +136,10 @@ Route::middleware(['api.keypedido', 'auth:sanctum'])->group(function () {
   Route::get('/gestor/empresa/financeiro', [FaturaController::class, 'getEmpresa'])->name('gestor.getEmpresa');
   Route::get('/gestor/fatura', [FaturaController::class, 'getFaturaPagamento'])->name('fatura.getFaturaPagamento');
   Route::put('/gestor/fatura/{id}', [FaturaController::class, 'update'])->name('fatura.update');
+
+  Route::get('/deliveryaki/whatsapp', [WhatsappSessionController::class, 'get'])->name('whatsapp.get');
+  Route::get('/deliveryaki/whatsapp/status', [WhatsappSessionController::class, 'getStatus'])->name('whatsapp.getStatus');
+  Route::post('/deliveryaki/whatsapp/logout', [WhatsappSessionController::class, 'logout'])->name('whatsapp.logout');
 });
 Route::post('/numerovirtual', [NumeroVirtualController::class, 'store'])->name('numero.store');
 Route::post('/numerovirtual2', [NumeroVirtualController::class, 'store2'])->name('numero.store2');

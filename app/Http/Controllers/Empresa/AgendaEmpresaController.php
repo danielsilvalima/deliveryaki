@@ -138,16 +138,17 @@ class AgendaEmpresaController extends Controller
         $empresa->save();
       }
 
-      $empresa_admin = $agendaEmpresaService->findByEmailSummary('daniel.silvalima89@gmail.com');
+      /*$empresa_admin = $agendaEmpresaService->findByEmailSummary('daniel.silvalima89@gmail.com');
       $mensagem = 'Novo login agendaadmin e-mail:' . $request->email;
       if (!$empresa_admin) {
         Log::error('Administrador não encontrado para envio da notificação.');
       }
 
-      $ret = $fcmService->enviaPushNotificationAgendaAdmin($empresa_admin, $mensagem, 'Novo Login');
+      $ret = $fcmService->enviaPushNotificationAgendaAdmin($empresa_admin, $mensagem, 'Novo Login');*/
 
       return response()->json(
-        [$empresa, $ret],
+        //[$empresa, $ret],
+        [$empresa],
         //$ret['success'] ? Response::HTTP_OK : Response::HTTP_CREATED,
         Response::HTTP_OK
       );

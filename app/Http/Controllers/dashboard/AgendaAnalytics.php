@@ -22,11 +22,25 @@ class AgendaAnalytics extends Controller
 
       $user = AgendaUser::where('email', $email)->first();
       if (!$user) {
-        return response()->json(['error' => 'Usuário não encontrado.'], Response::HTTP_NOT_FOUND);
+        return response()->json([
+          'totalAgendamentosAtivos' => 0,
+          'totalAgendamentosCancelados' => 0,
+          'servicosAtivos' => 0,
+          'recursosAtivos' => 0,
+          'agendamentosPorServico' => [],
+          'agendamentosPorDia' => [],
+        ]);
       }
       $empresa = AgendaUser::find($user->empresa_id);
       if (!$empresa) {
-        return response()->json(['error' => 'Empresa não encontrada.'], Response::HTTP_NOT_FOUND);
+        return response()->json([
+          'totalAgendamentosAtivos' => 0,
+          'totalAgendamentosCancelados' => 0,
+          'servicosAtivos' => 0,
+          'recursosAtivos' => 0,
+          'agendamentosPorServico' => [],
+          'agendamentosPorDia' => [],
+        ]);
       }
 
       $dataInicial = Carbon::parse($request->input('dataInicial', now()->startOfMonth()))->toDateString() . ' 00:00:00';
