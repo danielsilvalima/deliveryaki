@@ -13,6 +13,7 @@ use App\Http\Controllers\dashboard\AgendaAnalytics;
 use App\Http\Controllers\dashboard\Analytics;
 use App\Http\Controllers\Fatura\FaturaController;
 use App\Http\Controllers\HorarioExpediente\HorarioExpedienteController;
+use App\Http\Controllers\Instagram\InstagramAuthController;
 use App\Http\Controllers\Mesa\MesaController;
 use App\Http\Controllers\Recurso\AgendaRecursoController;
 use App\Http\Controllers\NumeroVirtual\NumeroVirtualController;
@@ -144,3 +145,6 @@ Route::middleware(['api.keypedido', 'auth:sanctum'])->group(function () {
 Route::post('/numerovirtual', [NumeroVirtualController::class, 'store'])->name('numero.store');
 Route::post('/numerovirtual2', [NumeroVirtualController::class, 'store2'])->name('numero.store2');
 Route::post('/numerovirtual/k', [NumeroVirtualController::class, 'store3'])->name('numero.store3');
+
+Route::post('/instagram/token', [InstagramAuthController::class, 'post'])->name('instagram.exchangeCode');
+Route::get('/auth/return', [InstagramAuthController::class, 'exchangeCode'])->name('instagram.exchangeCode');

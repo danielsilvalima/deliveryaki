@@ -52,6 +52,9 @@ return [
   'telegram_gn_id' => env('TELEGRAM_GN_ID', ''),
   'telegram_gn_sec' => env('TELEGRAM_GN_SEC', ''),
 
+  'instagram_client_id' => env('APP_INSTAGRAM_CLIENT_ID', ''),
+  'instagram_client_secret' => env('APP_INSTAGRAM_CLIENT_SECRET', ''),
+
   /*
     |--------------------------------------------------------------------------
     | Application Debug Mode
